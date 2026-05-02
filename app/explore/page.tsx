@@ -62,7 +62,7 @@ export default function ExplorePage() {
         <p className="text-xs font-medium uppercase tracking-widest text-accent">
           Explore
         </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           Explore Immigration Options by Region
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base">
@@ -77,7 +77,7 @@ export default function ExplorePage() {
           <select
             value={goal}
             onChange={(e) => setGoal(e.target.value as GoalFilter)}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-accent focus:ring-4 focus:ring-[var(--ring)]"
+            className="w-full rounded-lg border border-slate-200 bg-card px-3 py-2 text-sm text-slate-800 outline-none focus:border-accent focus:ring-4 focus:ring-[var(--ring)]"
           >
             <option>Any</option>
             <option>Work</option>
@@ -90,7 +90,7 @@ export default function ExplorePage() {
           <select
             value={budget}
             onChange={(e) => setBudget(e.target.value as BudgetFilter)}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-accent focus:ring-4 focus:ring-[var(--ring)]"
+            className="w-full rounded-lg border border-slate-200 bg-card px-3 py-2 text-sm text-slate-800 outline-none focus:border-accent focus:ring-4 focus:ring-[var(--ring)]"
           >
             <option>Any</option>
             <option>Low</option>
@@ -103,7 +103,7 @@ export default function ExplorePage() {
           <select
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value as DifficultyFilter)}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-accent focus:ring-4 focus:ring-[var(--ring)]"
+            className="w-full rounded-lg border border-slate-200 bg-card px-3 py-2 text-sm text-slate-800 outline-none focus:border-accent focus:ring-4 focus:ring-[var(--ring)]"
           >
             <option>Any</option>
             <option>Easy</option>
@@ -119,7 +119,7 @@ export default function ExplorePage() {
             key={region.id}
             className={`flex h-full flex-col rounded-2xl border bg-card p-5 shadow-soft transition-all ${
               isMatch
-                ? "border-accent/40 ring-2 ring-indigo-100"
+                ? "border-accent/40 ring-2 ring-accent/20"
                 : "border-slate-200/80 opacity-45 saturate-50"
             }`}
           >
@@ -156,9 +156,9 @@ export default function ExplorePage() {
               </p>
             </div>
 
-            <details className="mt-4 rounded-lg border border-slate-200 bg-slate-50/70 p-3">
+            <details className="mt-4 rounded-lg border border-slate-200 bg-slate-100 p-3">
               <summary className="cursor-pointer text-sm font-medium text-slate-800">
-                Pros & Cons
+                Pros &amp; Cons
               </summary>
               <div className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
                 <div>
