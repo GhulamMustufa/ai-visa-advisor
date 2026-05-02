@@ -317,7 +317,7 @@ export default function Home() {
 
       {/* ── Final CTA ─────────────────────────────────────────── */}
       <section className="mx-auto max-w-6xl px-4 pb-20 pt-6 sm:px-6">
-        <div className="rounded-2xl border border-accent/30 bg-card p-8 text-center shadow-soft">
+        <div className="rounded-2xl border border-slate-200 bg-card p-8 text-center shadow-soft">
           <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
             Stop guessing. Check your actual chances.
           </h2>
