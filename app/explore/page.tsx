@@ -71,7 +71,7 @@ export default function ExplorePage() {
         </p>
       </div>
 
-      <div className="mx-auto mt-8 grid max-w-4xl gap-3 rounded-2xl border border-slate-200/80 bg-card p-4 shadow-soft sm:grid-cols-3">
+      <div className="mx-auto mt-8 grid max-w-4xl gap-3 rounded-2xl border border-slate-200 bg-card p-4 shadow-soft sm:grid-cols-3">
         <label className="text-sm">
           <span className="mb-1 block font-medium text-slate-800">Goal</span>
           <select
@@ -119,8 +119,8 @@ export default function ExplorePage() {
             key={region.id}
             className={`flex h-full flex-col rounded-2xl border bg-card p-5 shadow-soft transition-all ${
               isMatch
-                ? "border-accent/40 ring-2 ring-accent/20"
-                : "border-slate-200/80 opacity-45 saturate-50"
+                ? "border-accent ring-2 ring-accent/40"
+                : "border-slate-200 opacity-45 saturate-50"
             }`}
           >
             <h2 className="text-lg font-semibold text-slate-900">{region.name}</h2>
