@@ -217,6 +217,7 @@ Deploy to Vercel in one click — all routes are serverless-compatible. Set the 
 vercel --prod
 ```
 
+
 Add the Stripe webhook endpoint in Stripe Dashboard:
 ```
 https://your-domain.vercel.app/api/webhooks/stripe
