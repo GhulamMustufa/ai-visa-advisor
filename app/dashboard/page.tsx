@@ -1,0 +1,199 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/utils/supabase/server";
+import {
+  listRecentSubmissions,
+  countMonthlySubmissions,
+  getUserSubscription,
+} from "@/lib/persistence";
+import { FREE_MONTHLY_LIMIT, PLANS } from "@/lib/stripe";
+
+function ScoreBadge({ score }: { score: number }) {
+  const color =
+    score >= 70
+      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+      : score >= 40
+        ? "bg-amber-50 text-amber-700 border-amber-200"
+        : "bg-rose-50 text-rose-700 border-rose-200";
+  return (
+    <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold tabular-nums ${color}`}>
+      {score}%
+    </span>
+  );
+}
+
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: { upgrade?: string };
+}) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/auth/login");
+
+  const [subscription, recentItems, monthlyUsed] = await Promise.all([
+    getUserSubscription(user.id),
+    listRecentSubmissions({ userId: user.id, limit: 10 }),
+    countMonthlySubmissions(user.id),
+  ]);
+
+  const isPro = subscription?.plan === "pro" && subscription?.status === "active";
+  const plan = isPro ? PLANS.pro : PLANS.free;
+  const usagePercent = isPro ? 0 : Math.min(100, (monthlyUsed / FREE_MONTHLY_LIMIT) * 100);
+
+  return (
+    <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+      {searchParams.upgrade === "success" && (
+        <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          You&apos;re now on Pro. Unlimited assessments unlocked.
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-widest text-accent">Dashboard</p>
+          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
+            Welcome back
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">{user.email}</p>
+        </div>
+        <Link
+          href="/form"
+          className="inline-flex h-11 items-center justify-center rounded-lg bg-accent px-6 text-sm font-medium text-white shadow-soft transition hover:bg-indigo-600"
+        >
+          New assessment
+        </Link>
+      </div>
+
+      {/* Subscription card */}
+      <div className="mb-6 rounded-xl border border-slate-200 bg-card p-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Plan</p>
+            <div className="mt-1 flex items-center gap-2">
+              <span className="text-lg font-semibold text-slate-900">{plan.name}</span>
+              {isPro && (
+                <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-white">
+                  Active
+                </span>
+              )}
+            </div>
+            {!isPro && (
+              <p className="mt-1 text-sm text-slate-600">
+                {monthlyUsed} / {FREE_MONTHLY_LIMIT} assessments used this month
+              </p>
+            )}
+            {isPro && subscription?.currentPeriodEnd && (
+              <p className="mt-1 text-sm text-slate-600">
+                Renews {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
+              </p>
+            )}
+          </div>
+
+          {!isPro ? (
+            <form action="/api/create-checkout" method="POST">
+              <button
+                type="submit"
+                className="inline-flex h-10 items-center justify-center rounded-lg bg-accent px-5 text-sm font-medium text-white shadow-soft hover:bg-indigo-600"
+              >
+                Upgrade to Pro — $9/mo
+              </button>
+            </form>
+          ) : (
+            <form action="/api/create-portal" method="POST">
+              <button
+                type="submit"
+                className="inline-flex h-10 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Manage billing
+              </button>
+            </form>
+          )}
+        </div>
+
+        {!isPro && (
+          <div className="mt-4">
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+              <div
+                className="h-full rounded-full bg-accent transition-all"
+                style={{ width: `${usagePercent}%` }}
+              />
+            </div>
+            <p className="mt-2 text-xs text-slate-500">
+              Pro gives you unlimited assessments + priority support.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Recent assessments */}
+      <div>
+        <h2 className="mb-4 text-sm font-semibold text-slate-900">Recent assessments</h2>
+
+        {recentItems.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-slate-200 py-12 text-center">
+            <p className="text-sm text-slate-500">No assessments yet.</p>
+            <Link
+              href="/form"
+              className="mt-3 inline-flex h-9 items-center justify-center rounded-md bg-accent px-4 text-xs font-medium text-white hover:bg-indigo-600"
+            >
+              Start your first assessment
+            </Link>
+          </div>
+        ) : (
+          <ul className="space-y-3">
+            {recentItems.map((item) => {
+              const topScore = item.result.pathways[0]?.score ?? 0;
+              const topName = item.result.pathways[0]?.name ?? "—";
+              const avgScore =
+                item.result.pathways.length > 0
+                  ? Math.round(
+                      item.result.pathways.reduce((s, p) => s + p.score, 0) /
+                        item.result.pathways.length,
+                    )
+                  : 0;
+              return (
+                <li
+                  key={item.id}
+                  className="rounded-xl border border-slate-200 bg-white p-4 shadow-soft"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs text-slate-500">
+                        {new Date(item.createdAt).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                        {" · "}
+                        {item.profile.goal.toUpperCase()}
+                        {" · "}
+                        {item.profile.targetRegion}
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-slate-900">
+                        {topName}
+                      </p>
+                      <p className="mt-0.5 text-xs text-slate-500">
+                        Avg score across {item.result.pathways.length} pathways
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <ScoreBadge score={topScore} />
+                      <span className="text-xs text-slate-400">top</span>
+                      <ScoreBadge score={avgScore} />
+                      <span className="text-xs text-slate-400">avg</span>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </main>
+  );
+}

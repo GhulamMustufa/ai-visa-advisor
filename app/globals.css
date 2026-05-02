@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --muted: #64748b;
+  --accent: #4f46e5;
+  --accent-soft: #eef2ff;
+  --card: #ffffff;
+  --ring: rgba(79, 70, 229, 0.25);
+}
+
+[data-theme="dark"] {
+  --background: #020617;
+  --foreground: #e2e8f0;
+  --muted: #94a3b8;
+  --accent: #6366f1;
+  --accent-soft: #1e1b4b;
+  --card: #0f172a;
+  --ring: rgba(99, 102, 241, 0.35);
+}
+
+/* Remap common Tailwind light utility colors for dark mode */
+[data-theme="dark"] .bg-white {
+  background-color: #0f172a !important;
+}
+[data-theme="dark"] .bg-slate-50 {
+  background-color: #111827 !important;
+}
+[data-theme="dark"] .bg-slate-100 {
+  background-color: #1f2937 !important;
+}
+[data-theme="dark"] .bg-card {
+  background-color: #0f172a !important;
+}
+[data-theme="dark"] .border-slate-100,
+[data-theme="dark"] .border-slate-200,
+[data-theme="dark"] .border-slate-200\/80,
+[data-theme="dark"] .border-slate-300,
+[data-theme="dark"] .border-slate-300\/80 {
+  border-color: #334155 !important;
+}
+[data-theme="dark"] .text-slate-900 {
+  color: #f8fafc !important;
+}
+[data-theme="dark"] .text-slate-800 {
+  color: #e2e8f0 !important;
+}
+[data-theme="dark"] .text-slate-700 {
+  color: #cbd5e1 !important;
+}
+[data-theme="dark"] .text-slate-600 {
+  color: #94a3b8 !important;
+}
+[data-theme="dark"] .text-slate-500,
+[data-theme="dark"] .text-slate-400 {
+  color: #64748b !important;
+}
+[data-theme="dark"] .placeholder\:text-slate-400::placeholder {
+  color: #64748b !important;
+}
+[data-theme="dark"] .hover\:bg-slate-50:hover {
+  background-color: #1f2937 !important;
+}
+[data-theme="dark"] .hover\:bg-slate-100:hover {
+  background-color: #334155 !important;
+}
+[data-theme="dark"] .bg-amber-50 {
+  background-color: #3f2f13 !important;
+}
+[data-theme="dark"] .border-amber-200 {
+  border-color: #7c5a1b !important;
+}
+[data-theme="dark"] .text-amber-900,
+[data-theme="dark"] .text-amber-800 {
+  color: #fde68a !important;
+}
+[data-theme="dark"] .landing-divider {
+  border-color: transparent !important;
+}
+
+body {
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+html,
+body {
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
