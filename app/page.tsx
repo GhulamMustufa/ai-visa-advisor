@@ -144,7 +144,7 @@ export default function Home() {
       </section>
 
       {/* ── What you actually get ─────────────────────────────── */}
-      <section className="border-y border-slate-200/70 bg-slate-50">
+      <section className="border-y border-slate-200 bg-slate-50">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
           <h2 className="text-center text-lg font-semibold text-slate-900">
             What you get from every assessment
@@ -228,7 +228,7 @@ export default function Home() {
       </section>
 
       {/* ── Why honest scoring matters ────────────────────────── */}
-      <section className="border-y border-slate-200/70 bg-[var(--accent-soft)]">
+      <section className="border-y border-slate-200 bg-[var(--accent-soft)]">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
           <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
             <div>
