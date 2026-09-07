@@ -85,12 +85,11 @@ describe("POST /api/score — OpenAI integration (mocked)", () => {
               {
                 message: {
                   content: JSON.stringify({
+                    summary: "This is a concise summary.",
                     pathways: [
                       {
-                        _thinking: "Strong: Master's + SE + IELTS 7.5. Weak: no Canadian exp. Range 65-75.",
-                        name: "Express Entry",
+                        name: "ca-express-entry",
                         country: "Canada",
-                        score: 72,
                         reason: "Strong software engineering background with master's degree and IELTS 7.5 meets Express Entry threshold. No Canadian experience limits CRS.",
                         weaknesses: ["No Canadian work experience", "CRS may not reach current draw cutoff without job offer"],
                         documents: ["IELTS TRF", "Educational credential assessment (WES)", "Work experience letters", "Passport copy"],
@@ -98,7 +97,10 @@ describe("POST /api/score — OpenAI integration (mocked)", () => {
                         citations: [{ title: "IRCC Express Entry", url: "https://canada.ca" }],
                         estimated_timeline: "12-18 months",
                         top_improvement: "Obtain a Canadian job offer to add 200 CRS points",
-                        score_drivers: ["Master's degree: +12pts", "IELTS 7.5: +10pts", "No Canadian experience: -15pts"],
+                        eligibility_confidence: "HIGH",
+                        recommendation_confidence: "MEDIUM",
+                        evidence_confidence: "HIGH",
+                        source_freshness: "VERIFIED"
                       },
                     ],
                   }),
@@ -117,11 +119,12 @@ describe("POST /api/score — OpenAI integration (mocked)", () => {
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(Array.isArray(json.pathways)).toBe(true);
-    expect(json.pathways[0].name).toBe("Express Entry");
-    expect(json.pathways[0].score).toBe(72);
+    // The name comes from the deterministic domain registry overriding the AI
+    expect(json.pathways[0].name).toBe("Express Entry (FSW / CEC)");
+    // Score is calculated deterministically now
+    expect(json.pathways[0].baseScore).toBeDefined();
     expect(json.pathways[0].estimated_timeline).toBe("12-18 months");
-    expect(Array.isArray(json.pathways[0].score_drivers)).toBe(true);
+    expect(json.pathways[0].eligibility_confidence).toBe("HIGH");
     expect(json.pathways[0].top_improvement).toBeTruthy();
-    expect(json.pathways[0]._thinking).toBeUndefined();
   });
 });
