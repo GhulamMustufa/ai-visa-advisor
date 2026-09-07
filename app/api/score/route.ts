@@ -8,6 +8,8 @@ import { rankPathways } from "@/lib/recommendation";
 import { buildAIOrchestratorPrompt } from "@/lib/ai";
 import { retrieveEvidence } from "@/lib/evidence";
 import { validateCitations, detectConflicts } from "@/lib/validation";
+import { TraceContext } from "@/lib/trace";
+import { evaluateSynthesizerOutput } from "@/lib/critic";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { createRequestId, log } from "@/lib/logger";
 import { withRetry } from "@/lib/retry";
@@ -144,139 +146,118 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing OPENAI_API_KEY" }, { status: 500 });
   }
 
-  // Phase 1: Deterministic Engine Execution
-  const normalizedProfile = normalizeProfile(profile);
-  const pathways = getPathwaysForRegion(profile.targetRegion);
-  const evaluations = pathways.map(p => evaluateEligibility(normalizedProfile, p));
-  const topEvaluations = rankPathways(evaluations).slice(0, 3);
-  
-  const overallScore = topEvaluations.length > 0 
-    ? Math.round(topEvaluations.reduce((sum, e) => sum + e.baseScore, 0) / topEvaluations.length)
-    : 0;
+  const trace = new TraceContext(requestId);
 
-  // Phase 2: Evidence Grounding (Retrieval)
-  const queryText = `Visa requirements for a ${normalizedProfile.canonicalOccupation} seeking ${profile.goal} in ${profile.targetRegion}. Age: ${profile.age}. English Level: ${normalizedProfile.languageLevelCEFR}.`;
-  
-  // We retrieve evidence scoped to the top pathway if possible, or general otherwise.
-  const evidenceList = await retrieveEvidence(queryText, profile.targetRegion, topEvaluations[0]?.pathwayId, 10);
-  
-  // Resolve any conflicts silently to surface the best evidence
-  const conflicts = detectConflicts(evidenceList);
-  // (We could log conflicts here for observability without breaking the flow)
-
-  // Phase 1 & 2: AI Reasoning Orchestration
-  const userPrompt = buildAIOrchestratorPrompt(normalizedProfile, topEvaluations, evidenceList);
-  
-  let text = "";
+  let finalResponse: ScoreResponse | null = null;
   let modelUsed = "gpt-4o-mini";
-  let lastErrorDetails = "";
+  const promptVersion = "visa-prompt-v7-agentic";
 
   try {
-    const raw = await withRetry(
-      async () => {
+    // Phase 1: Deterministic Engine Execution
+    const { normalizedProfile, topEvaluations, overallScore } = await trace.runStep("evaluateEligibility", async () => {
+      const np = normalizeProfile(profile);
+      const pathways = getPathwaysForRegion(profile.targetRegion);
+      const evaluations = pathways.map(p => evaluateEligibility(np, p));
+      const top = rankPathways(evaluations).slice(0, 3);
+      const score = top.length > 0 
+        ? Math.round(top.reduce((sum, e) => sum + e.baseScore, 0) / top.length)
+        : 0;
+      return { normalizedProfile: np, topEvaluations: top, overallScore: score };
+    });
+    
+    // Phase 2: Evidence Grounding (Retrieval)
+    const evidenceList = await trace.runStep("retrieveEvidence", async () => {
+      const queryText = `Visa requirements for a ${normalizedProfile.canonicalOccupation} seeking ${profile.goal} in ${profile.targetRegion}. Age: ${profile.age}. English Level: ${normalizedProfile.languageLevelCEFR}.`;
+      const evidence = await retrieveEvidence(queryText, profile.targetRegion, topEvaluations[0]?.pathwayId, 10);
+      return evidence;
+    });
+    
+    trace.recordRetrieval(evidenceList.map(e => e.source_id));
+    
+    // Phase 4: Bounded AI Synthesizer and Critic Loop
+    let basePrompt = buildAIOrchestratorPrompt(normalizedProfile, topEvaluations, evidenceList);
+    let currentPrompt = basePrompt;
+    
+    let parsedAIResponse: any = null;
+    const MAX_ITERATIONS = 2;
+    let iteration = 0;
+    let approved = false;
+
+    while (iteration < MAX_ITERATIONS && !approved) {
+      iteration++;
+      
+      const text = await trace.runStep(`synthesize_iteration_${iteration}`, async () => {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 25_000);
         try {
           const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
             signal: controller.signal,
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${apiKey}`,
-            },
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
             body: JSON.stringify({
               model: modelUsed,
               temperature: 0.2,
               max_tokens: 2400,
-              response_format: {
-                type: "json_schema",
-                json_schema: {
-                  name: "visa_analysis",
-                  schema: {
-                    type: "object",
-                    additionalProperties: false,
-                    required: ["summary", "pathways"],
-                    properties: {
-                      summary: { type: "string", description: "A highly concise 2 sentence summary of the applicant's overall situation." },
-                      pathways: {
-                        type: "array",
-                        minItems: 1,
-                        items: {
-                          type: "object",
-                          additionalProperties: false,
-                          required: [
-                            "name", "country", "reason", "weaknesses", "documents", 
-                            "next_steps", "citations", "estimated_timeline", 
-                            "top_improvement", "eligibility_confidence", 
-                            "recommendation_confidence", "evidence_confidence", "source_freshness"
-                          ],
-                          properties: {
-                            name: { type: "string" },
-                            country: { type: "string" },
-                            reason: { type: "string" },
-                            weaknesses: { type: "array", items: { type: "string" } },
-                            documents: { type: "array", items: { type: "string" } },
-                            next_steps: { type: "array", items: { type: "string" } },
-                            citations: {
-                              type: "array",
-                              items: {
-                                type: "object",
-                                additionalProperties: false,
-                                required: ["title", "url"],
-                                properties: {
-                                  title: { type: "string" },
-                                  url: { type: "string" },
-                                },
-                              },
-                            },
-                            estimated_timeline: { type: "string" },
-                            top_improvement: { type: "string" },
-                            eligibilityStatus: { type: "string" },
-                            eligibility_confidence: { type: "string", enum: ["HIGH", "MEDIUM", "LOW"] },
-                            recommendation_confidence: { type: "string", enum: ["HIGH", "MEDIUM", "LOW"] },
-                            evidence_confidence: { type: "string", enum: ["HIGH", "MEDIUM", "LOW"] },
-                            source_freshness: { type: "string", enum: ["VERIFIED", "STALE", "UNKNOWN"] },
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-              messages: [{ role: "user", content: userPrompt }],
+              response_format: { type: "json_schema", json_schema: { name: "visa_analysis", schema: {
+                type: "object", additionalProperties: false, required: ["summary", "pathways"],
+                properties: {
+                  summary: { type: "string" },
+                  pathways: {
+                    type: "array", minItems: 1, items: {
+                      type: "object", additionalProperties: false, required: [
+                        "name", "country", "reason", "weaknesses", "documents", "next_steps", "citations", "estimated_timeline", "top_improvement", "eligibilityStatus", "eligibility_confidence", "recommendation_confidence", "evidence_confidence", "source_freshness"
+                      ], properties: {
+                        name: { type: "string" }, country: { type: "string" }, reason: { type: "string" }, weaknesses: { type: "array", items: { type: "string" } }, documents: { type: "array", items: { type: "string" } }, next_steps: { type: "array", items: { type: "string" } }, citations: { type: "array", items: { type: "object", additionalProperties: false, required: ["title", "url"], properties: { title: { type: "string" }, url: { type: "string" } } } }, estimated_timeline: { type: "string" }, top_improvement: { type: "string" }, eligibilityStatus: { type: "string" }, eligibility_confidence: { type: "string", enum: ["HIGH", "MEDIUM", "LOW"] }, recommendation_confidence: { type: "string", enum: ["HIGH", "MEDIUM", "LOW"] }, evidence_confidence: { type: "string", enum: ["HIGH", "MEDIUM", "LOW"] }, source_freshness: { type: "string", enum: ["VERIFIED", "STALE", "UNKNOWN"] }
+                      }
+                    }
+                  }
+                }
+              }}},
+              messages: [{ role: "user", content: currentPrompt }],
             }),
           });
           if (!openaiRes.ok) throw new Error(await openaiRes.text());
-          return (await openaiRes.json()) as { choices?: Array<{ message?: { content?: string } }> };
+          const resJson = await openaiRes.json();
+          // Mocking tokens for observability
+          trace.recordModelInfo(modelUsed, resJson.usage?.prompt_tokens || 0, resJson.usage?.completion_tokens || 0);
+          return resJson.choices?.[0]?.message?.content?.trim() ?? "";
         } finally {
           clearTimeout(timer);
         }
-      },
-      { attempts: 2, baseDelayMs: 300 },
-    );
-    text = raw.choices?.[0]?.message?.content?.trim() ?? "";
-  } catch (err) {
-    lastErrorDetails = (err as Error)?.message ?? String(err);
-  }
+      });
 
-  if (!text) {
-    log("error", "score_request_model_failure", { requestId, ip, details: lastErrorDetails });
-    return NextResponse.json({ error: "AI service temporarily unavailable." }, { status: 502 });
-  }
+      parsedAIResponse = safeJsonParse(text);
+      if (!parsedAIResponse) {
+        throw new Error("OpenAI returned invalid JSON");
+      }
 
-  const parsedAIResponse = safeJsonParse(text);
-  if (!parsedAIResponse) {
-    return NextResponse.json({ error: "OpenAI returned invalid JSON" }, { status: 502 });
-  }
+      // Critic Step
+      const criticResult = await trace.runStep(`critic_evaluation_${iteration}`, async () => {
+        return await evaluateSynthesizerOutput(apiKey, text, topEvaluations, evidenceList);
+      });
 
-  // Phase 2: Citation Validation post-generation
-  const allCitations = parsedAIResponse.pathways.flatMap(p => p.citations || []);
-  const citationCheck = validateCitations(allCitations, evidenceList);
-  if (!citationCheck.valid) {
-    log("warn", "score_citation_mismatch", { requestId, errors: citationCheck.errors });
-    // Note: We don't block the response, but we log the hallucination for review.
-    // In strict mode, we could delete the hallucinated citations from the response payload.
-  }
+      if (criticResult.approved) {
+        approved = true;
+      } else {
+        trace.recordRetry(criticResult);
+        // Append Critic feedback for next iteration
+        currentPrompt = basePrompt + `\n\nCRITIC FEEDBACK FROM PREVIOUS ATTEMPT (FIX THESE):\n- ${criticResult.feedback.join("\n- ")}`;
+      }
+    }
+
+    if (!approved) {
+      log("warn", "agent_exhausted_retries", { requestId, ip });
+      // Fallback response for safety
+      parsedAIResponse = {
+        summary: "Your profile has been deterministically evaluated, but our AI assistant could not confidently verify the qualitative advice. Please refer to the raw metrics.",
+        pathways: topEvaluations.map(e => ({
+          name: e.pathwayId, country: "Unknown", reason: "AI validation failed. Hard requirements apply.",
+          weaknesses: [], documents: [], next_steps: [], citations: [], estimated_timeline: "Unknown",
+          top_improvement: "Review deterministic requirements.", eligibilityStatus: e.status,
+          eligibility_confidence: "LOW", recommendation_confidence: "LOW", evidence_confidence: "LOW", source_freshness: "UNKNOWN"
+        }))
+      };
+    }
 
   // Merge deterministic evaluation data with AI qualitative data
   const finalPathways: RankedPathway[] = topEvaluations.map(evalData => {
@@ -304,32 +285,39 @@ export async function POST(req: Request) {
     };
   });
 
-  const finalResponse: ScoreResponse = {
-    overall_score: overallScore,
-    summary: parsedAIResponse.summary,
-    pathways: finalPathways
-  };
+    finalResponse = {
+      overall_score: overallScore,
+      summary: parsedAIResponse.summary,
+      pathways: finalPathways
+    };
 
-  const promptVersion = "visa-prompt-v6-evidence-grounded";
-  try {
-    await persistSubmission({
-      requestId,
-      ip,
-      userId: user?.id ?? null,
-      promptVersion,
-      model: modelUsed,
-      profile,
-      sources: evidenceList.map(e => e.source_id), // Now explicitly logging the precise evidence source IDs
-      result: { pathways: finalResponse.pathways.map(p => ({
-        name: p.name, country: p.country, score: p.baseScore, reason: p.reason, 
-        weaknesses: p.weaknesses, documents: p.documents, next_steps: p.next_steps, citations: p.citations
-      }))},
-      latencyMs: Date.now() - startedAt,
-    });
-  } catch (err) {
-    log("warn", "score_persist_failed", { requestId, ip, promptVersion, modelUsed, details: String(err) });
+    trace.complete("success");
+
+    try {
+      await persistSubmission({
+        requestId,
+        ip,
+        userId: user?.id ?? null,
+        promptVersion,
+        model: modelUsed,
+        profile,
+        sources: evidenceList.map(e => e.source_id),
+        result: { pathways: finalResponse.pathways.map(p => ({
+          name: p.name, country: p.country, score: p.baseScore, reason: p.reason, 
+          weaknesses: p.weaknesses, documents: p.documents, next_steps: p.next_steps, citations: p.citations
+        }))},
+        latencyMs: Date.now() - startedAt,
+      });
+    } catch (err) {
+      log("warn", "score_persist_failed", { requestId, ip, promptVersion, modelUsed, details: String(err) });
+    }
+
+    log("info", "score_request_completed", { requestId, ip, modelUsed, promptVersion, latencyMs: Date.now() - startedAt });
+    return NextResponse.json(finalResponse);
+
+  } catch (error) {
+    trace.complete("error");
+    log("error", "score_request_pipeline_failure", { requestId, ip, error: (error as Error).message });
+    return NextResponse.json({ error: "An error occurred during evaluation." }, { status: 500 });
   }
-
-  log("info", "score_request_completed", { requestId, ip, modelUsed, promptVersion, latencyMs: Date.now() - startedAt });
-  return NextResponse.json(finalResponse);
 }

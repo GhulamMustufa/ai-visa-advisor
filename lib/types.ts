@@ -173,3 +173,11 @@ export type ConflictDetectionResult = {
   resolvedEvidence: Evidence | null;
   message?: string;
 };
+
+// --- Phase 4: Agentic Workflow Models ---
+
+export type CriticResult = {
+  approved: boolean;
+  feedback: string[];
+  hallucinated_claims: string[];
+};
