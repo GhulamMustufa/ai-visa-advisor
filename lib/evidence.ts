@@ -36,25 +36,35 @@ export async function retrieveEvidence(
   pathwayId?: string,
   limit: number = 10
 ): Promise<Evidence[]> {
-  const supabase = createClient();
-  const embedding = await getEmbedding(queryText);
+  let data: any = null;
+  let error: any = null;
 
-  // Map TargetRegion to the 'country' metadata used in the DB
-  const regionToCountryMap: Record<string, string> = {
-    canada: "Canada",
-    uk: "UK",
-    "australia-new-zealand": "Australia",
-    usa: "USA",
-  };
-  const filterCountry = regionToCountryMap[targetRegion] || null;
+  try {
+    const embedding = await getEmbedding(queryText);
 
-  const { data, error } = await supabase.rpc("match_evidence", {
-    query_embedding: embedding,
-    match_threshold: 0.3,
-    match_count: limit,
-    filter_country: filterCountry,
-    filter_pathway: pathwayId || null,
-  });
+    // Map TargetRegion to the 'country' metadata used in the DB
+    const regionToCountryMap: Record<string, string> = {
+      canada: "Canada",
+      uk: "UK",
+      "australia-new-zealand": "Australia",
+      usa: "USA",
+    };
+    const filterCountry = regionToCountryMap[targetRegion] || null;
+
+    const supabase = createClient();
+    const res = await supabase.rpc("match_evidence", {
+      query_embedding: embedding,
+      match_threshold: 0.3,
+      match_count: limit,
+      filter_country: filterCountry,
+      filter_pathway: pathwayId || null,
+    });
+    data = res.data;
+    error = res.error;
+  } catch (err) {
+    console.warn("Skipping DB evidence retrieval (likely running in CLI without Next.js request scope).");
+    return [];
+  }
 
   if (error || !data) {
     console.error("Failed to retrieve evidence:", error);

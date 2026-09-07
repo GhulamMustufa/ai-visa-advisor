@@ -1,0 +1,213 @@
+[
+  {
+    "id": "CASE-001",
+    "description": "Clearly eligible Express Entry (Software Engineer, high IELTS, Masters, 5 yrs exp)",
+    "profile": { "nationality": "india", "targetRegion": "canada", "age": 28, "education": "master", "yearsExperience": 5, "fieldOfWork": "software engineer", "englishTest": "ielts", "testScore": 8, "savingsUsd": 15000, "goal": "pr" },
+    "expected_pathway": "ca-express-entry",
+    "expected_status": "ELIGIBLE",
+    "expected_sources": ["ircc-express-entry-1"]
+  },
+  {
+    "id": "CASE-002",
+    "description": "Clearly ineligible Express Entry (No IELTS)",
+    "profile": { "nationality": "brazil", "targetRegion": "canada", "age": 30, "education": "bachelor", "yearsExperience": 3, "fieldOfWork": "marketing", "englishTest": "none", "testScore": null, "savingsUsd": 10000, "goal": "pr" },
+    "expected_pathway": "ca-express-entry",
+    "expected_status": "BLOCKED"
+  },
+  {
+    "id": "CASE-003",
+    "description": "Missing Information (Funds unknown)",
+    "profile": { "nationality": "nigeria", "targetRegion": "canada", "age": 32, "education": "bachelor", "yearsExperience": 4, "fieldOfWork": "nurse", "englishTest": "ielts", "testScore": 7, "savingsUsd": 0, "goal": "pr" },
+    "expected_pathway": "ca-express-entry",
+    "expected_status": "BLOCKED"
+  },
+  {
+    "id": "CASE-004",
+    "description": "Clearly eligible UK Skilled Worker (Has job offer/sponsor)",
+    "profile": { "nationality": "philippines", "targetRegion": "uk", "age": 26, "education": "bachelor", "yearsExperience": 3, "fieldOfWork": "nurse", "englishTest": "ielts", "testScore": 7, "savingsUsd": 5000, "goal": "work" },
+    "expected_pathway": "uk-skilled-worker",
+    "expected_status": "ELIGIBLE"
+  },
+  {
+    "id": "CASE-005",
+    "description": "UK Skilled Worker blocked (Missing Sponsor/Job Offer)",
+    "profile": { "nationality": "pakistan", "targetRegion": "uk", "age": 35, "education": "master", "yearsExperience": 10, "fieldOfWork": "finance", "englishTest": "ielts", "testScore": 7, "savingsUsd": 20000, "goal": "work" },
+    "expected_pathway": "uk-skilled-worker",
+    "expected_status": "BLOCKED"
+  },
+  {
+    "id": "CASE-006",
+    "description": "Borderline Canada (Age 45, low points)",
+    "profile": { "nationality": "usa", "targetRegion": "canada", "age": 45, "education": "bachelor", "yearsExperience": 15, "fieldOfWork": "manager", "englishTest": "ielts", "testScore": 7, "savingsUsd": 30000, "goal": "pr" },
+    "expected_pathway": "ca-express-entry",
+    "expected_status": "ELIGIBLE"
+  },
+  {
+    "id": "CASE-007",
+    "description": "Tech Talent Australia",
+    "profile": { "nationality": "germany", "targetRegion": "australia-new-zealand", "age": 29, "education": "master", "yearsExperience": 6, "fieldOfWork": "cybersecurity", "englishTest": "ielts", "testScore": 8, "savingsUsd": 25000, "goal": "pr" },
+    "expected_pathway": "au-global-talent",
+    "expected_status": "ELIGIBLE"
+  },
+  {
+    "id": "CASE-008",
+    "description": "Germany Job Seeker",
+    "profile": { "nationality": "colombia", "targetRegion": "germany-nordics", "age": 25, "education": "bachelor", "yearsExperience": 2, "fieldOfWork": "civil engineering", "englishTest": "ielts", "testScore": 6, "savingsUsd": 8000, "goal": "work" },
+    "expected_pathway": "de-job-seeker",
+    "expected_status": "ELIGIBLE"
+  },
+  {
+    "id": "CASE-009",
+    "description": "Germany Job Seeker blocked (No degree)",
+    "profile": { "nationality": "colombia", "targetRegion": "germany-nordics", "age": 25, "education": "high_school", "yearsExperience": 2, "fieldOfWork": "construction", "englishTest": "none", "testScore": null, "savingsUsd": 8000, "goal": "work" },
+    "expected_pathway": "de-job-seeker",
+    "expected_status": "BLOCKED"
+  },
+  {
+    "id": "CASE-010",
+    "description": "Singapore Tech Pass (High salary expected, border case)",
+    "profile": { "nationality": "china", "targetRegion": "sg-my", "age": 33, "education": "master", "yearsExperience": 8, "fieldOfWork": "AI researcher", "englishTest": "toefl", "testScore": 105, "savingsUsd": 150000, "goal": "work" },
+    "expected_pathway": "sg-tech-pass",
+    "expected_status": "ELIGIBLE"
+  },
+  {
+    "id": "CASE-011",
+    "description": "US O-1 Visa (Outstanding ability)",
+    "profile": { "nationality": "france", "targetRegion": "usa", "age": 31, "education": "phd", "yearsExperience": 5, "fieldOfWork": "quantum physics", "englishTest": "toefl", "testScore": 110, "savingsUsd": 50000, "goal": "work" },
+    "expected_pathway": "us-o1",
+    "expected_status": "ELIGIBLE"
+  },
+  {
+    "id": "CASE-012",
+    "description": "US H1-B blocked (No sponsor)",
+    "profile": { "nationality": "india", "targetRegion": "usa", "age": 27, "education": "master", "yearsExperience": 3, "fieldOfWork": "software engineer", "englishTest": "toefl", "testScore": 100, "savingsUsd": 10000, "goal": "work" },
+    "expected_pathway": "us-h1b",
+    "expected_status": "BLOCKED"
+  },
+  {
+    "id": "CASE-013",
+    "description": "Japan HSP (Highly Skilled Professional)",
+    "profile": { "nationality": "vietnam", "targetRegion": "jp-kr", "age": 30, "education": "master", "yearsExperience": 7, "fieldOfWork": "data science", "englishTest": "ielts", "testScore": 7, "savingsUsd": 20000, "goal": "pr" },
+    "expected_pathway": "jp-hsp",
+    "expected_status": "ELIGIBLE"
+  },
+  {
+    "id": "CASE-014",
+    "description": "Digital Nomad / Easy Entry",
+    "profile": { "nationality": "usa", "targetRegion": "easy-entry", "age": 35, "education": "bachelor", "yearsExperience": 10, "fieldOfWork": "freelance writer", "englishTest": "none", "testScore": null, "savingsUsd": 50000, "goal": "work" },
+    "expected_pathway": "es-digital-nomad",
+    "expected_status": "ELIGIBLE"
+  },
+  {
+    "id": "CASE-015",
+    "description": "UAE Golden Visa",
+    "profile": { "nationality": "egypt", "targetRegion": "middle-east", "age": 40, "education": "phd", "yearsExperience": 12, "fieldOfWork": "medicine", "englishTest": "none", "testScore": null, "savingsUsd": 100000, "goal": "pr" },
+    "expected_pathway": "ae-golden",
+    "expected_status": "ELIGIBLE"
+  },
+  {
+    "id": "CASE-016",
+    "description": "Language threshold boundary (IELTS 6.0 vs 6.5)",
+    "profile": { "nationality": "iran", "targetRegion": "canada", "age": 29, "education": "bachelor", "yearsExperience": 4, "fieldOfWork": "accountant", "englishTest": "ielts", "testScore": 6, "savingsUsd": 12000, "goal": "pr" },
+    "expected_pathway": "ca-express-entry",
+    "expected_status": "ELIGIBLE"
+  },
+  {
+    "id": "CASE-017",
+    "description": "Hallucination Trap: Made-up country",
+    "profile": { "nationality": "usa", "targetRegion": "canada", "age": 25, "education": "bachelor", "yearsExperience": 2, "fieldOfWork": "astronaut", "englishTest": "none", "testScore": null, "savingsUsd": 5000, "goal": "work" },
+    "expected_pathway": "ca-express-entry",
+    "expected_status": "BLOCKED"
+  },
+  {
+    "id": "CASE-018",
+    "description": "Student Goal (Canada)",
+    "profile": { "nationality": "china", "targetRegion": "canada", "age": 19, "education": "high_school", "yearsExperience": 0, "fieldOfWork": "student", "englishTest": "ielts", "testScore": 6.5, "savingsUsd": 30000, "goal": "study" },
+    "expected_pathway": "ca-study-permit",
+    "expected_status": "ELIGIBLE"
+  },
+  {
+    "id": "CASE-019",
+    "description": "Student Goal Blocked (Insufficient funds)",
+    "profile": { "nationality": "india", "targetRegion": "canada", "age": 19, "education": "high_school", "yearsExperience": 0, "fieldOfWork": "student", "englishTest": "ielts", "testScore": 6.5, "savingsUsd": 2000, "goal": "study" },
+    "expected_pathway": "ca-study-permit",
+    "expected_status": "BLOCKED"
+  },
+  {
+    "id": "CASE-020",
+    "description": "Multiple Plausible Pathways (UK)",
+    "profile": { "nationality": "australia", "targetRegion": "uk", "age": 24, "education": "bachelor", "yearsExperience": 1, "fieldOfWork": "sales", "englishTest": "none", "testScore": null, "savingsUsd": 4000, "goal": "work" },
+    "expected_pathway": "uk-youth-mobility",
+    "expected_status": "ELIGIBLE"
+  },
+  {
+    "id": "CASE-021",
+    "description": "Age Out Boundary (UK Youth Mobility > 30)",
+    "profile": { "nationality": "australia", "targetRegion": "uk", "age": 31, "education": "bachelor", "yearsExperience": 5, "fieldOfWork": "sales", "englishTest": "none", "testScore": null, "savingsUsd": 10000, "goal": "work" },
+    "expected_pathway": "uk-skilled-worker",
+    "expected_status": "BLOCKED"
+  },
+  {
+    "id": "CASE-022",
+    "description": "UK High Potential Individual (Top 50 University)",
+    "profile": { "nationality": "usa", "targetRegion": "uk", "age": 25, "education": "master", "yearsExperience": 1, "fieldOfWork": "data analyst", "englishTest": "none", "testScore": null, "savingsUsd": 15000, "goal": "work" },
+    "expected_pathway": "uk-hpi",
+    "expected_status": "ELIGIBLE"
+  },
+  {
+    "id": "CASE-023",
+    "description": "Australia Working Holiday",
+    "profile": { "nationality": "uk", "targetRegion": "australia-new-zealand", "age": 22, "education": "high_school", "yearsExperience": 1, "fieldOfWork": "bartender", "englishTest": "none", "testScore": null, "savingsUsd": 4000, "goal": "work" },
+    "expected_pathway": "au-working-holiday",
+    "expected_status": "ELIGIBLE"
+  },
+  {
+    "id": "CASE-024",
+    "description": "Australia Working Holiday Blocked (Age > 35)",
+    "profile": { "nationality": "uk", "targetRegion": "australia-new-zealand", "age": 36, "education": "bachelor", "yearsExperience": 10, "fieldOfWork": "manager", "englishTest": "none", "testScore": null, "savingsUsd": 10000, "goal": "work" },
+    "expected_pathway": "au-skilled-independent",
+    "expected_status": "BLOCKED"
+  },
+  {
+    "id": "CASE-025",
+    "description": "Germany Blue Card (High Salary, IT)",
+    "profile": { "nationality": "india", "targetRegion": "germany-nordics", "age": 28, "education": "bachelor", "yearsExperience": 5, "fieldOfWork": "software engineer", "englishTest": "ielts", "testScore": 7, "savingsUsd": 15000, "goal": "work" },
+    "expected_pathway": "de-blue-card",
+    "expected_status": "ELIGIBLE"
+  },
+  {
+    "id": "CASE-026",
+    "description": "Spain Non-Lucrative (Retiree / Passive Income)",
+    "profile": { "nationality": "usa", "targetRegion": "southern-europe", "age": 60, "education": "bachelor", "yearsExperience": 35, "fieldOfWork": "retired", "englishTest": "none", "testScore": null, "savingsUsd": 150000, "goal": "pr" },
+    "expected_pathway": "es-non-lucrative",
+    "expected_status": "ELIGIBLE"
+  },
+  {
+    "id": "CASE-027",
+    "description": "Spain Non-Lucrative Blocked (Insufficient Savings)",
+    "profile": { "nationality": "usa", "targetRegion": "southern-europe", "age": 55, "education": "bachelor", "yearsExperience": 30, "fieldOfWork": "retired", "englishTest": "none", "testScore": null, "savingsUsd": 10000, "goal": "pr" },
+    "expected_pathway": "es-non-lucrative",
+    "expected_status": "BLOCKED"
+  },
+  {
+    "id": "CASE-028",
+    "description": "Contradictory Information: High School but PhD occupation",
+    "profile": { "nationality": "nigeria", "targetRegion": "usa", "age": 30, "education": "high_school", "yearsExperience": 2, "fieldOfWork": "medical doctor", "englishTest": "toefl", "testScore": 90, "savingsUsd": 5000, "goal": "work" },
+    "expected_pathway": "us-h1b",
+    "expected_status": "BLOCKED"
+  },
+  {
+    "id": "CASE-029",
+    "description": "Wrong Nationality for specific treaty (e.g. TN visa fallback to H1B)",
+    "profile": { "nationality": "brazil", "targetRegion": "usa", "age": 30, "education": "bachelor", "yearsExperience": 5, "fieldOfWork": "engineer", "englishTest": "none", "testScore": null, "savingsUsd": 20000, "goal": "work" },
+    "expected_pathway": "us-h1b",
+    "expected_status": "BLOCKED"
+  },
+  {
+    "id": "CASE-030",
+    "description": "Perfect Canada Profile, but age 80",
+    "profile": { "nationality": "uk", "targetRegion": "canada", "age": 80, "education": "phd", "yearsExperience": 40, "fieldOfWork": "professor", "englishTest": "ielts", "testScore": 8, "savingsUsd": 100000, "goal": "pr" },
+    "expected_pathway": "ca-express-entry",
+    "expected_status": "ELIGIBLE"
+  }
+]
