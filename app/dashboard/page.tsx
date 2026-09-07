@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import {
   listRecentSubmissions,
   countMonthlySubmissions,
@@ -27,17 +27,15 @@ export default async function DashboardPage({
 }: {
   searchParams: { upgrade?: string };
 }) {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser();
+  const { userId } = await auth();
 
-  if (!user) redirect("/auth/login");
+  if (!user || !userId) redirect("/");
 
   const [subscription, recentItems, monthlyUsed] = await Promise.all([
-    getUserSubscription(user.id),
-    listRecentSubmissions({ userId: user.id, limit: 10 }),
-    countMonthlySubmissions(user.id),
+    getUserSubscription(userId),
+    listRecentSubmissions({ userId, limit: 10 }),
+    countMonthlySubmissions(userId),
   ]);
 
   const isPro = subscription?.plan === "pro" && subscription?.status === "active";
@@ -59,7 +57,7 @@ export default async function DashboardPage({
           <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
             Welcome back
           </h1>
-          <p className="mt-1 text-sm text-slate-500">{user.email}</p>
+          <p className="mt-1 text-sm text-slate-500">{user.emailAddresses[0]?.emailAddress || ""}</p>
         </div>
         <Link
           href="/form"

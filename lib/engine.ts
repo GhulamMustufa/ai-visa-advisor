@@ -55,6 +55,33 @@ export function evaluateRequirement(profile: NormalizedProfile, req: Requirement
       met = ["B1", "B2", "C1", "C2"].includes(profile.languageLevelCEFR);
       notes = met ? "Meets B1 minimum" : "Language level below B1";
       break;
+    case "req-ae-salary":
+      // Using savingsUsd as a proxy for monthly salary for MVP simulator purposes
+      met = profile.original.savingsUsd >= 8100;
+      notes = met ? "Salary requirement met" : "Salary below 30,000 AED threshold";
+      break;
+    case "req-es-income":
+      // Proxy for EUR 2500/month
+      met = profile.original.savingsUsd >= 2600;
+      notes = met ? "Income requirement met" : "Income below 200% Spanish minimum wage";
+      break;
+    case "req-my-income":
+      met = profile.original.savingsUsd >= 2000;
+      notes = met ? "Income requirement met" : "Income below threshold";
+      break;
+    case "req-th-funds":
+      met = profile.original.savingsUsd >= 14000;
+      notes = met ? "Sufficient funds" : "Insufficient funds";
+      break;
+    case "req-jp-points":
+      // Mock points calculation
+      met = profile.original.yearsExperience >= 5 && (profile.original.education === "master" || profile.original.education === "phd");
+      notes = met ? "Likely meets 70 points" : "Insufficient points based on experience/education";
+      break;
+    case "req-de-degree":
+      met = ["bachelor", "master", "phd"].includes(profile.original.education);
+      notes = met ? "Has recognized degree" : "Missing degree";
+      break;
     default:
       // Hard things like sponsorships, job offers, or lotteries default to false unless explicitly mocked
       met = false;

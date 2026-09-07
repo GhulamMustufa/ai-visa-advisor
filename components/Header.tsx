@@ -1,10 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
-import type { User } from "@supabase/supabase-js";
+import { SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs";
 
 type Theme = "light" | "dark";
 
@@ -29,9 +27,9 @@ function themeIcon(theme: Theme) {
   );
 }
 
-export function Header({ initialUser }: { initialUser: User | null }) {
-  const router = useRouter();
+export function Header() {
   const [theme, setTheme] = useState<Theme>("light");
+  const { isSignedIn } = useAuth();
 
   useEffect(() => {
     const current = document.documentElement.getAttribute("data-theme");
@@ -52,13 +50,6 @@ export function Header({ initialUser }: { initialUser: User | null }) {
     localStorage.setItem("visa-score-theme", next);
   }
 
-  async function handleSignOut() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/");
-    router.refresh();
-  }
-
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-card/85 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
@@ -77,36 +68,28 @@ export function Header({ initialUser }: { initialUser: User | null }) {
             Explore
           </Link>
 
-          {initialUser ? (
+          {isSignedIn ? (
             <>
               <Link
                 href="/dashboard"
-                className="transition-colors hover:text-foreground"
+                className="transition-colors hover:text-foreground mr-2"
               >
                 Dashboard
               </Link>
-              <button
-                type="button"
-                onClick={handleSignOut}
-                className="transition-colors hover:text-foreground"
-              >
-                Sign out
-              </button>
+              <UserButton afterSignOutUrl="/" />
             </>
           ) : (
             <>
-              <Link
-                href="/auth/login"
-                className="transition-colors hover:text-foreground"
-              >
-                Sign in
-              </Link>
-              <Link
-                href="/auth/signup"
-                className="inline-flex h-8 items-center justify-center rounded-md bg-accent px-3 text-xs font-medium text-white hover:bg-indigo-600"
-              >
-                Sign up
-              </Link>
+              <SignInButton mode="modal">
+                <button className="transition-colors hover:text-foreground">
+                  Sign in
+                </button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <button className="inline-flex h-8 items-center justify-center rounded-md bg-accent px-3 text-xs font-medium text-white hover:bg-indigo-600">
+                  Sign up
+                </button>
+              </SignUpButton>
             </>
           )}
 

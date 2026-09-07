@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { listRecentSubmissions } from "@/lib/persistence";
 import { log } from "@/lib/logger";
-import { createClient } from "@/utils/supabase/server";
+import { auth } from "@clerk/nextjs/server";
 
 const GOALS = ["work", "study", "pr"] as const;
 const REGIONS = [
@@ -33,18 +33,14 @@ export async function GET(req: Request) {
 
   const { limit, goal, region } = parsed.data;
 
-  // Authenticated users see only their own submissions; anonymous sees public ones.
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { userId } = await auth();
 
   try {
     const items = await listRecentSubmissions({
       limit,
       goal,
       region,
-      userId: user?.id ?? undefined,
+      userId: userId ?? undefined,
     });
     return NextResponse.json({ items });
   } catch (err) {

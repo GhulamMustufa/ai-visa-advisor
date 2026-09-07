@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Header } from "@/components/Header";
-import { createClient } from "@/utils/supabase/server";
+import { ClerkProvider } from '@clerk/nextjs';
 import "./globals.css";
 
 const geistSans = localFont({
@@ -21,16 +21,11 @@ export const metadata: Metadata = {
     "Estimate visa route fit with a quick profile—demo tool, not legal advice.",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const themeInitScript = `
     (function() {
       try {
@@ -43,14 +38,16 @@ export default async function RootLayout({
   `;
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-background font-sans antialiased text-foreground`}
-      >
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-        <Header initialUser={user} />
-        {children}
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-background font-sans antialiased text-foreground`}
+        >
+          <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+          <Header />
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

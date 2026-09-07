@@ -128,5 +128,146 @@
         "actionMetrics": { "cost": 5, "time": 5, "difficulty": 4, "certainty": 5 }
       }
     ]
+  },
+  {
+    "id": "my-digital-nomad",
+    "region": "sg-my",
+    "country": "Malaysia",
+    "name": "DE Rantau Nomad Pass",
+    "shortDescription": "A digital nomad visa for IT and digital professionals earning a minimum income.",
+    "requirements": [
+      {
+        "id": "req-my-income",
+        "type": "hard",
+        "description": "Minimum annual income of $24,000 USD.",
+        "pointsAwarded": 50,
+        "resolutionActionName": "Secure a remote job with higher salary",
+        "actionMetrics": { "cost": 1, "time": 4, "difficulty": 4, "certainty": 3 }
+      },
+      {
+        "id": "req-my-profession",
+        "type": "hard",
+        "description": "Must be an IT or digital professional.",
+        "pointsAwarded": 50,
+        "resolutionActionName": "Transition to an IT/Digital role",
+        "actionMetrics": { "cost": 3, "time": 5, "difficulty": 4, "certainty": 2 }
+      }
+    ]
+  },
+  {
+    "id": "au-skilled-independent",
+    "region": "australia-new-zealand",
+    "country": "Australia",
+    "name": "Skilled Independent Visa (Subclass 189)",
+    "shortDescription": "A points-tested visa for invited workers with skills Australia needs.",
+    "requirements": [
+      {
+        "id": "req-au-lang",
+        "type": "hard",
+        "description": "Competent English (IELTS 6.0 in all bands or equivalent).",
+        "pointsAwarded": 0,
+        "resolutionActionName": "Pass IELTS with minimum 6.0",
+        "actionMetrics": { "cost": 2, "time": 2, "difficulty": 3, "certainty": 4 }
+      },
+      {
+        "id": "req-au-age",
+        "type": "points",
+        "description": "Age under 45 years.",
+        "pointsAwarded": 25
+      }
+    ]
+  },
+  {
+    "id": "de-blue-card",
+    "region": "germany-nordics",
+    "country": "Germany",
+    "name": "EU Blue Card",
+    "shortDescription": "A residence title for academics and highly qualified workers from outside the EU.",
+    "requirements": [
+      {
+        "id": "req-de-degree",
+        "type": "hard",
+        "description": "A recognized university degree.",
+        "pointsAwarded": 30,
+        "resolutionActionName": "Complete a Bachelor's degree",
+        "actionMetrics": { "cost": 5, "time": 5, "difficulty": 4, "certainty": 5 }
+      },
+      {
+        "id": "req-de-job",
+        "type": "hard",
+        "description": "A valid employment contract or binding job offer in Germany.",
+        "pointsAwarded": 40,
+        "resolutionActionName": "Secure a job offer in Germany",
+        "actionMetrics": { "cost": 1, "time": 5, "difficulty": 4, "certainty": 2 }
+      }
+    ]
+  },
+  {
+    "id": "es-digital-nomad",
+    "region": "southern-europe",
+    "country": "Spain",
+    "name": "Digital Nomad Visa",
+    "shortDescription": "Visa for non-EU remote workers and freelancers.",
+    "requirements": [
+      {
+        "id": "req-es-income",
+        "type": "hard",
+        "description": "Minimum monthly income of 200% of the Spanish minimum wage.",
+        "pointsAwarded": 50,
+        "resolutionActionName": "Secure remote income of at least ~2,500 EUR/month",
+        "actionMetrics": { "cost": 1, "time": 3, "difficulty": 3, "certainty": 4 }
+      }
+    ]
+  },
+  {
+    "id": "ae-golden-visa",
+    "region": "middle-east",
+    "country": "United Arab Emirates",
+    "name": "Golden Visa",
+    "shortDescription": "Long-term residence visa for specialized talents, investors, and outstanding students.",
+    "requirements": [
+      {
+        "id": "req-ae-salary",
+        "type": "hard",
+        "description": "Monthly salary of at least 30,000 AED (~8,100 USD) for professionals.",
+        "pointsAwarded": 60,
+        "resolutionActionName": "Achieve minimum salary threshold",
+        "actionMetrics": { "cost": 1, "time": 5, "difficulty": 5, "certainty": 3 }
+      }
+    ]
+  },
+  {
+    "id": "jp-highly-skilled",
+    "region": "jp-kr",
+    "country": "Japan",
+    "name": "Highly Skilled Professional Visa",
+    "shortDescription": "A points-based system for highly skilled foreign professionals.",
+    "requirements": [
+      {
+        "id": "req-jp-points",
+        "type": "hard",
+        "description": "Minimum 70 points on the HSP point calculation table (Education, Experience, Salary).",
+        "pointsAwarded": 70,
+        "resolutionActionName": "Accumulate 70+ points via Salary/Experience",
+        "actionMetrics": { "cost": 1, "time": 4, "difficulty": 4, "certainty": 4 }
+      }
+    ]
+  },
+  {
+    "id": "th-dtv",
+    "region": "easy-entry",
+    "country": "Thailand",
+    "name": "Destination Thailand Visa (DTV)",
+    "shortDescription": "A 5-year multiple entry visa for remote workers and digital nomads.",
+    "requirements": [
+      {
+        "id": "req-th-funds",
+        "type": "hard",
+        "description": "Proof of funds of at least 500,000 THB (~14,000 USD).",
+        "pointsAwarded": 100,
+        "resolutionActionName": "Save minimum required funds",
+        "actionMetrics": { "cost": 4, "time": 3, "difficulty": 2, "certainty": 5 }
+      }
+    ]
   }
 ]

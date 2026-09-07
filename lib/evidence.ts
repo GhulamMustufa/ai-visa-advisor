@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+import { db } from "./db";
 import type { Evidence, TargetRegion, VisaProfile, NormalizedProfile } from "./types";
 
 // Fallback logic for when OpenAI isn't configured, so the app still builds and runs
@@ -88,20 +88,17 @@ Output EXACTLY 3 queries as a JSON array of strings. No markdown formatting. Exa
     canada: "Canada", uk: "UK", "australia-new-zealand": "Australia", usa: "USA",
   };
   const filterCountry = regionToCountryMap[profile.targetRegion] || null;
-  const supabase = createClient();
   let allEvidence: Evidence[] = [];
 
   try {
     const searchPromises = searchQueries.map(async (queryText) => {
       const embedding = await getEmbedding(queryText);
-      const res = await supabase.rpc("match_evidence", {
-        query_embedding: embedding,
-        match_threshold: 0.3,
-        match_count: limit,
-        filter_country: filterCountry,
-        filter_pathway: pathwayId || null,
-      });
-      return res.data as Evidence[] || [];
+      const embeddingStr = `[${embedding.join(',')}]`;
+      const res = await db.query(
+        `SELECT * FROM match_evidence($1, $2, $3, $4, $5)`,
+        [embeddingStr, 0.3, limit, filterCountry, pathwayId || null]
+      );
+      return (res.rows as Evidence[]) || [];
     });
 
     const resultsList = await Promise.all(searchPromises);

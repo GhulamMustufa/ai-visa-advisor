@@ -57,25 +57,46 @@ export function WhatIfSimulator({ initialProfile, onChange, onReset }: WhatIfSim
 
       <div className="space-y-4">
         {/* English Test Score */}
-        {profile.englishTest !== "none" && (
-          <div>
-            <div className="flex justify-between items-center mb-1.5">
-              <label className="text-xs font-medium text-slate-700 uppercase tracking-wide">
-                {profile.englishTest} Score
-              </label>
-              <span className="text-xs font-bold text-indigo-600">{profile.testScore}</span>
+        <div>
+          <label className="text-xs font-medium text-slate-700 uppercase tracking-wide mb-1.5 block">
+            English Test
+          </label>
+          <select 
+            value={profile.englishTest}
+            onChange={(e) => {
+               const val = e.target.value as VisaProfile["englishTest"];
+               handleChange({ 
+                 englishTest: val, 
+                 testScore: val === "none" ? null : (val === "ielts" ? 7 : 90) 
+               });
+            }}
+            className="w-full mb-3 rounded-md border border-slate-200 text-sm p-2 text-slate-700 bg-slate-50 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+          >
+            <option value="none">None</option>
+            <option value="ielts">IELTS</option>
+            <option value="toefl">TOEFL</option>
+          </select>
+
+          {profile.englishTest !== "none" && (
+            <div>
+              <div className="flex justify-between items-center mb-1.5">
+                <label className="text-xs font-medium text-slate-700 uppercase tracking-wide">
+                  {profile.englishTest} Score
+                </label>
+                <span className="text-xs font-bold text-indigo-600">{profile.testScore}</span>
+              </div>
+              <input 
+                type="range"
+                min={profile.englishTest === "ielts" ? 4 : 40}
+                max={profile.englishTest === "ielts" ? 9 : 120}
+                step={profile.englishTest === "ielts" ? 0.5 : 5}
+                value={profile.testScore ?? 0}
+                onChange={(e) => handleChange({ testScore: Number(e.target.value) })}
+                className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+              />
             </div>
-            <input 
-              type="range"
-              min={profile.englishTest === "ielts" ? 4 : 40}
-              max={profile.englishTest === "ielts" ? 9 : 120}
-              step={profile.englishTest === "ielts" ? 0.5 : 5}
-              value={profile.testScore ?? 0}
-              onChange={(e) => handleChange({ testScore: Number(e.target.value) })}
-              className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-            />
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Work Experience */}
         <div>

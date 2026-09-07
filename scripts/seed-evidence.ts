@@ -1,15 +1,17 @@
-import { createClient } from "@supabase/supabase-js";
+import { Pool } from "pg";
 import crypto from "crypto";
 
-// We require OPENAI_API_KEY and Supabase credentials in the environment
+// We require OPENAI_API_KEY and DATABASE_URL in the environment
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const DATABASE_URL = process.env.DATABASE_URL;
 
 if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is missing");
-if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error("Supabase credentials missing");
+if (!DATABASE_URL) throw new Error("DATABASE_URL missing");
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const pool = new Pool({
+  connectionString: DATABASE_URL,
+  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : undefined,
+});
 
 const MOCK_EVIDENCE = [
   {
@@ -104,34 +106,42 @@ async function seed() {
     // Generate embedding
     const embedding = await generateEmbedding(item.content);
     
-    // Insert into Supabase
-    const { error } = await supabase
-      .from("immigration_evidence")
-      .upsert({
-        source_id: item.source_id,
-        authority_tier: item.authority_tier,
-        country: item.country,
-        jurisdiction: item.jurisdiction,
-        pathway: item.pathway,
-        claim_type: item.claim_type,
-        effective_from: item.effective_from,
-        effective_until: item.effective_until,
-        source_url: item.source_url,
-        source_title: item.source_title,
-        verification_status: item.verification_status,
-        content: item.content,
-        content_hash,
-        embedding
-      }, { onConflict: "source_id" });
-
-    if (error) {
-      console.error(`Failed to insert ${item.source_id}:`, error);
-    } else {
+    // Insert into DB
+    const embeddingStr = `[${embedding.join(',')}]`;
+    try {
+      await pool.query(
+        `INSERT INTO immigration_evidence 
+          (source_id, authority_tier, country, jurisdiction, pathway, claim_type, effective_from, effective_until, source_url, source_title, verification_status, content, content_hash, embedding)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+         ON CONFLICT (source_id) DO UPDATE SET
+          authority_tier = EXCLUDED.authority_tier,
+          country = EXCLUDED.country,
+          jurisdiction = EXCLUDED.jurisdiction,
+          pathway = EXCLUDED.pathway,
+          claim_type = EXCLUDED.claim_type,
+          effective_from = EXCLUDED.effective_from,
+          effective_until = EXCLUDED.effective_until,
+          source_url = EXCLUDED.source_url,
+          source_title = EXCLUDED.source_title,
+          verification_status = EXCLUDED.verification_status,
+          content = EXCLUDED.content,
+          content_hash = EXCLUDED.content_hash,
+          embedding = EXCLUDED.embedding,
+          updated_at = timezone('utc'::text, now())`,
+        [
+          item.source_id, item.authority_tier, item.country, item.jurisdiction, item.pathway, item.claim_type, 
+          item.effective_from, item.effective_until, item.source_url, item.source_title, item.verification_status, 
+          item.content, content_hash, embeddingStr
+        ]
+      );
       console.log(`Successfully ingested: ${item.source_id}`);
+    } catch (error) {
+      console.error(`Failed to insert ${item.source_id}:`, error);
     }
   }
   
   console.log("Seeding complete.");
+  await pool.end();
 }
 
 seed().catch(console.error);

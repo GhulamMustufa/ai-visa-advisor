@@ -1,19 +1,16 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
+import { auth } from "@clerk/nextjs/server";
 import { getStripe } from "@/lib/stripe";
 import { getUserSubscription } from "@/lib/persistence";
 
 export async function POST(req: Request) {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { userId } = await auth();
 
-  if (!user) {
+  if (!userId) {
     return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
   }
 
-  const subscription = await getUserSubscription(user.id);
+  const subscription = await getUserSubscription(userId);
   if (!subscription?.stripeCustomerId) {
     return NextResponse.json({ error: "No billing account found" }, { status: 404 });
   }

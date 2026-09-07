@@ -11,7 +11,7 @@ import {
   countMonthlySubmissions,
   getUserSubscription,
 } from "@/lib/persistence";
-import { createClient } from "@/utils/supabase/server";
+import { auth } from "@clerk/nextjs/server";
 import { FREE_MONTHLY_LIMIT } from "@/lib/stripe";
 
 const REGIONS = [
@@ -85,14 +85,13 @@ export async function POST(req: Request) {
     );
   }
 
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { userId } = await auth();
 
-  if (user) {
-    const subscription = await getUserSubscription(user.id);
+  if (userId) {
+    const subscription = await getUserSubscription(userId);
     const isPro = subscription?.plan === "pro" && subscription.status === "active";
     if (!isPro) {
-      const used = await countMonthlySubmissions(user.id);
+      const used = await countMonthlySubmissions(userId);
       if (used >= FREE_MONTHLY_LIMIT) {
         return NextResponse.json(
           {
@@ -149,7 +148,7 @@ export async function POST(req: Request) {
       await persistSubmission({
         requestId,
         ip,
-        userId: user?.id ?? null,
+        userId: userId ?? null,
         promptVersion,
         model: modelUsed,
         profile,
