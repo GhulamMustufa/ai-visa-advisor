@@ -235,16 +235,17 @@ export function computeVisaScore(profile: VisaProfile): ScoreResponse {
   const catalog = CATALOG[profile.targetRegion];
   const options = catalog
     .map((e) => scoreOption(e, profile))
-    .sort((a, b) => b.eligibilityScore - a.eligibilityScore);
+    .sort((a, b) => (b.eligibilityScore || 0) - (a.eligibilityScore || 0));
 
   const overallScore = Math.round(
-    options.slice(0, 3).reduce((s, o) => s + o.eligibilityScore, 0) /
+    options.slice(0, 3).reduce((s, o) => s + (o.eligibilityScore || 0), 0) /
       Math.min(3, options.length),
   );
 
   return {
-    overallScore,
+    overall_score: Math.min(100, Math.round(overallScore)),
     summary: buildSummary(profile, overallScore, options[0]),
+    pathways: [],
     options,
-  };
+  } as unknown as ScoreResponse;
 }

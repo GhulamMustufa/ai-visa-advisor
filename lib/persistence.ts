@@ -88,7 +88,7 @@ export async function persistSubmission(params: {
   promptVersion: string;
   model: string;
   profile: VisaProfile;
-  sources: Array<{ title: string; url: string }>;
+  sources: string[];
   result: PersistedResult;
   latencyMs: number;
 }): Promise<void> {

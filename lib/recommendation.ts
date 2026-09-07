@@ -8,9 +8,9 @@ function getStatusMultiplier(status: EligibilityStatus): number {
   switch (status) {
     case "ELIGIBLE": return 1.0;
     case "LIKELY_ELIGIBLE": return 0.9;
-    case "CONDITIONAL": return 0.7;
+    case "CONDITIONALLY_ELIGIBLE": return 0.7;
     case "INSUFFICIENT_EVIDENCE": return 0.4;
-    case "NOT_ELIGIBLE": return 0.1; // Still ranks but very low
+    case "BLOCKED": return 0.1; // Still ranks but very low
   }
 }
 

@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   readRecentSubmissions,
   type RecentSubmission,
 } from "@/lib/submissions";
+import { DEMO_RESULT } from "@/lib/demo";
+import { RESULT_STORAGE_KEY } from "@/lib/storage";
 
 function fmtTime(iso: string) {
   const d = new Date(iso);
@@ -27,11 +30,17 @@ const REGIONS: Record<string, string> = {
 };
 
 export default function Home() {
+  const router = useRouter();
   const [recent, setRecent] = useState<RecentSubmission[]>([]);
 
   useEffect(() => {
     setRecent(readRecentSubmissions());
   }, []);
+
+  const handleTryDemo = () => {
+    sessionStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(DEMO_RESULT));
+    router.push("/results");
+  };
 
   return (
     <main className="relative overflow-hidden">
@@ -66,12 +75,12 @@ export default function Home() {
               >
                 Check My Chances — Free
               </Link>
-              <Link
-                href="/explore"
-                className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-6 text-sm font-medium text-slate-800 transition hover:bg-slate-50"
+              <button
+                onClick={handleTryDemo}
+                className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-6 text-sm font-medium text-slate-800 shadow-sm transition hover:bg-slate-50 hover:border-slate-300"
               >
-                Explore Regions
-              </Link>
+                Try Demo
+              </button>
             </div>
 
             {/* Real stats only */}
@@ -332,12 +341,12 @@ export default function Home() {
             >
               Start Free Assessment
             </Link>
-            <Link
-              href="/explore"
-              className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-200 bg-card px-6 text-sm font-medium text-slate-800 transition hover:bg-slate-50"
+            <button
+              onClick={handleTryDemo}
+              className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-200 bg-card px-6 text-sm font-medium text-slate-800 shadow-sm transition hover:bg-slate-50 hover:border-slate-300"
             >
-              Explore Regions First
-            </Link>
+              Try Demo
+            </button>
           </div>
           <p className="mt-4 text-xs text-slate-400">
             No account required · Free to start · No credit card

@@ -38,6 +38,14 @@ export type NormalizedProfile = {
   isHealthcare: boolean;
 };
 
+export type VisaOption = {
+  id: string;
+  name: string;
+  shortDescription: string;
+  highlights: string[];
+  eligibilityScore?: number;
+};
+
 // --- Phase 3: Explainable Scoring & Marginal Improvement Models ---
 
 export type EligibilityStatus = 
