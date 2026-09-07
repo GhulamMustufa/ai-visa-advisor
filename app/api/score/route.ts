@@ -31,12 +31,12 @@ const ENGLISH = ["none", "ielts", "toefl"] as const;
 const GOALS = ["work", "study", "pr"] as const;
 
 const profileSchema = z.object({
-  nationality: z.string().trim().min(1, "nationality is required").max(100, "nationality too long"),
+  nationality: z.string().trim().min(1, "nationality is required").max(50, "nationality too long").regex(/^[a-zA-Z\s\-]+$/, "Invalid characters in nationality"),
   targetRegion: z.enum(REGIONS),
   age: z.coerce.number().int().min(18).max(80),
   education: z.enum(EDUCATION),
   yearsExperience: z.coerce.number().int().min(0).max(60),
-  fieldOfWork: z.string().trim().min(1, "fieldOfWork is required").max(100, "fieldOfWork too long"),
+  fieldOfWork: z.string().trim().min(1, "fieldOfWork is required").max(50, "fieldOfWork too long").regex(/^[a-zA-Z0-9\s,\.\-&]+$/, "Invalid characters in field of work"),
   englishTest: z.enum(ENGLISH),
   testScore: z.coerce.number().nullable().optional(),
   savingsUsd: z.coerce.number().min(0).max(50_000_000),

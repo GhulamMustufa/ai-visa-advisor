@@ -1,8 +1,24 @@
-export class CircuitBreaker {
+export type CircuitBreakerState = "CLOSED" | "OPEN" | "HALF_OPEN";
+
+export interface CircuitBreakerAdapter {
+  getState(): Promise<CircuitBreakerState>;
+  isOpen(): Promise<boolean>;
+  recordSuccess(): Promise<void>;
+  recordFailure(): Promise<void>;
+  reset(): Promise<void>;
+}
+
+/**
+ * In-Memory Adapter for the Circuit Breaker.
+ * WARNING: In a Next.js Serverless environment (like Vercel), this in-memory 
+ * state will reset on cold starts and will not be shared across edge nodes.
+ * For production, implement a `RedisCircuitBreakerAdapter` using Vercel KV.
+ */
+export class InMemoryCircuitBreakerAdapter implements CircuitBreakerAdapter {
   private failureThreshold: number;
   private resetTimeoutMs: number;
   private failureCount: number = 0;
-  private state: "CLOSED" | "OPEN" | "HALF_OPEN" = "CLOSED";
+  private state: CircuitBreakerState = "CLOSED";
   private nextAttemptMs: number = 0;
 
   constructor(failureThreshold: number = 5, resetTimeoutMs: number = 60000) {
@@ -10,7 +26,11 @@ export class CircuitBreaker {
     this.resetTimeoutMs = resetTimeoutMs;
   }
 
-  isOpen(): boolean {
+  async getState(): Promise<CircuitBreakerState> {
+    return this.state;
+  }
+
+  async isOpen(): Promise<boolean> {
     if (this.state === "OPEN") {
       if (Date.now() > this.nextAttemptMs) {
         this.state = "HALF_OPEN";
@@ -21,12 +41,12 @@ export class CircuitBreaker {
     return false;
   }
 
-  recordSuccess(): void {
+  async recordSuccess(): Promise<void> {
     this.failureCount = 0;
     this.state = "CLOSED";
   }
 
-  recordFailure(): void {
+  async recordFailure(): Promise<void> {
     this.failureCount++;
     if (this.failureCount >= this.failureThreshold) {
       this.state = "OPEN";
@@ -35,12 +55,12 @@ export class CircuitBreaker {
     }
   }
 
-  reset(): void {
+  async reset(): Promise<void> {
     this.failureCount = 0;
     this.state = "CLOSED";
     this.nextAttemptMs = 0;
   }
 }
 
-// Global singleton for OpenAI dependency
-export const openAiCircuitBreaker = new CircuitBreaker(5, 60000);
+// Global singleton instance (InMemory for MVP, swap to Redis for Prod)
+export const openAiCircuitBreaker: CircuitBreakerAdapter = new InMemoryCircuitBreakerAdapter(5, 60000);

@@ -53,9 +53,6 @@ export const DEMO_RESULT: StoredResult = {
       ],
       estimated_timeline: "6 - 12 months (if ITA received)",
       top_improvement: "Get a valid Canadian job offer",
-      eligibility_confidence: "HIGH",
-      recommendation_confidence: "HIGH",
-      evidence_confidence: "HIGH",
       source_freshness: "VERIFIED",
       satisfiedRequirements: [
         {
@@ -160,9 +157,6 @@ export const DEMO_RESULT: StoredResult = {
       ],
       estimated_timeline: "4 - 8 weeks (after job offer)",
       top_improvement: "Secure GTS Employer Sponsorship",
-      eligibility_confidence: "HIGH",
-      recommendation_confidence: "HIGH",
-      evidence_confidence: "HIGH",
       source_freshness: "VERIFIED",
       satisfiedRequirements: [
         {

@@ -1,5 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
-import type { Evidence, TargetRegion } from "./types";
+import type { Evidence, TargetRegion, VisaProfile, NormalizedProfile } from "./types";
 
 // Fallback logic for when OpenAI isn't configured, so the app still builds and runs
 async function getEmbedding(text: string): Promise<number[]> {
@@ -31,47 +31,95 @@ async function getEmbedding(text: string): Promise<number[]> {
 }
 
 export async function retrieveEvidence(
-  queryText: string,
-  targetRegion: TargetRegion,
+  profile: VisaProfile,
+  normalizedProfile: NormalizedProfile,
   pathwayId?: string,
   limit: number = 10
 ): Promise<Evidence[]> {
-  let data: any = null;
-  let error: any = null;
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    console.warn("No OPENAI_API_KEY, returning empty evidence.");
+    return [];
+  }
+
+  // 1. Query Transformation: Generate targeted search queries
+  let searchQueries: string[] = [];
+  try {
+    const prompt = `You are an expert immigration paralegal. Generate 3 distinct, highly targeted search queries to find the exact legal requirements, exceptions, or processing times for this applicant.
+    
+Applicant Info: ${profile.age} years old, ${profile.nationality} citizen, ${normalizedProfile.canonicalOccupation}, ${profile.education}. Goal: ${profile.goal} in ${profile.targetRegion}.
+Pathway: ${pathwayId || "general"}
+
+Output EXACTLY 3 queries as a JSON array of strings. No markdown formatting. Example: ["Express Entry CRS cutoff score tech draw", "Federal Skilled Worker proof of funds requirement", "Software Engineer NOC code Canada LMIA"]`;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      signal: controller.signal,
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        temperature: 0.1,
+        messages: [{ role: "user", content: prompt }]
+      }),
+    });
+    clearTimeout(timer);
+    
+    if (res.ok) {
+      const data = await res.json();
+      const content = data.choices[0].message.content.trim();
+      // Remove any markdown block wrapping if the LLM didn't listen
+      const cleanContent = content.replace(/^```json\n?/, "").replace(/\n?```$/, "");
+      searchQueries = JSON.parse(cleanContent);
+    }
+  } catch (err) {
+    console.warn("Query transformation failed, falling back to basic query.", err);
+  }
+
+  if (!Array.isArray(searchQueries) || searchQueries.length === 0) {
+    searchQueries = [
+      `Visa requirements for ${normalizedProfile.canonicalOccupation} seeking ${profile.goal} in ${profile.targetRegion}.`
+    ];
+  }
+
+  // 2. Execute parallel vector searches
+  const regionToCountryMap: Record<string, string> = {
+    canada: "Canada", uk: "UK", "australia-new-zealand": "Australia", usa: "USA",
+  };
+  const filterCountry = regionToCountryMap[profile.targetRegion] || null;
+  const supabase = createClient();
+  let allEvidence: Evidence[] = [];
 
   try {
-    const embedding = await getEmbedding(queryText);
-
-    // Map TargetRegion to the 'country' metadata used in the DB
-    const regionToCountryMap: Record<string, string> = {
-      canada: "Canada",
-      uk: "UK",
-      "australia-new-zealand": "Australia",
-      usa: "USA",
-    };
-    const filterCountry = regionToCountryMap[targetRegion] || null;
-
-    const supabase = createClient();
-    const res = await supabase.rpc("match_evidence", {
-      query_embedding: embedding,
-      match_threshold: 0.3,
-      match_count: limit,
-      filter_country: filterCountry,
-      filter_pathway: pathwayId || null,
+    const searchPromises = searchQueries.map(async (queryText) => {
+      const embedding = await getEmbedding(queryText);
+      const res = await supabase.rpc("match_evidence", {
+        query_embedding: embedding,
+        match_threshold: 0.3,
+        match_count: limit,
+        filter_country: filterCountry,
+        filter_pathway: pathwayId || null,
+      });
+      return res.data as Evidence[] || [];
     });
-    data = res.data;
-    error = res.error;
+
+    const resultsList = await Promise.all(searchPromises);
+    allEvidence = resultsList.flat();
   } catch (err) {
     console.warn("Skipping DB evidence retrieval (likely running in CLI without Next.js request scope).");
     return [];
   }
 
-  if (error || !data) {
-    console.error("Failed to retrieve evidence:", error);
-    return [];
+  // 3. Deduplicate exact chunks retrieved across multiple queries
+  const uniqueEvidenceMap = new Map<string, Evidence>();
+  for (const e of allEvidence) {
+    if (e && e.id) {
+      uniqueEvidenceMap.set(e.id, e);
+    }
   }
 
-  return filterByAuthority(data as Evidence[]);
+  return filterByAuthority(Array.from(uniqueEvidenceMap.values()));
 }
 
 /**

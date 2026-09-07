@@ -135,10 +135,8 @@ export type RankedPathway = DeterministicEvaluation & {
   citations: Citation[];
   estimated_timeline: string;
   top_improvement: string;
-  eligibility_confidence: EligibilityConfidence;
-  recommendation_confidence: RecommendationConfidence;
-  evidence_confidence: RecommendationConfidence;
-  source_freshness: DataFreshness;
+  eligibilityStatus?: string;
+  source_freshness?: "VERIFIED" | "STALE" | "UNKNOWN";
 };
 
 export type ScoreResponse = {
