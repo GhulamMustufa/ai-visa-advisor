@@ -1,10 +1,9 @@
-import type { NormalizedProfile, RankedPathway, Evidence } from "./types";
-import type { RankedEvaluation } from "./recommendation";
+import type { NormalizedProfile, RankedPathway, Evidence, DeterministicEvaluation } from "./types";
 import { PATHWAY_REGISTRY } from "./domain";
 
 export function buildAIOrchestratorPrompt(
   profile: NormalizedProfile, 
-  topEvaluations: RankedEvaluation[],
+  topEvaluations: DeterministicEvaluation[],
   evidenceList: Evidence[]
 ): string {
   
@@ -16,9 +15,11 @@ export function buildAIOrchestratorPrompt(
       country: domainData?.country || "Unknown",
       eligibilityStatus: evalData.status,
       baseScore: evalData.baseScore,
-      satisfiedRequirements: evalData.satisfiedRequirements.map(r => r.description),
+      scoreBreakdown: evalData.scoreBreakdown,
+      satisfiedRequirements: evalData.satisfiedRequirements.map(r => ({ desc: r.description, points: r.scoreImpact })),
       missingRequirements: evalData.missingRequirements.map(r => r.description),
       blockingRequirements: evalData.blockingRequirements.map(r => r.description),
+      topWhatIfScenario: evalData.topWhatIfScenario
     };
   });
 
@@ -32,10 +33,15 @@ export function buildAIOrchestratorPrompt(
     source_title: e.source_title
   }));
 
-  return `You are a senior immigration case analyst. Your task is to explain and synthesize the deterministic eligibility results provided to you.
+  return `You are a senior immigration case analyst. Your task is to EXPLAIN the deterministic scores and 'What-If' simulations provided to you.
   
-DO NOT INVENT SCORES. DO NOT INVENT ELIGIBILITY STATUS. 
-You must strictly use the \`eligibilityStatus\` and \`baseScore\` provided in the Context Pathways below.
+CRITICAL INSTRUCTIONS ON EXPLAINABILITY AND TONE:
+1. DO NOT INVENT SCORES OR STATUSES. You must strictly use the deterministic metrics provided below.
+2. DO NOT use misleading probabilistic phrasing like "You have a 78% chance of approval."
+3. DO use objective Fit/Readiness framing like: "Your profile strongly fits this pathway (Profile Strength: 85%), but lack of sponsorship currently blocks eligibility."
+4. If a pathway is BLOCKED, explicitly state that hard requirements override soft scores.
+5. Explain EXACTLY where points come from (e.g. "+15 points for Master's degree").
+6. Highlight the 'What-If' scenarios provided deterministically (e.g. "If you complete action X, your score will increase by Y and status will become Z").
 
 Applicant Profile:
 ${JSON.stringify({
@@ -48,21 +54,19 @@ ${JSON.stringify({
   savingsUsd: profile.original.savingsUsd
 }, null, 2)}
 
-Deterministic Context Pathways (USE THESE EXACTLY):
+Deterministic Context Pathways (EXPLAIN THESE EXACTLY):
 ${JSON.stringify(contextPathways, null, 2)}
 
 Official Grounding Evidence (USE THIS TO BACK UP CLAIMS):
 ${JSON.stringify(structuredEvidence, null, 2)}
 
-INSTRUCTIONS:
-1. Return exactly the top pathways provided in the context, using their exact name, country, and baseScore.
-2. For each pathway, write a "reason" (max 400 chars) explaining WHY they got this status and score based on the satisfied/missing requirements and grounding evidence.
-3. Extract specific "weaknesses" from the missing or blocking requirements.
-4. List specific "documents" they will need based on the pathway.
-5. Provide concrete "next_steps".
-6. Estimate a realistic timeline based on the sources.
-7. Identify the "top_improvement" (e.g. "Take IELTS to reach C1" or "Secure a job offer").
-8. Assign confidence scores (HIGH/MEDIUM/LOW) for eligibility, recommendation, and evidence.
-9. ONLY cite URLs that are explicitly provided in the Official Grounding Evidence. Do not hallucinate citations.
-10. Output valid JSON matching the requested schema.`;
+OUTPUT REQUIREMENTS:
+1. Return exactly the top pathways provided in the context, using their exact name and country.
+2. For each pathway, write a "reason" (max 400 chars) explaining WHY they got this status and score based on the point breakdown, hard requirements, and evidence.
+3. Extract specific "weaknesses" from the missing/blocking requirements.
+4. Provide concrete "next_steps".
+5. Estimate a realistic timeline based on the sources.
+6. Under "top_improvement", output the exact action from the deterministic \`topWhatIfScenario\` and describe its numeric impact (e.g., "Secure sponsorship to change status from BLOCKED to ELIGIBLE").
+7. ONLY cite URLs explicitly provided in the Official Grounding Evidence. Do not hallucinate citations.
+8. Output valid JSON matching the requested schema.`;
 }

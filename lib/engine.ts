@@ -3,16 +3,19 @@ import type {
   Requirement, 
   EvaluatedRequirement, 
   DeterministicEvaluation, 
-  EligibilityStatus 
+  EligibilityStatus,
+  ScoreBreakdown,
+  WhatIfScenario,
+  MarginalAction
 } from "./types";
 import type { PathwayDomain } from "./domain";
+// We'll import calculateMarginalImprovements from lib/marginal.ts after we create it
+import { calculateMarginalImprovements } from "./marginal";
 
-function evaluateRequirement(profile: NormalizedProfile, req: Requirement): EvaluatedRequirement {
+export function evaluateRequirement(profile: NormalizedProfile, req: Requirement): EvaluatedRequirement {
   let met = false;
   let notes = "";
 
-  // A real implementation would parse the requirement ID or type and map it to specific deterministic checks.
-  // We mock a few critical ones for demonstration of the architecture.
   switch (req.id) {
     case "req-ca-exp":
       met = profile.original.yearsExperience >= 1;
@@ -23,54 +26,48 @@ function evaluateRequirement(profile: NormalizedProfile, req: Requirement): Eval
       met = ["B2", "C1", "C2"].includes(profile.languageLevelCEFR);
       notes = met ? `Language level ${profile.languageLevelCEFR} meets threshold` : "Language level insufficient";
       break;
+    case "req-ca-lang-c1":
+      met = ["C1", "C2"].includes(profile.languageLevelCEFR);
+      notes = met ? `Language level ${profile.languageLevelCEFR} awards advanced points` : "Language level below advanced";
+      break;
     case "req-ca-funds":
       met = profile.original.savingsUsd >= 10000;
       notes = met ? "Sufficient funds declared" : "Insufficient settlement funds";
+      break;
+    case "req-ca-edu-bachelor":
+    case "req-us-degree":
+      met = ["bachelor", "master", "phd"].includes(profile.original.education);
+      notes = met ? "Has degree" : "Missing required degree";
+      break;
+    case "req-ca-edu-master":
+      met = ["master", "phd"].includes(profile.original.education);
+      notes = met ? "Has advanced degree" : "Missing advanced degree";
+      break;
+    case "req-ca-age-optimal":
+      met = profile.original.age >= 20 && profile.original.age <= 29;
+      notes = met ? "In optimal age range" : "Outside optimal age range";
+      break;
+    case "req-ca-stem":
+      met = profile.isSTEM || profile.isHealthcare;
+      notes = met ? "Occupation is in STEM/Healthcare" : "Occupation not in priority list";
       break;
     case "req-uk-lang":
       met = ["B1", "B2", "C1", "C2"].includes(profile.languageLevelCEFR);
       notes = met ? "Meets B1 minimum" : "Language level below B1";
       break;
-    case "req-au-age":
-      met = profile.original.age < 45;
-      notes = met ? "Under 45 years old" : "Over age limit";
-      break;
-    case "req-us-degree":
-      met = ["bachelor", "master", "phd"].includes(profile.original.education);
-      notes = met ? "Has degree" : "Missing required degree";
-      break;
     default:
-      // For conditions we can't deterministically evaluate from the basic profile (e.g., job offer),
-      // we assume they are missing/conditional.
+      // Hard things like sponsorships, job offers, or lotteries default to false unless explicitly mocked
       met = false;
-      notes = "Requires external validation (e.g., job offer, assessment)";
+      notes = "Requires external validation or action (e.g., job offer, assessment)";
       break;
   }
 
-  return { ...req, met, notes };
-}
-
-function calculateBaseScore(profile: NormalizedProfile, pathway: PathwayDomain): number {
-  let score = 0;
-  
-  // Basic deterministic point scoring (re-implemented cleanly from legacy lib/score.ts concepts)
-  if (profile.original.education === "phd") score += 25;
-  else if (profile.original.education === "master") score += 20;
-  else if (profile.original.education === "bachelor") score += 15;
-  
-  if (profile.original.yearsExperience >= 5) score += 15;
-  else if (profile.original.yearsExperience >= 3) score += 10;
-  
-  if (["C1", "C2"].includes(profile.languageLevelCEFR)) score += 24;
-  else if (profile.languageLevelCEFR === "B2") score += 16;
-  else if (profile.languageLevelCEFR === "B1") score += 8;
-
-  if (profile.original.age >= 20 && profile.original.age <= 29) score += 12;
-  else if (profile.original.age >= 30 && profile.original.age <= 39) score += 8;
-
-  if (profile.isSTEM || profile.isHealthcare) score += 10;
-
-  return score;
+  return { 
+    ...req, 
+    met, 
+    notes, 
+    scoreImpact: met ? req.pointsAwarded : 0 
+  };
 }
 
 export function evaluateEligibility(profile: NormalizedProfile, pathway: PathwayDomain): DeterministicEvaluation {
@@ -83,26 +80,51 @@ export function evaluateEligibility(profile: NormalizedProfile, pathway: Pathway
   let status: EligibilityStatus = "ELIGIBLE";
   
   if (blockingRequirements.length > 0) {
-    status = "NOT_ELIGIBLE";
+    status = "BLOCKED"; // HARD OVERRIDE
   } else if (missingRequirements.length > 0) {
-    status = "CONDITIONAL";
+    status = "CONDITIONALLY_ELIGIBLE";
   }
 
-  const baseScore = calculateBaseScore(profile, pathway);
-  const maxScore = 100; // Normalized scale for comparison
+  // Calculate base score simply by summing up the points awarded by satisfied requirements
+  const baseScore = satisfiedRequirements.reduce((sum, req) => sum + req.scoreImpact, 0);
+  const maxScore = pathway.requirements.reduce((sum, req) => sum + req.pointsAwarded, 0);
 
-  // If there's a strict threshold (like AU 65 points), adjust status
-  if (pathway.baseScoreThreshold && baseScore < pathway.baseScoreThreshold && status === "ELIGIBLE") {
-    status = "NOT_ELIGIBLE";
+  // If there's a strict threshold (e.g. Express Entry 67), enforce it
+  if (pathway.baseScoreThreshold && baseScore < pathway.baseScoreThreshold && status !== "BLOCKED") {
+    status = "INSUFFICIENT_EVIDENCE"; 
   }
+
+  // Breakdown for explainability
+  const eligibilityPoints = satisfiedRequirements.filter(r => r.type === 'hard').reduce((sum, req) => sum + req.scoreImpact, 0);
+  const maxEligibilityPoints = pathway.requirements.filter(r => r.type === 'hard').reduce((sum, req) => sum + req.pointsAwarded, 0);
+  
+  const profilePoints = satisfiedRequirements.filter(r => r.type === 'points').reduce((sum, req) => sum + req.scoreImpact, 0);
+  const maxProfilePoints = pathway.requirements.filter(r => r.type === 'points').reduce((sum, req) => sum + req.pointsAwarded, 0);
+
+  const scoreBreakdown: ScoreBreakdown = {
+    eligibilityFit: maxEligibilityPoints > 0 ? (eligibilityPoints / maxEligibilityPoints) * 100 : 100,
+    profileStrength: maxProfilePoints > 0 ? (profilePoints / maxProfilePoints) * 100 : 100,
+    evidenceQuality: 0, // Injected later by API route after retrieval
+    competitiveness: maxScore > 0 ? (baseScore / maxScore) * 100 : 100
+  };
+
+  const marginalImprovements = calculateMarginalImprovements(evaluatedReqs, baseScore);
+  const topWhatIfScenario = marginalImprovements.length > 0 ? {
+    targetAction: marginalImprovements[0],
+    newEligibilityStatus: blockingRequirements.length === 1 && blockingRequirements[0].id === marginalImprovements[0].requirementId ? "CONDITIONALLY_ELIGIBLE" : status,
+    newBaseScore: baseScore + marginalImprovements[0].pointImpact
+  } : undefined;
 
   return {
     pathwayId: pathway.id,
     status,
     baseScore,
     maxScore,
+    scoreBreakdown,
     satisfiedRequirements,
     missingRequirements,
-    blockingRequirements
+    blockingRequirements,
+    marginalImprovements,
+    topWhatIfScenario
   };
 }

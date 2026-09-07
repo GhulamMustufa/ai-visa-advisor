@@ -231,6 +231,7 @@ export async function POST(req: Request) {
                             },
                             estimated_timeline: { type: "string" },
                             top_improvement: { type: "string" },
+                            eligibilityStatus: { type: "string" },
                             eligibility_confidence: { type: "string", enum: ["HIGH", "MEDIUM", "LOW"] },
                             recommendation_confidence: { type: "string", enum: ["HIGH", "MEDIUM", "LOW"] },
                             evidence_confidence: { type: "string", enum: ["HIGH", "MEDIUM", "LOW"] },
@@ -288,6 +289,7 @@ export async function POST(req: Request) {
       ...evalData,
       name: domainData?.name || aiData.name,
       country: domainData?.country || aiData.country,
+      status: evalData.status, // Always strictly preserve deterministic status
       reason: aiData.reason,
       weaknesses: aiData.weaknesses,
       documents: aiData.documents,

@@ -9,6 +9,10 @@ vi.mock("@/utils/supabase/server", () => ({
   }),
 }));
 
+vi.mock("@/lib/evidence", () => ({
+  retrieveEvidence: () => Promise.resolve([]),
+}));
+
 import { POST } from "@/app/api/score/route";
 
 const VALID_PROFILE = {

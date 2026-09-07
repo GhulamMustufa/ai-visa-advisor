@@ -28,7 +28,6 @@ export type VisaProfile = {
   goal: Goal;
 };
 
-// --- Phase 1: AI Architecture Domain Models ---
 export type CEFRLevel = "none" | "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 
 export type NormalizedProfile = {
@@ -39,25 +38,63 @@ export type NormalizedProfile = {
   isHealthcare: boolean;
 };
 
+// --- Phase 3: Explainable Scoring & Marginal Improvement Models ---
+
 export type EligibilityStatus = 
   | "ELIGIBLE"
   | "LIKELY_ELIGIBLE"
-  | "CONDITIONAL"
-  | "NOT_ELIGIBLE"
+  | "CONDITIONALLY_ELIGIBLE"
+  | "BLOCKED" // Replaces NOT_ELIGIBLE for hard failures
   | "INSUFFICIENT_EVIDENCE";
 
 export type EligibilityConfidence = "HIGH" | "MEDIUM" | "LOW";
 export type RequirementType = "hard" | "conditional" | "points";
 
+// Quantifies the heuristic effort to resolve a missing requirement
+export type ActionMetrics = {
+  cost: number;       // 1 (Low) to 5 (High)
+  time: number;       // 1 (Fast) to 5 (Slow)
+  difficulty: number; // 1 (Easy) to 5 (Hard)
+  certainty: number;  // 1 (Uncertain) to 5 (Guaranteed if done)
+};
+
 export type Requirement = {
   id: string;
   type: RequirementType;
   description: string;
+  // Deterministic points awarded if met
+  pointsAwarded: number; 
+  // What action the user must take if this requirement is missing
+  resolutionActionName?: string;
+  // Effort required to meet this missing requirement
+  actionMetrics?: ActionMetrics;
 };
 
 export type EvaluatedRequirement = Requirement & {
   met: boolean;
   notes?: string;
+  scoreImpact: number; // The actual points awarded (or 0)
+};
+
+export type ScoreBreakdown = {
+  eligibilityFit: number;
+  profileStrength: number;
+  evidenceQuality: number; // Based on authority tier of matched evidence
+  competitiveness: number; // Subjective or calculated against threshold
+};
+
+export type MarginalAction = {
+  actionName: string;
+  pointImpact: number;
+  metrics: ActionMetrics;
+  roiScore: number; // Return on Investment score for ranking
+  requirementId: string;
+};
+
+export type WhatIfScenario = {
+  targetAction: MarginalAction;
+  newEligibilityStatus: EligibilityStatus;
+  newBaseScore: number;
 };
 
 export type DeterministicEvaluation = {
@@ -65,9 +102,12 @@ export type DeterministicEvaluation = {
   status: EligibilityStatus;
   baseScore: number;
   maxScore: number;
+  scoreBreakdown: ScoreBreakdown;
   satisfiedRequirements: EvaluatedRequirement[];
   missingRequirements: EvaluatedRequirement[];
   blockingRequirements: EvaluatedRequirement[];
+  marginalImprovements: MarginalAction[];
+  topWhatIfScenario?: WhatIfScenario;
 };
 
 export type RecommendationConfidence = "HIGH" | "MEDIUM" | "LOW";
@@ -112,9 +152,9 @@ export type Evidence = {
   jurisdiction?: string;
   pathway?: string;
   claim_type: string;
-  effective_from?: string; // ISO String
-  effective_until?: string; // ISO String
-  retrieved_at: string; // ISO String
+  effective_from?: string;
+  effective_until?: string;
+  retrieved_at: string;
   source_url: string;
   source_title: string;
   verification_status: string;

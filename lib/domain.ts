@@ -7,7 +7,7 @@ export type PathwayDomain = {
   name: string;
   shortDescription: string;
   requirements: Requirement[];
-  baseScoreThreshold?: number; // Minimum score needed if it's a points-based system
+  baseScoreThreshold?: number; 
 };
 
 export const PATHWAY_REGISTRY: PathwayDomain[] = [
@@ -17,27 +17,69 @@ export const PATHWAY_REGISTRY: PathwayDomain[] = [
     country: "Canada",
     name: "Express Entry (FSW / CEC)",
     shortDescription: "Points-based federal route favoring skilled workers with strong language and education.",
-    baseScoreThreshold: 67, // FSW 67 points grid
+    baseScoreThreshold: 67, 
     requirements: [
       {
         id: "req-ca-exp",
         type: "hard",
-        description: "Minimum 1 year of continuous skilled work experience (TEER 0, 1, 2, or 3).",
+        description: "Minimum 1 year of continuous skilled work experience.",
+        pointsAwarded: 15,
+        resolutionActionName: "Gain 1 Year Skilled Experience",
+        actionMetrics: { cost: 1, time: 5, difficulty: 4, certainty: 5 }
       },
       {
         id: "req-ca-lang",
         type: "hard",
         description: "Minimum language level of CLB 7 (IELTS 6.0 in all bands or CEFR B2).",
+        pointsAwarded: 16,
+        resolutionActionName: "Pass IELTS with minimum 6.0",
+        actionMetrics: { cost: 2, time: 2, difficulty: 3, certainty: 4 }
+      },
+      {
+        id: "req-ca-lang-c1",
+        type: "points",
+        description: "Advanced language level (CLB 9+ / CEFR C1+).",
+        pointsAwarded: 15, // extra points
+        resolutionActionName: "Improve IELTS to 8.0+",
+        actionMetrics: { cost: 2, time: 3, difficulty: 4, certainty: 3 }
       },
       {
         id: "req-ca-funds",
         type: "conditional",
         description: "Proof of settlement funds (approx $10k+ USD) unless currently working in Canada.",
+        pointsAwarded: 0, // Just a requirement, no CRS points awarded natively for this
+        resolutionActionName: "Save $10,000 USD for Settlement Funds",
+        actionMetrics: { cost: 5, time: 4, difficulty: 3, certainty: 5 }
       },
       {
-        id: "req-ca-edu",
+        id: "req-ca-edu-bachelor",
         type: "points",
-        description: "Educational credential assessment (ECA) required for foreign degrees.",
+        description: "Bachelor's degree or higher.",
+        pointsAwarded: 21,
+        resolutionActionName: "Complete a Bachelor's Degree",
+        actionMetrics: { cost: 5, time: 5, difficulty: 5, certainty: 5 }
+      },
+      {
+        id: "req-ca-edu-master",
+        type: "points",
+        description: "Master's degree or PhD.",
+        pointsAwarded: 10,
+        resolutionActionName: "Complete a Master's Degree",
+        actionMetrics: { cost: 5, time: 4, difficulty: 4, certainty: 5 }
+      },
+      {
+        id: "req-ca-age-optimal",
+        type: "points",
+        description: "Age between 20 and 29.",
+        pointsAwarded: 12,
+      },
+      {
+        id: "req-ca-stem",
+        type: "points",
+        description: "Occupation in STEM or Healthcare.",
+        pointsAwarded: 10,
+        resolutionActionName: "Secure employment in STEM/Healthcare",
+        actionMetrics: { cost: 1, time: 5, difficulty: 5, certainty: 3 }
       }
     ]
   },
@@ -52,51 +94,25 @@ export const PATHWAY_REGISTRY: PathwayDomain[] = [
         id: "req-uk-sponsor",
         type: "hard",
         description: "Must hold a Certificate of Sponsorship from a licensed UK employer.",
+        pointsAwarded: 50,
+        resolutionActionName: "Secure a licensed UK Sponsor Job Offer",
+        actionMetrics: { cost: 1, time: 5, difficulty: 5, certainty: 2 }
       },
       {
         id: "req-uk-salary",
         type: "hard",
         description: "Minimum salary threshold (£38,700/yr general, lower if under 26 or shortage).",
+        pointsAwarded: 20,
+        resolutionActionName: "Negotiate higher salary or find high-paying role",
+        actionMetrics: { cost: 1, time: 4, difficulty: 5, certainty: 3 }
       },
       {
         id: "req-uk-lang",
         type: "hard",
         description: "English language proficiency of at least CEFR B1 (IELTS 4.0).",
-      },
-      {
-        id: "req-uk-funds",
-        type: "conditional",
-        description: "Maintenance funds (£1,270) unless sponsor certifies maintenance.",
-      }
-    ]
-  },
-  {
-    id: "au-skilled-independent",
-    region: "australia-new-zealand",
-    country: "Australia",
-    name: "Skilled Independent Visa (Subclass 189)",
-    shortDescription: "Points-tested visa for invited workers with occupations on the relevant skills list.",
-    baseScoreThreshold: 65,
-    requirements: [
-      {
-        id: "req-au-age",
-        type: "hard",
-        description: "Must be under 45 years of age when invited.",
-      },
-      {
-        id: "req-au-occ",
-        type: "hard",
-        description: "Occupation must be on the Medium and Long-term Strategic Skills List (MLTSSL).",
-      },
-      {
-        id: "req-au-lang",
-        type: "hard",
-        description: "Competent English (IELTS 6.0 or CEFR B2).",
-      },
-      {
-        id: "req-au-skills",
-        type: "hard",
-        description: "Positive skills assessment from the relevant assessing authority.",
+        pointsAwarded: 10,
+        resolutionActionName: "Pass IELTS for UKVI with minimum 4.0",
+        actionMetrics: { cost: 2, time: 1, difficulty: 2, certainty: 5 }
       }
     ]
   },
@@ -111,25 +127,23 @@ export const PATHWAY_REGISTRY: PathwayDomain[] = [
         id: "req-us-sponsor",
         type: "hard",
         description: "U.S. employer sponsorship required.",
+        pointsAwarded: 40,
+        resolutionActionName: "Secure a US Employer willing to sponsor H-1B",
+        actionMetrics: { cost: 1, time: 5, difficulty: 5, certainty: 1 }
       },
       {
         id: "req-us-degree",
         type: "hard",
         description: "Minimum of a Bachelor's degree or equivalent in a related field.",
-      },
-      {
-        id: "req-us-lottery",
-        type: "conditional",
-        description: "Subject to annual lottery cap unless the employer is cap-exempt.",
+        pointsAwarded: 30,
+        resolutionActionName: "Complete a Bachelor's degree",
+        actionMetrics: { cost: 5, time: 5, difficulty: 4, certainty: 5 }
       }
     ]
   }
 ];
 
 export function getPathwaysForRegion(region: TargetRegion): PathwayDomain[] {
-  // In a real expanded system, we would have coverage for all regions. 
-  // For the demonstration, we'll return all available pathways if the specific region isn't mocked yet,
-  // or return the exact region match.
   const matched = PATHWAY_REGISTRY.filter(p => p.region === region);
   return matched.length > 0 ? matched : PATHWAY_REGISTRY;
 }
