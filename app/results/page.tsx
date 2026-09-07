@@ -7,7 +7,6 @@ import type { StoredResult } from "@/lib/storage";
 import type { VisaProfile, RankedPathway } from "@/lib/types";
 import { PathwayCard } from "@/components/PathwayCard";
 import { WhatIfSimulator } from "@/components/WhatIfSimulator";
-import { evaluateEligibility } from "@/lib/engine";
 import { normalizeProfile } from "@/lib/profile";
 import { PATHWAY_REGISTRY } from "@/lib/domain";
 
@@ -37,31 +36,10 @@ export default function ResultsPage() {
   const simulatedPathways = useMemo(() => {
     if (!data || !simulatedProfile) return [];
     
-    return data.pathways.map((originalPathway) => {
-      // If we don't have the pathway in our static registry, we can't recalculate it locally.
-      // This is highly unlikely since we control the registry, but we check anyway.
-      const domainDef = PATHWAY_REGISTRY.find(p => p.id === originalPathway.pathwayId);
-      if (!domainDef) return originalPathway;
-
-      // Recalculate using the deterministic engine
-      const np = normalizeProfile(simulatedProfile);
-      const newEval = evaluateEligibility(np, domainDef);
-
-      // Merge the new deterministic calculations with the static LLM content (citations, reasoning, etc)
-      return {
-        ...originalPathway,
-        ...newEval,
-        // Override the top WhatIf with the new one based on the simulated profile
-        topWhatIfScenario: newEval.topWhatIfScenario,
-        marginalImprovements: newEval.marginalImprovements,
-        satisfiedRequirements: newEval.satisfiedRequirements,
-        missingRequirements: newEval.missingRequirements,
-        blockingRequirements: newEval.blockingRequirements,
-        scoreBreakdown: newEval.scoreBreakdown,
-        status: newEval.status,
-        baseScore: newEval.baseScore,
-      } as RankedPathway;
-    });
+    // In Pure LLM RAG mode, client-side deterministic simulation is disabled.
+    // The simulator UI can remain, but it requires a server round-trip to re-score.
+    // For now, just return the static pathways.
+    return data.pathways;
   }, [data, simulatedProfile]);
 
   if (data === undefined) {

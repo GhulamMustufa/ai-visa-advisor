@@ -1,8 +1,6 @@
 import type { VisaProfile, ScoreResponse, RankedPathway, Evidence } from "./types";
 import { normalizeProfile } from "./profile";
 import { getPathwaysForRegion, PATHWAY_REGISTRY } from "./domain";
-import { evaluateEligibility } from "./engine";
-import { rankPathways } from "./recommendation";
 import { buildAIOrchestratorPrompt } from "./ai";
 import { retrieveEvidence } from "./evidence";
 import { detectConflicts } from "./validation";
@@ -31,28 +29,19 @@ export async function runVisaAssessment(profile: VisaProfile, requestId: string)
   let modelUsed = "gpt-4o-mini";
   
   try {
-    // Phase 1: Deterministic Engine Execution
-    const { normalizedProfile, topEvaluations, overallScore } = await trace.runStep("evaluateEligibility", async () => {
-      const np = normalizeProfile(profile);
-      const pathways = getPathwaysForRegion(profile.targetRegion);
-      const evaluations = pathways.map(p => evaluateEligibility(np, p));
-      const top = rankPathways(evaluations).slice(0, 3);
-      const score = top.length > 0 
-        ? Math.round(top.reduce((sum, e) => sum + e.baseScore, 0) / top.length)
-        : 0;
-      return { normalizedProfile: np, topEvaluations: top, overallScore: score };
-    });
+    const normalizedProfile = normalizeProfile(profile);
+    const pathways = getPathwaysForRegion(profile.targetRegion);
     
-    // Phase 2: Evidence Grounding (Retrieval)
+    // Phase 1: Evidence Grounding (Retrieval)
     const evidenceList = await trace.runStep("retrieveEvidence", async () => {
-      return await retrieveEvidence(profile, normalizedProfile, topEvaluations[0]?.pathwayId, 10);
+      return await retrieveEvidence(profile, normalizedProfile, pathways[0]?.id, 10);
     });
     
     trace.recordRetrieval(evidenceList.map(e => e.source_id));
     detectConflicts(evidenceList); // Internal logging
     
-    // Phase 4: AI Synthesizer (Single Pass, Strict JSON)
-    const currentPrompt = buildAIOrchestratorPrompt(normalizedProfile, topEvaluations, evidenceList);
+    // Phase 2: AI Synthesizer (Single Pass, Strict JSON)
+    const currentPrompt = buildAIOrchestratorPrompt(normalizedProfile, pathways, evidenceList);
     let parsedAIResponse: any = null;
     let approved = false;
     
@@ -80,9 +69,9 @@ export async function runVisaAssessment(profile: VisaProfile, requestId: string)
                     pathways: {
                       type: "array", minItems: 1, items: {
                         type: "object", additionalProperties: false, required: [
-                          "name", "country", "reason", "weaknesses", "documents", "next_steps", "citations", "estimated_timeline", "top_improvement", "eligibilityStatus", "source_freshness"
+                          "name", "country", "baseScore", "reason", "weaknesses", "documents", "next_steps", "citations", "estimated_timeline", "top_improvement", "eligibilityStatus", "source_freshness"
                         ], properties: {
-                          name: { type: "string" }, country: { type: "string" }, reason: { type: "string" }, weaknesses: { type: "array", items: { type: "string" } }, documents: { type: "array", items: { type: "string" } }, next_steps: { type: "array", items: { type: "string" } }, citations: { type: "array", items: { type: "object", additionalProperties: false, required: ["title", "url"], properties: { title: { type: "string" }, url: { type: "string" } } } }, estimated_timeline: { type: "string" }, top_improvement: { type: "string" }, eligibilityStatus: { type: "string" }, source_freshness: { type: "string", enum: ["VERIFIED", "STALE", "UNKNOWN"] }
+                          name: { type: "string" }, country: { type: "string" }, baseScore: { type: "number" }, reason: { type: "string" }, weaknesses: { type: "array", items: { type: "string" } }, documents: { type: "array", items: { type: "string" } }, next_steps: { type: "array", items: { type: "string" } }, citations: { type: "array", items: { type: "object", additionalProperties: false, required: ["title", "url"], properties: { title: { type: "string" }, url: { type: "string" } } } }, estimated_timeline: { type: "string" }, top_improvement: { type: "string" }, eligibilityStatus: { type: "string" }, source_freshness: { type: "string", enum: ["VERIFIED", "STALE", "UNKNOWN"] }
                         }
                       }
                     }
@@ -124,30 +113,44 @@ export async function runVisaAssessment(profile: VisaProfile, requestId: string)
     if (!approved) {
       log("warn", "agent_exhausted_retries", { requestId });
       parsedAIResponse = {
-        summary: "Your profile has been deterministically evaluated, but our AI assistant could not confidently verify the qualitative advice. Please refer to the raw metrics.",
-        pathways: topEvaluations.map(e => ({
-          name: e.pathwayId, country: "Unknown", reason: "AI validation failed. Hard requirements apply.",
+        summary: "Our AI assistant could not confidently verify the qualitative advice.",
+        pathways: pathways.map(e => ({
+          name: e.name, country: e.country, baseScore: 0, reason: "AI validation failed.",
           weaknesses: [], documents: [], next_steps: [], citations: [], estimated_timeline: "Unknown",
-          top_improvement: "Review deterministic requirements.", eligibilityStatus: e.status,
+          top_improvement: "Review official guidelines.", eligibilityStatus: "UNKNOWN",
           source_freshness: "UNKNOWN"
         }))
       };
     }
 
-    const finalPathways: RankedPathway[] = topEvaluations.map(evalData => {
-      const aiData = parsedAIResponse.pathways.find((p: any) => p.name.includes(evalData.pathwayId) || p.name === evalData.pathwayId) || parsedAIResponse.pathways[0];
-      const domainData = PATHWAY_REGISTRY.find(p => p.id === evalData.pathwayId);
+    const finalPathways: RankedPathway[] = parsedAIResponse.pathways.map((aiData: any) => {
+      const domainData = pathways.find(p => p.name === aiData.name || p.id === aiData.name) || pathways[0];
       return {
-        ...evalData,
-        name: domainData?.name || aiData.name,
-        country: domainData?.country || aiData.country,
-        status: evalData.status,
-        reason: aiData.reason, weaknesses: aiData.weaknesses, documents: aiData.documents,
-        next_steps: aiData.next_steps, citations: aiData.citations, estimated_timeline: aiData.estimated_timeline,
+        pathwayId: domainData?.id || "unknown",
+        name: aiData.name,
+        country: aiData.country,
+        status: aiData.eligibilityStatus || "UNKNOWN",
+        baseScore: aiData.baseScore,
+        maxScore: 100,
+        scoreBreakdown: { eligibilityFit: 0, profileStrength: 0, evidenceQuality: 0, competitiveness: 0 },
+        satisfiedRequirements: [],
+        missingRequirements: [],
+        blockingRequirements: [],
+        marginalImprovements: [],
+        reason: aiData.reason, 
+        weaknesses: aiData.weaknesses, 
+        documents: aiData.documents,
+        next_steps: aiData.next_steps, 
+        citations: aiData.citations, 
+        estimated_timeline: aiData.estimated_timeline,
         top_improvement: aiData.top_improvement,
         source_freshness: aiData.source_freshness as any,
       };
-    });
+    }).sort((a: RankedPathway, b: RankedPathway) => b.baseScore - a.baseScore);
+
+    const overallScore = finalPathways.length > 0 
+      ? Math.round(finalPathways.reduce((sum: number, e: RankedPathway) => sum + e.baseScore, 0) / finalPathways.length)
+      : 0;
 
     finalResponse = {
       overall_score: overallScore,

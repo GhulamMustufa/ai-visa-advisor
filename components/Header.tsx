@@ -76,7 +76,7 @@ export function Header() {
               >
                 Dashboard
               </Link>
-              <UserButton afterSignOutUrl="/" />
+              <UserButton />
             </>
           ) : (
             <>
