@@ -1,0 +1,74 @@
+[
+  {
+    "id": "q1",
+    "query": "What are the language requirements for Canada Express Entry?",
+    "targetRegion": "canada",
+    "pathwayId": "ca-express-entry",
+    "expected_source_ids": ["ircc-express-entry-1"],
+    "expected_claims": ["language_requirement"],
+    "intent": "correct retrieval"
+  },
+  {
+    "id": "q2",
+    "query": "How much funds do I need for Express Entry in 2024?",
+    "targetRegion": "canada",
+    "pathwayId": "ca-express-entry",
+    "expected_source_ids": ["ircc-express-entry-2"],
+    "expected_claims": ["funds_requirement"],
+    "intent": "correct retrieval"
+  },
+  {
+    "id": "q3",
+    "query": "What is the minimum salary for the UK Skilled Worker visa?",
+    "targetRegion": "uk",
+    "pathwayId": "uk-skilled-worker",
+    "expected_source_ids": ["uk-skilled-worker-1"],
+    "expected_claims": ["salary_threshold"],
+    "intent": "conflicting information handling"
+  },
+  {
+    "id": "q4",
+    "query": "Can I use IELTS for UK Skilled Worker?",
+    "targetRegion": "uk",
+    "pathwayId": "uk-skilled-worker",
+    "expected_source_ids": [],
+    "expected_claims": ["language_requirement"],
+    "intent": "missing evidence"
+  },
+  {
+    "id": "q5",
+    "query": "Do I need a job offer for Australia 189?",
+    "targetRegion": "australia-new-zealand",
+    "pathwayId": "au-skilled-independent",
+    "expected_source_ids": [],
+    "expected_claims": ["sponsor_requirement"],
+    "intent": "irrelevant retrieval robustness"
+  },
+  {
+    "id": "q6",
+    "query": "What is the processing time for US H-1B?",
+    "targetRegion": "usa",
+    "pathwayId": "us-h1b",
+    "expected_source_ids": [],
+    "expected_claims": ["processing_time"],
+    "intent": "missing evidence"
+  },
+  {
+    "id": "q7",
+    "query": "Canada immigration requirements for nurses",
+    "targetRegion": "canada",
+    "pathwayId": "ca-express-entry",
+    "expected_source_ids": ["ircc-express-entry-1", "ircc-express-entry-2"],
+    "expected_claims": ["language_requirement", "funds_requirement"],
+    "intent": "hybrid retrieval (semantic)"
+  },
+  {
+    "id": "q8",
+    "query": "Is £26,200 enough for a UK visa?",
+    "targetRegion": "uk",
+    "pathwayId": "uk-skilled-worker",
+    "expected_source_ids": ["uk-skilled-worker-1"],
+    "expected_claims": ["salary_threshold"],
+    "intent": "stale information/conflict resolution"
+  }
+]

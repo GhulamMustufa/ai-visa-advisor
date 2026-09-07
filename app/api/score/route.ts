@@ -6,6 +6,8 @@ import { getPathwaysForRegion, PATHWAY_REGISTRY } from "@/lib/domain";
 import { evaluateEligibility } from "@/lib/engine";
 import { rankPathways } from "@/lib/recommendation";
 import { buildAIOrchestratorPrompt } from "@/lib/ai";
+import { retrieveEvidence } from "@/lib/evidence";
+import { validateCitations, detectConflicts } from "@/lib/validation";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { createRequestId, log } from "@/lib/logger";
 import { withRetry } from "@/lib/retry";
@@ -148,13 +150,22 @@ export async function POST(req: Request) {
   const evaluations = pathways.map(p => evaluateEligibility(normalizedProfile, p));
   const topEvaluations = rankPathways(evaluations).slice(0, 3);
   
-  // Overall score logic (Deterministic)
   const overallScore = topEvaluations.length > 0 
     ? Math.round(topEvaluations.reduce((sum, e) => sum + e.baseScore, 0) / topEvaluations.length)
     : 0;
 
-  // Phase 1: AI Reasoning Orchestration
-  const userPrompt = buildAIOrchestratorPrompt(normalizedProfile, topEvaluations);
+  // Phase 2: Evidence Grounding (Retrieval)
+  const queryText = `Visa requirements for a ${normalizedProfile.canonicalOccupation} seeking ${profile.goal} in ${profile.targetRegion}. Age: ${profile.age}. English Level: ${normalizedProfile.languageLevelCEFR}.`;
+  
+  // We retrieve evidence scoped to the top pathway if possible, or general otherwise.
+  const evidenceList = await retrieveEvidence(queryText, profile.targetRegion, topEvaluations[0]?.pathwayId, 10);
+  
+  // Resolve any conflicts silently to surface the best evidence
+  const conflicts = detectConflicts(evidenceList);
+  // (We could log conflicts here for observability without breaking the flow)
+
+  // Phase 1 & 2: AI Reasoning Orchestration
+  const userPrompt = buildAIOrchestratorPrompt(normalizedProfile, topEvaluations, evidenceList);
   
   let text = "";
   let modelUsed = "gpt-4o-mini";
@@ -257,6 +268,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "OpenAI returned invalid JSON" }, { status: 502 });
   }
 
+  // Phase 2: Citation Validation post-generation
+  const allCitations = parsedAIResponse.pathways.flatMap(p => p.citations || []);
+  const citationCheck = validateCitations(allCitations, evidenceList);
+  if (!citationCheck.valid) {
+    log("warn", "score_citation_mismatch", { requestId, errors: citationCheck.errors });
+    // Note: We don't block the response, but we log the hallucination for review.
+    // In strict mode, we could delete the hallucinated citations from the response payload.
+  }
+
   // Merge deterministic evaluation data with AI qualitative data
   const finalPathways: RankedPathway[] = topEvaluations.map(evalData => {
     const aiData = parsedAIResponse.pathways.find(p => p.name.includes(evalData.pathwayId) || p.name === evalData.pathwayId) 
@@ -288,7 +308,7 @@ export async function POST(req: Request) {
     pathways: finalPathways
   };
 
-  const promptVersion = "visa-prompt-v5-deterministic";
+  const promptVersion = "visa-prompt-v6-evidence-grounded";
   try {
     await persistSubmission({
       requestId,
@@ -297,7 +317,7 @@ export async function POST(req: Request) {
       promptVersion,
       model: modelUsed,
       profile,
-      sources: [], // Explicit source tracking moved to Phase 2
+      sources: evidenceList.map(e => e.source_id), // Now explicitly logging the precise evidence source IDs
       result: { pathways: finalResponse.pathways.map(p => ({
         name: p.name, country: p.country, score: p.baseScore, reason: p.reason, 
         weaknesses: p.weaknesses, documents: p.documents, next_steps: p.next_steps, citations: p.citations
