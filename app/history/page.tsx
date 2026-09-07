@@ -30,6 +30,10 @@ const REGIONS: Array<{ value: TargetRegion; label: string }> = [
   { value: "sg-my", label: "Singapore/Malaysia" },
   { value: "jp-kr", label: "Japan/South Korea" },
   { value: "easy-entry", label: "Easy Entry Countries" },
+  { value: "latam", label: "Latin America" },
+  { value: "eastern-europe", label: "Eastern Europe & Caucasus" },
+  { value: "greater-china", label: "Greater China" },
+  { value: "africa", label: "Africa" },
 ];
 
 export default function HistoryPage() {

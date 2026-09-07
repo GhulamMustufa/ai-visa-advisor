@@ -10,7 +10,11 @@ export type TargetRegion =
   | "usa"
   | "sg-my"
   | "jp-kr"
-  | "easy-entry";
+  | "easy-entry"
+  | "latam"
+  | "eastern-europe"
+  | "greater-china"
+  | "africa";
 
 export type EnglishTest = "none" | "ielts" | "toefl";
 export type Goal = "work" | "study" | "pr";
@@ -66,6 +70,11 @@ export type ActionMetrics = {
   certainty: number;  // 1 (Uncertain) to 5 (Guaranteed if done)
 };
 
+export type Condition = 
+  | { operator: ">=" | "<=" | "===" | "<" | ">"; field: string; value: any }
+  | { operator: "in"; field: string; value: any[] }
+  | { operator: "and" | "or"; conditions: Condition[] };
+
 export type Requirement = {
   id: string;
   type: RequirementType;
@@ -76,6 +85,8 @@ export type Requirement = {
   resolutionActionName?: string;
   // Effort required to meet this missing requirement
   actionMetrics?: ActionMetrics;
+  // Dynamic AST condition evaluated by the Math Engine
+  condition?: Condition;
 };
 
 export type EvaluatedRequirement = Requirement & {

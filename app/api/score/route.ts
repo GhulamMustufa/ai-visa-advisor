@@ -25,6 +25,10 @@ const REGIONS = [
   "sg-my",
   "jp-kr",
   "easy-entry",
+  "latam",
+  "eastern-europe",
+  "greater-china",
+  "africa",
 ] as const;
 const EDUCATION = ["high_school", "bachelor", "master", "phd"] as const;
 const ENGLISH = ["none", "ielts", "toefl"] as const;

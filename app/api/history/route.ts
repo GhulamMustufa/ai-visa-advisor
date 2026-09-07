@@ -8,6 +8,7 @@ const GOALS = ["work", "study", "pr"] as const;
 const REGIONS = [
   "canada", "uk", "australia-new-zealand", "germany-nordics",
   "southern-europe", "middle-east", "usa", "sg-my", "jp-kr", "easy-entry",
+  "latam", "eastern-europe", "greater-china", "africa"
 ] as const;
 
 const querySchema = z.object({

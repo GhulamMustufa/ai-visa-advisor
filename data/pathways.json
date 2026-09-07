@@ -13,7 +13,8 @@
         "description": "Minimum 1 year of continuous skilled work experience.",
         "pointsAwarded": 15,
         "resolutionActionName": "Gain 1 Year Skilled Experience",
-        "actionMetrics": { "cost": 1, "time": 5, "difficulty": 4, "certainty": 5 }
+        "actionMetrics": { "cost": 1, "time": 5, "difficulty": 4, "certainty": 5 },
+        "condition": { "operator": ">=", "field": "original.yearsExperience", "value": 1 }
       },
       {
         "id": "req-ca-lang",
@@ -21,7 +22,8 @@
         "description": "Minimum language level of CLB 7 (IELTS 6.0 in all bands or CEFR B2).",
         "pointsAwarded": 16,
         "resolutionActionName": "Pass IELTS with minimum 6.0",
-        "actionMetrics": { "cost": 2, "time": 2, "difficulty": 3, "certainty": 4 }
+        "actionMetrics": { "cost": 2, "time": 2, "difficulty": 3, "certainty": 4 },
+        "condition": { "operator": "in", "field": "languageLevelCEFR", "value": ["B2", "C1", "C2"] }
       },
       {
         "id": "req-ca-lang-c1",
@@ -29,7 +31,8 @@
         "description": "Advanced language level (CLB 9+ / CEFR C1+).",
         "pointsAwarded": 15,
         "resolutionActionName": "Improve IELTS to 8.0+",
-        "actionMetrics": { "cost": 2, "time": 3, "difficulty": 4, "certainty": 3 }
+        "actionMetrics": { "cost": 2, "time": 3, "difficulty": 4, "certainty": 3 },
+        "condition": { "operator": "in", "field": "languageLevelCEFR", "value": ["C1", "C2"] }
       },
       {
         "id": "req-ca-funds",
@@ -37,7 +40,8 @@
         "description": "Proof of settlement funds (approx $10k+ USD) unless currently working in Canada.",
         "pointsAwarded": 0,
         "resolutionActionName": "Save $10,000 USD for Settlement Funds",
-        "actionMetrics": { "cost": 5, "time": 4, "difficulty": 3, "certainty": 5 }
+        "actionMetrics": { "cost": 5, "time": 4, "difficulty": 3, "certainty": 5 },
+        "condition": { "operator": ">=", "field": "original.savingsUsd", "value": 10000 }
       },
       {
         "id": "req-ca-edu-bachelor",
@@ -45,7 +49,8 @@
         "description": "Bachelor's degree or higher.",
         "pointsAwarded": 21,
         "resolutionActionName": "Complete a Bachelor's Degree",
-        "actionMetrics": { "cost": 5, "time": 5, "difficulty": 5, "certainty": 5 }
+        "actionMetrics": { "cost": 5, "time": 5, "difficulty": 5, "certainty": 5 },
+        "condition": { "operator": "in", "field": "original.education", "value": ["bachelor", "master", "phd"] }
       },
       {
         "id": "req-ca-edu-master",
@@ -53,13 +58,21 @@
         "description": "Master's degree or PhD.",
         "pointsAwarded": 10,
         "resolutionActionName": "Complete a Master's Degree",
-        "actionMetrics": { "cost": 5, "time": 4, "difficulty": 4, "certainty": 5 }
+        "actionMetrics": { "cost": 5, "time": 4, "difficulty": 4, "certainty": 5 },
+        "condition": { "operator": "in", "field": "original.education", "value": ["master", "phd"] }
       },
       {
         "id": "req-ca-age-optimal",
         "type": "points",
         "description": "Age between 20 and 29.",
-        "pointsAwarded": 12
+        "pointsAwarded": 12,
+        "condition": {
+          "operator": "and",
+          "conditions": [
+            { "operator": ">=", "field": "original.age", "value": 20 },
+            { "operator": "<=", "field": "original.age", "value": 29 }
+          ]
+        }
       },
       {
         "id": "req-ca-stem",
@@ -67,7 +80,14 @@
         "description": "Occupation in STEM or Healthcare.",
         "pointsAwarded": 10,
         "resolutionActionName": "Secure employment in STEM/Healthcare",
-        "actionMetrics": { "cost": 1, "time": 5, "difficulty": 5, "certainty": 3 }
+        "actionMetrics": { "cost": 1, "time": 5, "difficulty": 5, "certainty": 3 },
+        "condition": {
+          "operator": "or",
+          "conditions": [
+            { "operator": "===", "field": "isSTEM", "value": true },
+            { "operator": "===", "field": "isHealthcare", "value": true }
+          ]
+        }
       }
     ]
   },
@@ -84,7 +104,8 @@
         "description": "Must hold a Certificate of Sponsorship from a licensed UK employer.",
         "pointsAwarded": 50,
         "resolutionActionName": "Secure a licensed UK Sponsor Job Offer",
-        "actionMetrics": { "cost": 1, "time": 5, "difficulty": 5, "certainty": 2 }
+        "actionMetrics": { "cost": 1, "time": 5, "difficulty": 5, "certainty": 2 },
+        "condition": { "operator": "===", "field": "hasJobOffer", "value": true }
       },
       {
         "id": "req-uk-salary",
@@ -92,7 +113,8 @@
         "description": "Minimum salary threshold (£38,700/yr general, lower if under 26 or shortage).",
         "pointsAwarded": 20,
         "resolutionActionName": "Negotiate higher salary or find high-paying role",
-        "actionMetrics": { "cost": 1, "time": 4, "difficulty": 5, "certainty": 3 }
+        "actionMetrics": { "cost": 1, "time": 4, "difficulty": 5, "certainty": 3 },
+        "condition": { "operator": "===", "field": "hasJobOffer", "value": true }
       },
       {
         "id": "req-uk-lang",
@@ -100,7 +122,8 @@
         "description": "English language proficiency of at least CEFR B1 (IELTS 4.0).",
         "pointsAwarded": 10,
         "resolutionActionName": "Pass IELTS for UKVI with minimum 4.0",
-        "actionMetrics": { "cost": 2, "time": 1, "difficulty": 2, "certainty": 5 }
+        "actionMetrics": { "cost": 2, "time": 1, "difficulty": 2, "certainty": 5 },
+        "condition": { "operator": "in", "field": "languageLevelCEFR", "value": ["B1", "B2", "C1", "C2"] }
       }
     ]
   },
@@ -117,7 +140,8 @@
         "description": "U.S. employer sponsorship required.",
         "pointsAwarded": 40,
         "resolutionActionName": "Secure a US Employer willing to sponsor H-1B",
-        "actionMetrics": { "cost": 1, "time": 5, "difficulty": 5, "certainty": 1 }
+        "actionMetrics": { "cost": 1, "time": 5, "difficulty": 5, "certainty": 1 },
+        "condition": { "operator": "===", "field": "hasJobOffer", "value": true }
       },
       {
         "id": "req-us-degree",
@@ -125,7 +149,8 @@
         "description": "Minimum of a Bachelor's degree or equivalent in a related field.",
         "pointsAwarded": 30,
         "resolutionActionName": "Complete a Bachelor's degree",
-        "actionMetrics": { "cost": 5, "time": 5, "difficulty": 4, "certainty": 5 }
+        "actionMetrics": { "cost": 5, "time": 5, "difficulty": 4, "certainty": 5 },
+        "condition": { "operator": "in", "field": "original.education", "value": ["bachelor", "master", "phd"] }
       }
     ]
   },
@@ -142,7 +167,8 @@
         "description": "Minimum annual income of $24,000 USD.",
         "pointsAwarded": 50,
         "resolutionActionName": "Secure a remote job with higher salary",
-        "actionMetrics": { "cost": 1, "time": 4, "difficulty": 4, "certainty": 3 }
+        "actionMetrics": { "cost": 1, "time": 4, "difficulty": 4, "certainty": 3 },
+        "condition": { "operator": ">=", "field": "original.savingsUsd", "value": 2000 }
       },
       {
         "id": "req-my-profession",
@@ -150,7 +176,8 @@
         "description": "Must be an IT or digital professional.",
         "pointsAwarded": 50,
         "resolutionActionName": "Transition to an IT/Digital role",
-        "actionMetrics": { "cost": 3, "time": 5, "difficulty": 4, "certainty": 2 }
+        "actionMetrics": { "cost": 3, "time": 5, "difficulty": 4, "certainty": 2 },
+        "condition": { "operator": "===", "field": "isSTEM", "value": true }
       }
     ]
   },
@@ -167,13 +194,15 @@
         "description": "Competent English (IELTS 6.0 in all bands or equivalent).",
         "pointsAwarded": 0,
         "resolutionActionName": "Pass IELTS with minimum 6.0",
-        "actionMetrics": { "cost": 2, "time": 2, "difficulty": 3, "certainty": 4 }
+        "actionMetrics": { "cost": 2, "time": 2, "difficulty": 3, "certainty": 4 },
+        "condition": { "operator": "in", "field": "languageLevelCEFR", "value": ["B2", "C1", "C2"] }
       },
       {
         "id": "req-au-age",
         "type": "points",
         "description": "Age under 45 years.",
-        "pointsAwarded": 25
+        "pointsAwarded": 25,
+        "condition": { "operator": "<", "field": "original.age", "value": 45 }
       }
     ]
   },
@@ -190,7 +219,8 @@
         "description": "A recognized university degree.",
         "pointsAwarded": 30,
         "resolutionActionName": "Complete a Bachelor's degree",
-        "actionMetrics": { "cost": 5, "time": 5, "difficulty": 4, "certainty": 5 }
+        "actionMetrics": { "cost": 5, "time": 5, "difficulty": 4, "certainty": 5 },
+        "condition": { "operator": "in", "field": "original.education", "value": ["bachelor", "master", "phd"] }
       },
       {
         "id": "req-de-job",
@@ -198,7 +228,8 @@
         "description": "A valid employment contract or binding job offer in Germany.",
         "pointsAwarded": 40,
         "resolutionActionName": "Secure a job offer in Germany",
-        "actionMetrics": { "cost": 1, "time": 5, "difficulty": 4, "certainty": 2 }
+        "actionMetrics": { "cost": 1, "time": 5, "difficulty": 4, "certainty": 2 },
+        "condition": { "operator": "===", "field": "hasJobOffer", "value": true }
       }
     ]
   },
@@ -215,7 +246,8 @@
         "description": "Minimum monthly income of 200% of the Spanish minimum wage.",
         "pointsAwarded": 50,
         "resolutionActionName": "Secure remote income of at least ~2,500 EUR/month",
-        "actionMetrics": { "cost": 1, "time": 3, "difficulty": 3, "certainty": 4 }
+        "actionMetrics": { "cost": 1, "time": 3, "difficulty": 3, "certainty": 4 },
+        "condition": { "operator": ">=", "field": "original.savingsUsd", "value": 2600 }
       }
     ]
   },
@@ -232,7 +264,8 @@
         "description": "Monthly salary of at least 30,000 AED (~8,100 USD) for professionals.",
         "pointsAwarded": 60,
         "resolutionActionName": "Achieve minimum salary threshold",
-        "actionMetrics": { "cost": 1, "time": 5, "difficulty": 5, "certainty": 3 }
+        "actionMetrics": { "cost": 1, "time": 5, "difficulty": 5, "certainty": 3 },
+        "condition": { "operator": ">=", "field": "original.savingsUsd", "value": 8100 }
       }
     ]
   },
@@ -249,7 +282,14 @@
         "description": "Minimum 70 points on the HSP point calculation table (Education, Experience, Salary).",
         "pointsAwarded": 70,
         "resolutionActionName": "Accumulate 70+ points via Salary/Experience",
-        "actionMetrics": { "cost": 1, "time": 4, "difficulty": 4, "certainty": 4 }
+        "actionMetrics": { "cost": 1, "time": 4, "difficulty": 4, "certainty": 4 },
+        "condition": {
+          "operator": "and",
+          "conditions": [
+            { "operator": ">=", "field": "original.yearsExperience", "value": 5 },
+            { "operator": "in", "field": "original.education", "value": ["master", "phd"] }
+          ]
+        }
       }
     ]
   },
@@ -266,7 +306,98 @@
         "description": "Proof of funds of at least 500,000 THB (~14,000 USD).",
         "pointsAwarded": 100,
         "resolutionActionName": "Save minimum required funds",
-        "actionMetrics": { "cost": 4, "time": 3, "difficulty": 2, "certainty": 5 }
+        "actionMetrics": { "cost": 4, "time": 3, "difficulty": 2, "certainty": 5 },
+        "condition": { "operator": ">=", "field": "original.savingsUsd", "value": 14000 }
+      }
+    ]
+  },
+  {
+    "id": "br-digital-nomad",
+    "region": "latam",
+    "country": "Brazil",
+    "name": "Brazil Digital Nomad Visa",
+    "shortDescription": "1-year renewable visa for remote workers.",
+    "requirements": [
+      {
+        "id": "req-br-funds",
+        "type": "hard",
+        "description": "Proof of monthly income of $1,500 USD or bank balance of $18,000 USD.",
+        "pointsAwarded": 100,
+        "resolutionActionName": "Show proof of remote income or savings",
+        "actionMetrics": { "cost": 2, "time": 3, "difficulty": 2, "certainty": 5 },
+        "condition": { "operator": ">=", "field": "original.savingsUsd", "value": 18000 }
+      }
+    ]
+  },
+  {
+    "id": "ee-digital-nomad",
+    "region": "eastern-europe",
+    "country": "Estonia",
+    "name": "Estonia Digital Nomad Visa",
+    "shortDescription": "Allows remote workers to live in Estonia for up to a year.",
+    "requirements": [
+      {
+        "id": "req-ee-income",
+        "type": "hard",
+        "description": "Proof of steady income of at least €4,500 per month (approx $5,000 USD) or sufficient savings.",
+        "pointsAwarded": 100,
+        "resolutionActionName": "Secure remote employment contract",
+        "actionMetrics": { "cost": 1, "time": 4, "difficulty": 4, "certainty": 4 },
+        "condition": { "operator": ">=", "field": "original.savingsUsd", "value": 15000 }
+      }
+    ]
+  },
+  {
+    "id": "hk-qmas",
+    "region": "greater-china",
+    "country": "Hong Kong",
+    "name": "Quality Migrant Admission Scheme (QMAS)",
+    "shortDescription": "Points-based system to attract highly skilled talent to Hong Kong.",
+    "requirements": [
+      {
+        "id": "req-hk-edu",
+        "type": "points",
+        "description": "Higher education degrees score significantly more points.",
+        "pointsAwarded": 40,
+        "resolutionActionName": "Obtain higher degree",
+        "actionMetrics": { "cost": 5, "time": 5, "difficulty": 4, "certainty": 5 },
+        "condition": { "operator": "in", "field": "original.education", "value": ["master", "phd"] }
+      },
+      {
+        "id": "req-hk-exp",
+        "type": "points",
+        "description": "5+ years of graduate or specialist work experience.",
+        "pointsAwarded": 40,
+        "resolutionActionName": "Gain more work experience",
+        "actionMetrics": { "cost": 1, "time": 5, "difficulty": 3, "certainty": 5 },
+        "condition": { "operator": ">=", "field": "original.yearsExperience", "value": 5 }
+      }
+    ]
+  },
+  {
+    "id": "za-critical-skills",
+    "region": "africa",
+    "country": "South Africa",
+    "name": "Critical Skills Work Visa",
+    "shortDescription": "For professionals in occupations listed on the national Critical Skills List.",
+    "requirements": [
+      {
+        "id": "req-za-edu",
+        "type": "hard",
+        "description": "A degree in a relevant critical skill area.",
+        "pointsAwarded": 50,
+        "resolutionActionName": "Evaluate degree with SAQA",
+        "actionMetrics": { "cost": 3, "time": 4, "difficulty": 3, "certainty": 4 },
+        "condition": { "operator": "in", "field": "original.education", "value": ["bachelor", "master", "phd"] }
+      },
+      {
+        "id": "req-za-exp",
+        "type": "hard",
+        "description": "At least 3 years of post-qualification experience.",
+        "pointsAwarded": 50,
+        "resolutionActionName": "Gain 3 years experience",
+        "actionMetrics": { "cost": 1, "time": 5, "difficulty": 2, "certainty": 5 },
+        "condition": { "operator": ">=", "field": "original.yearsExperience", "value": 3 }
       }
     ]
   }

@@ -222,4 +222,84 @@ export const REGIONS: RegionMeta[] = [
       "Long-term immigration outcomes are limited",
     ],
   },
+  {
+    id: "latam",
+    name: "Latin America",
+    countries: ["Brazil", "Colombia", "Argentina", "Mexico", "Costa Rica"],
+    shortDescription: "Growing digital nomad hubs with low cost of living.",
+    cost: "Low",
+    difficulty: "Easy",
+    speed: "Fast",
+    bestFor: "Remote workers and freelancers looking for lifestyle benefits and affordable visas.",
+    pros: [
+      "Very affordable cost of living",
+      "Accessible digital nomad visas (e.g., Brazil, Colombia)",
+      "Pathways to citizenship in some countries are fast"
+    ],
+    cons: [
+      "Local salaries are low if you don't have remote income",
+      "Bureaucracy can be unpredictable",
+      "Tax implications require careful planning"
+    ]
+  },
+  {
+    id: "eastern-europe",
+    name: "Eastern Europe & Caucasus",
+    countries: ["Estonia", "Georgia", "Romania", "Hungary", "Croatia"],
+    shortDescription: "Tech-friendly nations with simple e-residency and nomad options.",
+    cost: "Low",
+    difficulty: "Easy",
+    speed: "Fast",
+    bestFor: "Entrepreneurs, IT freelancers, and location-independent businesses.",
+    pros: [
+      "Pioneering digital infrastructures (e.g. Estonia E-Residency)",
+      "Low flat taxes for independent contractors",
+      "1-year visa-free stays for remote workers (e.g. Georgia)"
+    ],
+    cons: [
+      "Nomad visas rarely lead directly to permanent residency",
+      "Language barriers outside major hubs",
+      "Local market sizes are small"
+    ]
+  },
+  {
+    id: "greater-china",
+    name: "Greater China",
+    countries: ["Hong Kong", "China", "Taiwan"],
+    shortDescription: "Highly competitive, high-salary hubs for top talent.",
+    cost: "High",
+    difficulty: "Hard",
+    speed: "Medium",
+    bestFor: "Top-tier professionals in finance, logistics, tech, and academia.",
+    pros: [
+      "Points-based systems (like HK QMAS) allow entry without a job offer",
+      "Extremely low taxes and high earning potential",
+      "World-class infrastructure and safety"
+    ],
+    cons: [
+      "Fierce competition and strict quotas",
+      "Cost of living and housing is very high",
+      "Requires significant documentation and proof of excellence"
+    ]
+  },
+  {
+    id: "africa",
+    name: "Africa",
+    countries: ["South Africa", "Mauritius", "Kenya", "Rwanda"],
+    shortDescription: "Emerging markets offering critical skills and remote work visas.",
+    cost: "Medium",
+    difficulty: "Medium",
+    speed: "Slow",
+    bestFor: "Specialists in scarce skills or remote workers seeking premium climates.",
+    pros: [
+      "Critical skills lists provide direct pathways (e.g. South Africa)",
+      "Premium/Nomad visas are easy to obtain (e.g. Mauritius)",
+      "Lower cost of luxury living"
+    ],
+    cons: [
+      "Processing times can be very slow (e.g. South Africa Home Affairs)",
+      "Job market is highly protective of local workers",
+      "Economic instability in some regions"
+    ]
+  }
 ];

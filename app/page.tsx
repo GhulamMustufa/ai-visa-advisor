@@ -27,6 +27,10 @@ const REGIONS: Record<string, string> = {
   "sg-my": "🇸🇬 Singapore / Malaysia",
   "jp-kr": "🇯🇵 Japan / South Korea",
   "easy-entry": "✈️ Easy Entry",
+  latam: "🌎 Latin America",
+  "eastern-europe": "🏰 Eastern Europe",
+  "greater-china": "🐉 Greater China",
+  africa: "🦁 Africa",
 };
 
 export default function Home() {
@@ -86,7 +90,7 @@ export default function Home() {
             {/* Real stats only */}
             <div className="mt-8 grid grid-cols-3 gap-3">
               {[
-                { value: "10", label: "Regions covered" },
+                { value: "14", label: "Regions covered" },
                 { value: "17", label: "Official sources" },
                 { value: "Free", label: "To get started" },
               ].map((s) => (
@@ -278,7 +282,7 @@ export default function Home() {
 
       {/* ── Covered regions ──────────────────────────────────── */}
       <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-        <h2 className="text-center text-lg font-semibold text-slate-900">10 regions covered</h2>
+        <h2 className="text-center text-lg font-semibold text-slate-900">14 regions covered</h2>
         <p className="mx-auto mt-2 max-w-lg text-center text-sm text-slate-500">
           Each region has dedicated official sources with real scoring criteria.
         </p>

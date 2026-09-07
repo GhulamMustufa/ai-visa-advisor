@@ -18,6 +18,10 @@ const REGIONS: { id: string; value: TargetRegion; label: string }[] = [
   { id: "sg-my", value: "sg-my", label: "Singapore/Malaysia" },
   { id: "jp-kr", value: "jp-kr", label: "Japan/South Korea" },
   { id: "easy-entry", value: "easy-entry", label: "Easy Entry Countries" },
+  { id: "latam", value: "latam", label: "Latin America" },
+  { id: "eastern-europe", value: "eastern-europe", label: "Eastern Europe & Caucasus" },
+  { id: "greater-china", value: "greater-china", label: "Greater China" },
+  { id: "africa", value: "africa", label: "Africa" },
 ];
 
 const REGION_QUERY_MAP: Record<string, { targetRegion: TargetRegion; label: string }> = {
@@ -31,8 +35,41 @@ const REGION_QUERY_MAP: Record<string, { targetRegion: TargetRegion; label: stri
   "sg-my": { targetRegion: "sg-my", label: "Singapore/Malaysia" },
   "jp-kr": { targetRegion: "jp-kr", label: "Japan/South Korea" },
   "easy-entry": { targetRegion: "easy-entry", label: "Easy Entry Countries" },
+  latam: { targetRegion: "latam", label: "Latin America" },
+  "eastern-europe": { targetRegion: "eastern-europe", label: "Eastern Europe & Caucasus" },
+  "greater-china": { targetRegion: "greater-china", label: "Greater China" },
+  africa: { targetRegion: "africa", label: "Africa" },
   "canada-uk": { targetRegion: "canada", label: "Canada/UK" },
 };
+
+const COUNTRIES = [
+  "Afghanistan", "Albania", "Algeria", "Argentina", "Australia", "Austria", "Bangladesh", 
+  "Belgium", "Brazil", "Canada", "China", "Colombia", "Denmark", "Egypt", "Ethiopia",
+  "France", "Germany", "Ghana", "Greece", "India", "Indonesia", "Iran", "Iraq", "Ireland",
+  "Italy", "Japan", "Kenya", "Malaysia", "Mexico", "Morocco", "Myanmar", "Nepal", 
+  "Netherlands", "New Zealand", "Nigeria", "Pakistan", "Peru", "Philippines", "Poland", 
+  "Portugal", "Russia", "Saudi Arabia", "Singapore", "South Africa", "South Korea", 
+  "Spain", "Sri Lanka", "Sweden", "Switzerland", "Taiwan", "Tanzania", "Thailand", 
+  "Turkey", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", 
+  "United States", "Venezuela", "Vietnam", "Zimbabwe", "Other"
+];
+
+const FIELD_OF_WORK_OPTIONS = [
+  "Software & IT",
+  "Healthcare & Medical",
+  "Engineering & Architecture",
+  "Finance & Accounting",
+  "Education & Teaching",
+  "Construction & Trades",
+  "Business & Management",
+  "Sales & Marketing",
+  "Sciences & Research",
+  "Arts, Design & Media",
+  "Hospitality & Tourism",
+  "Legal & Compliance",
+  "Operations & Logistics",
+  "Other"
+];
 
 const STEPS = [
   { id: 1, title: "You & destination", short: "About" },
@@ -301,14 +338,19 @@ export default function FormPage() {
               <label htmlFor="nationality" className="text-sm font-medium text-slate-800">
                 Nationality
               </label>
-              <input
+              <select
                 id="nationality"
                 name="nationality"
                 required
                 defaultValue="Pakistan"
-                autoComplete="country-name"
                 className={inputClass}
-              />
+              >
+                {COUNTRIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label htmlFor="targetRegion" className="text-sm font-medium text-slate-800">
@@ -383,13 +425,19 @@ export default function FormPage() {
               <label htmlFor="fieldOfWork" className="text-sm font-medium text-slate-800">
                 Field of work
               </label>
-              <input
+              <select
                 id="fieldOfWork"
                 name="fieldOfWork"
                 required
-                placeholder="e.g. Civil engineering, nursing, software"
+                defaultValue="Software & IT"
                 className={inputClass}
-              />
+              >
+                {FIELD_OF_WORK_OPTIONS.map((f) => (
+                  <option key={f} value={f}>
+                    {f}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
