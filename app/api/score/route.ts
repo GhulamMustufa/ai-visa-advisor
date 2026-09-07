@@ -31,12 +31,12 @@ const ENGLISH = ["none", "ielts", "toefl"] as const;
 const GOALS = ["work", "study", "pr"] as const;
 
 const profileSchema = z.object({
-  nationality: z.string().trim().min(1, "nationality is required"),
+  nationality: z.string().trim().min(1, "nationality is required").max(100, "nationality too long"),
   targetRegion: z.enum(REGIONS),
   age: z.coerce.number().int().min(18).max(80),
   education: z.enum(EDUCATION),
   yearsExperience: z.coerce.number().int().min(0).max(60),
-  fieldOfWork: z.string().trim().min(1, "fieldOfWork is required"),
+  fieldOfWork: z.string().trim().min(1, "fieldOfWork is required").max(100, "fieldOfWork too long"),
   englishTest: z.enum(ENGLISH),
   testScore: z.coerce.number().nullable().optional(),
   savingsUsd: z.coerce.number().min(0).max(50_000_000),

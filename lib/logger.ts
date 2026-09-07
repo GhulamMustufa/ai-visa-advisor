@@ -3,11 +3,15 @@ type LogLevel = "info" | "warn" | "error";
 type LogMeta = Record<string, unknown>;
 
 export function log(level: LogLevel, event: string, meta: LogMeta = {}): void {
+  const { traceId, spanId, ...attributes } = meta;
+  
   const payload = {
-    ts: new Date().toISOString(),
-    level,
-    event,
-    ...meta,
+    timestamp: new Date().toISOString(),
+    severity: level.toUpperCase(),
+    name: event,
+    trace_id: traceId ?? null,
+    span_id: spanId ?? null,
+    attributes: Object.keys(attributes).length > 0 ? attributes : undefined,
   };
   const line = JSON.stringify(payload);
   if (level === "error") {

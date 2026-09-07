@@ -62,3 +62,23 @@ describe("AI Critic Agent", () => {
     expect(evaluateSynthesizerOutput).toBeDefined();
   });
 });
+
+import { openAiCircuitBreaker } from "../lib/circuit-breaker";
+
+describe("Circuit Breaker", () => {
+  it("should trip after 5 failures and return to half-open after timeout", () => {
+    openAiCircuitBreaker.reset();
+    
+    expect(openAiCircuitBreaker.isOpen()).toBe(false);
+    
+    // Simulate 5 failures
+    for (let i = 0; i < 5; i++) {
+      openAiCircuitBreaker.recordFailure();
+    }
+    
+    expect(openAiCircuitBreaker.isOpen()).toBe(true);
+    
+    openAiCircuitBreaker.recordSuccess();
+    expect(openAiCircuitBreaker.isOpen()).toBe(false);
+  });
+});

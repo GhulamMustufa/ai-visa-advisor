@@ -82,8 +82,24 @@ describe("POST /api/score — OpenAI integration (mocked)", () => {
     process.env.OPENAI_API_KEY = "sk-test-key";
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue(
-        new Response(
+      vi.fn().mockImplementation((url, options) => {
+        const bodyStr = options?.body as string || "";
+        // If it's the critic evaluation (it requires 'approved' field)
+        if (bodyStr.includes("critic_evaluation")) {
+          return Promise.resolve(new Response(
+            JSON.stringify({
+              choices: [{ message: { content: JSON.stringify({
+                approved: true,
+                feedback: [],
+                hallucinated_claims: []
+              })}}]
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } }
+          ));
+        }
+
+        // Default: Synthesizer response
+        return Promise.resolve(new Response(
           JSON.stringify({
             choices: [
               {
@@ -112,9 +128,9 @@ describe("POST /api/score — OpenAI integration (mocked)", () => {
               },
             ],
           }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        ),
-      ),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        ));
+      })
     );
   });
 

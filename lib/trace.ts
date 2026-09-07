@@ -19,6 +19,7 @@ export type DecisionTrace = {
   modelUsed: string;
   promptTokens?: number;
   completionTokens?: number;
+  estimatedCostUsd?: number;
   finalDecisionStatus: string;
 };
 
@@ -82,6 +83,12 @@ export class TraceContext {
     this.trace.modelUsed = model;
     if (promptTokens) this.trace.promptTokens = (this.trace.promptTokens || 0) + promptTokens;
     if (completionTokens) this.trace.completionTokens = (this.trace.completionTokens || 0) + completionTokens;
+    
+    if (this.trace.modelUsed === "gpt-4o-mini" && this.trace.promptTokens && this.trace.completionTokens) {
+      const inCost = (this.trace.promptTokens / 1_000_000) * 0.150;
+      const outCost = (this.trace.completionTokens / 1_000_000) * 0.600;
+      this.trace.estimatedCostUsd = inCost + outCost;
+    }
   }
 
   complete(finalStatus: string) {

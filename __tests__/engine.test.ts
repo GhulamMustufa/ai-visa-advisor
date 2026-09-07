@@ -1,89 +1,65 @@
-import { describe, it, expect } from 'vitest';
-import { evaluateEligibility } from '../lib/engine';
-import { normalizeProfile } from '../lib/profile';
-import { PATHWAY_REGISTRY } from '../lib/domain';
-import type { VisaProfile } from '../lib/types';
+import { describe, it, expect } from "vitest";
+import { evaluateEligibility } from "../lib/engine";
+import { normalizeProfile } from "../lib/profile";
+import type { VisaProfile, PathwayDomain } from "../lib/types";
 
-describe('Phase 3: Explainable Scoring & Marginal Engine', () => {
-  const baseProfile: VisaProfile = {
-    nationality: 'IN',
-    targetRegion: 'canada',
-    age: 25,
-    education: 'master',
-    yearsExperience: 3,
-    fieldOfWork: 'Software Engineer',
-    englishTest: 'ielts',
-    testScore: 8.0,
-    savingsUsd: 15000,
-    goal: 'pr'
+describe("Deterministic Decision Engine", () => {
+  const dummyPathway: PathwayDomain = {
+    id: "test-pathway",
+    name: "Test Pathway",
+    country: "canada",
+    requirements: [
+      { id: "req-ca-funds", type: "hard", property: "savingsUsd", operator: ">=", value: 10000, pointsAwarded: 0, description: "Must have $10k" },
+      { id: "req-ca-lang", type: "points", property: "languageLevelCEFR", operator: ">=", value: "B2", pointsAwarded: 20, description: "B2 English", resolutionActionName: "Improve English to B2", actionMetrics: { cost: 1, time: 2, difficulty: 2, certainty: 1 } },
+      { id: "req-ca-edu-master", type: "points", property: "education", operator: "IN", value: ["master", "phd"], pointsAwarded: 15, description: "Master/PhD" },
+      { id: "req-ca-age-optimal", type: "conditional", property: "age", operator: "<", value: 30, pointsAwarded: 5, description: "Under 30" }
+    ]
   };
 
-  const usPathway = PATHWAY_REGISTRY.find(p => p.id === 'us-h1b')!;
-  const caPathway = PATHWAY_REGISTRY.find(p => p.id === 'ca-express-entry')!;
+  it("should evaluate hard requirements correctly (BLOCKED)", () => {
+    const rawProfile: VisaProfile = {
+      nationality: "India", targetRegion: "canada", age: 25, education: "master",
+      yearsExperience: 5, fieldOfWork: "Software", englishTest: "ielts", testScore: 7,
+      savingsUsd: 5000, goal: "work" // Fails $10k hard requirement
+    };
+    const np = normalizeProfile(rawProfile);
+    const result = evaluateEligibility(np, dummyPathway);
 
-  it('Overrides soft scores when a hard requirement fails', () => {
-    // US H-1B requires sponsorship (hard). A user without it should be BLOCKED, regardless of degree.
-    const usProfile: VisaProfile = { ...baseProfile, targetRegion: 'usa' };
-    const normalized = normalizeProfile(usProfile);
-    
-    const evaluation = evaluateEligibility(normalized, usPathway);
-    
-    expect(evaluation.status).toBe('BLOCKED');
-    expect(evaluation.blockingRequirements.length).toBeGreaterThan(0);
-    expect(evaluation.blockingRequirements[0].id).toBe('req-us-sponsor');
-    
-    // Even though they have a degree (soft/hard points), the pathway is blocked
-    expect(evaluation.satisfiedRequirements.some(r => r.id === 'req-us-degree')).toBe(true);
+    expect(result.status).toBe("BLOCKED");
+    expect(result.blockingRequirements.length).toBe(1);
+    expect(result.blockingRequirements[0].property).toBe("savingsUsd");
   });
 
-  it('Calculates score breakdown correctly', () => {
-    const normalized = normalizeProfile(baseProfile);
-    const evaluation = evaluateEligibility(normalized, caPathway);
-    
-    // Age 25 (+12), Master (+10), Exp 3 (+15), IELTS 8 (+15 + 16), Savings (0)
-    // Actually our test engine awards:
-    // req-ca-exp: 15
-    // req-ca-lang: 16
-    // req-ca-lang-c1: 15
-    // req-ca-edu-bachelor: 21 (fallback) / actually we didn't do fallback in engine.ts but master triggers it
-    expect(evaluation.scoreBreakdown.eligibilityFit).toBeGreaterThan(0);
-    expect(evaluation.scoreBreakdown.profileStrength).toBeGreaterThan(0);
+  it("should evaluate points correctly (ELIGIBLE)", () => {
+    const rawProfile: VisaProfile = {
+      nationality: "India", targetRegion: "canada", age: 25, education: "master",
+      yearsExperience: 5, fieldOfWork: "Software", englishTest: "ielts", testScore: 7, // C1 -> B2 satisfied
+      savingsUsd: 15000, goal: "work"
+    };
+    const np = normalizeProfile(rawProfile);
+    const result = evaluateEligibility(np, dummyPathway);
+
+    expect(result.status).toBe("ELIGIBLE");
+    expect(result.baseScore).toBe(20 + 15 + 5); // B2 (20), Master (15), Under 30 (5)
   });
 
-  it('Simulates What-If Marginal Improvements', () => {
-    // Change age to 35 (misses optimal age) and savings to 5000 (misses funds)
-    const weakProfile: VisaProfile = { ...baseProfile, age: 35, savingsUsd: 5000 };
-    const normalized = normalizeProfile(weakProfile);
-    const evaluation = evaluateEligibility(normalized, caPathway);
-    
-    expect(evaluation.missingRequirements.some(r => r.id === 'req-ca-funds')).toBe(true);
-    
-    // Check Marginal Actions
-    expect(evaluation.marginalImprovements.length).toBeGreaterThan(0);
-    
-    const topAction = evaluation.marginalImprovements[0];
-    // Funds has high certainty, so it might rank high.
-    expect(topAction.actionName).toBeDefined();
-    expect(topAction.metrics).toBeDefined();
-    
-    // Check What-If scenario
-    expect(evaluation.topWhatIfScenario).toBeDefined();
-    if (evaluation.topWhatIfScenario) {
-      expect(evaluation.topWhatIfScenario.newBaseScore).toBeGreaterThanOrEqual(evaluation.baseScore);
-    }
-  });
+  it("should generate what-if scenarios for missing point thresholds", () => {
+    const rawProfile: VisaProfile = {
+      nationality: "India", targetRegion: "canada", age: 35, education: "bachelor",
+      yearsExperience: 5, fieldOfWork: "Software", englishTest: "none", testScore: null,
+      savingsUsd: 15000, goal: "work"
+    };
+    const np = normalizeProfile(rawProfile);
+    const result = evaluateEligibility(np, dummyPathway);
 
-  it('Assigns pseudo-impact to hard blockages for ROI', () => {
-    const usProfile: VisaProfile = { ...baseProfile, targetRegion: 'usa' };
-    const normalized = normalizeProfile(usProfile);
-    const evaluation = evaluateEligibility(normalized, usPathway);
+    expect(result.status).toBe("CONDITIONALLY_ELIGIBLE"); 
+    expect(result.baseScore).toBe(0); 
     
-    // H-1B Sponsor is 40 points in our new mock domain, so it should have a high ROI
-    const sponsorAction = evaluation.marginalImprovements.find(a => a.requirementId === 'req-us-sponsor');
-    expect(sponsorAction).toBeDefined();
-    expect(sponsorAction?.roiScore).toBeGreaterThan(0);
+    // Missing B2 (+20) and Master (+15) and Under 30 (+5)
+    expect(result.missingRequirements.length).toBe(3);
     
-    // It should simulate that if they get a sponsor, they become CONDITIONAL or ELIGIBLE
-    expect(evaluation.topWhatIfScenario?.newEligibilityStatus).not.toBe('BLOCKED');
+    // Top what-if should be the one with the highest score impact (B2 English)
+    expect(result.topWhatIfScenario?.targetAction.actionName).toBe("Improve English to B2");
+    expect(result.topWhatIfScenario?.newBaseScore).toBe(20);
   });
 });

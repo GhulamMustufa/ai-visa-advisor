@@ -9,6 +9,8 @@ import { detectConflicts } from "./validation";
 import { TraceContext } from "./trace";
 import { evaluateSynthesizerOutput } from "./critic";
 import { log } from "./logger";
+import { withRetry, RetryableError } from "./retry";
+import { openAiCircuitBreaker } from "./circuit-breaker";
 
 function safeJsonParse(input: string): { pathways: any[], summary: string } | null {
   try {
@@ -58,61 +60,82 @@ export async function runVisaAssessment(profile: VisaProfile, requestId: string)
     const MAX_ITERATIONS = 2;
     let iteration = 0;
     let approved = false;
-
-    while (iteration < MAX_ITERATIONS && !approved) {
-      iteration++;
-      
-      const text = await trace.runStep(`synthesize_iteration_${iteration}`, async () => {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 25_000);
-        try {
-          const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
-            signal: controller.signal,
-            method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-            body: JSON.stringify({
-              model: modelUsed,
-              temperature: 0.2,
-              max_tokens: 2400,
-              response_format: { type: "json_schema", json_schema: { name: "visa_analysis", schema: {
-                type: "object", additionalProperties: false, required: ["summary", "pathways"],
-                properties: {
-                  summary: { type: "string" },
-                  pathways: {
-                    type: "array", minItems: 1, items: {
-                      type: "object", additionalProperties: false, required: [
-                        "name", "country", "reason", "weaknesses", "documents", "next_steps", "citations", "estimated_timeline", "top_improvement", "eligibilityStatus", "eligibility_confidence", "recommendation_confidence", "evidence_confidence", "source_freshness"
-                      ], properties: {
-                        name: { type: "string" }, country: { type: "string" }, reason: { type: "string" }, weaknesses: { type: "array", items: { type: "string" } }, documents: { type: "array", items: { type: "string" } }, next_steps: { type: "array", items: { type: "string" } }, citations: { type: "array", items: { type: "object", additionalProperties: false, required: ["title", "url"], properties: { title: { type: "string" }, url: { type: "string" } } } }, estimated_timeline: { type: "string" }, top_improvement: { type: "string" }, eligibilityStatus: { type: "string" }, eligibility_confidence: { type: "string", enum: ["HIGH", "MEDIUM", "LOW"] }, recommendation_confidence: { type: "string", enum: ["HIGH", "MEDIUM", "LOW"] }, evidence_confidence: { type: "string", enum: ["HIGH", "MEDIUM", "LOW"] }, source_freshness: { type: "string", enum: ["VERIFIED", "STALE", "UNKNOWN"] }
+    
+    // Check Circuit Breaker before starting AI loop
+    if (openAiCircuitBreaker.isOpen()) {
+      log("warn", "circuit_breaker_open_skipping_ai", { requestId });
+    } else {
+      while (iteration < MAX_ITERATIONS && !approved) {
+        iteration++;
+        
+        const text = await trace.runStep(`synthesize_iteration_${iteration}`, async () => {
+          return await withRetry(async () => {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 25_000);
+            try {
+              const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+                signal: controller.signal,
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+                body: JSON.stringify({
+                  model: modelUsed,
+                  temperature: 0.2,
+                  max_tokens: 2400,
+                  response_format: { type: "json_schema", json_schema: { name: "visa_analysis", schema: {
+                    type: "object", additionalProperties: false, required: ["summary", "pathways"],
+                    properties: {
+                      summary: { type: "string" },
+                      pathways: {
+                        type: "array", minItems: 1, items: {
+                          type: "object", additionalProperties: false, required: [
+                            "name", "country", "reason", "weaknesses", "documents", "next_steps", "citations", "estimated_timeline", "top_improvement", "eligibilityStatus", "eligibility_confidence", "recommendation_confidence", "evidence_confidence", "source_freshness"
+                          ], properties: {
+                            name: { type: "string" }, country: { type: "string" }, reason: { type: "string" }, weaknesses: { type: "array", items: { type: "string" } }, documents: { type: "array", items: { type: "string" } }, next_steps: { type: "array", items: { type: "string" } }, citations: { type: "array", items: { type: "object", additionalProperties: false, required: ["title", "url"], properties: { title: { type: "string" }, url: { type: "string" } } } }, estimated_timeline: { type: "string" }, top_improvement: { type: "string" }, eligibilityStatus: { type: "string" }, eligibility_confidence: { type: "string", enum: ["HIGH", "MEDIUM", "LOW"] }, recommendation_confidence: { type: "string", enum: ["HIGH", "MEDIUM", "LOW"] }, evidence_confidence: { type: "string", enum: ["HIGH", "MEDIUM", "LOW"] }, source_freshness: { type: "string", enum: ["VERIFIED", "STALE", "UNKNOWN"] }
+                          }
+                        }
                       }
                     }
-                  }
+                  }}},
+                  messages: [{ role: "user", content: currentPrompt }],
+                }),
+              });
+              
+              if (!openaiRes.ok) {
+                if (openaiRes.status === 429) {
+                  const retryAfter = openaiRes.headers.get("Retry-After");
+                  const ms = retryAfter ? parseInt(retryAfter) * 1000 : 2000;
+                  throw new RetryableError("Rate limited by OpenAI", ms);
                 }
-              }}},
-              messages: [{ role: "user", content: currentPrompt }],
-            }),
-          });
-          if (!openaiRes.ok) throw new Error(await openaiRes.text());
-          const resJson = await openaiRes.json();
-          trace.recordModelInfo(modelUsed, resJson.usage?.prompt_tokens || 0, resJson.usage?.completion_tokens || 0);
-          return resJson.choices?.[0]?.message?.content?.trim() ?? "";
-        } finally {
-          clearTimeout(timer);
+                throw new Error(await openaiRes.text());
+              }
+              const resJson = await openaiRes.json();
+              trace.recordModelInfo(modelUsed, resJson.usage?.prompt_tokens || 0, resJson.usage?.completion_tokens || 0);
+              openAiCircuitBreaker.recordSuccess();
+              return resJson.choices?.[0]?.message?.content?.trim() ?? "";
+            } catch (err: any) {
+              if (err.name !== "RetryableError" && err.name !== "AbortError") {
+                openAiCircuitBreaker.recordFailure();
+              }
+              throw err;
+            } finally {
+              clearTimeout(timer);
+            }
+          }, { attempts: 3, baseDelayMs: 1000 });
+        });
+
+        parsedAIResponse = safeJsonParse(text);
+        if (!parsedAIResponse) throw new Error("OpenAI returned invalid JSON");
+
+        const criticResult = await trace.runStep(`critic_evaluation_${iteration}`, async () => {
+          return await evaluateSynthesizerOutput(apiKey, text, topEvaluations, evidenceList);
+        });
+
+        if (criticResult.approved) {
+          approved = true;
+        } else {
+          trace.recordRetry(criticResult);
+          currentPrompt = basePrompt + `\n\nCRITIC FEEDBACK FROM PREVIOUS ATTEMPT (FIX THESE):\n- ${criticResult.feedback.join("\n- ")}`;
         }
-      });
-
-      parsedAIResponse = safeJsonParse(text);
-      if (!parsedAIResponse) throw new Error("OpenAI returned invalid JSON");
-
-      const criticResult = await trace.runStep(`critic_evaluation_${iteration}`, async () => {
-        return await evaluateSynthesizerOutput(apiKey, text, topEvaluations, evidenceList);
-      });
-
-      if (criticResult.approved) {
-        approved = true;
-      } else {
-        trace.recordRetry(criticResult);
-        currentPrompt = basePrompt + `\n\nCRITIC FEEDBACK FROM PREVIOUS ATTEMPT (FIX THESE):\n- ${criticResult.feedback.join("\n- ")}`;
       }
     }
 
