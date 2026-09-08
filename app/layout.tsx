@@ -16,7 +16,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Visa Score — check your visa chances",
+  title: "Borderless AI — check your visa chances",
   description:
     "Estimate visa route fit with a quick profile—demo tool, not legal advice.",
 };

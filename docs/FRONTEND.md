@@ -1,4 +1,4 @@
-# Frontend Context: AI Visa Advisor
+# Frontend Context: Borderless AI
 
 ## Architecture
 The frontend is built on Next.js 14 App Router. It embraces the paradigm of separating static/server-rendered content from highly interactive client-side logic.

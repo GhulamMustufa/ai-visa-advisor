@@ -15,7 +15,7 @@ test.describe('Chat Interface', () => {
 
   test('Initial Render & UI Verification', async ({ page }) => {
     // Verify Header exists
-    await expect(page.locator('h1', { hasText: 'AI Visa Consultant' })).toBeVisible();
+    await expect(page.locator('h1', { hasText: 'Borderless AI' })).toBeVisible();
 
     // Verify the two suggestion buttons exist using getByText
     await expect(page.getByText("What are the requirements for Spain's Digital Nomad Visa?").first()).toBeVisible();

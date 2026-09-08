@@ -146,7 +146,7 @@ async function runEvaluations() {
   const avgCost = (totalCost / successes).toFixed(5);
   const schemaValidity = (((dataset.length - schemaFailures) / dataset.length) * 100).toFixed(1);
 
-  const report = `# AI VISA ADVISOR EVALUATION
+  const report = `# Borderless AI EVALUATION
 
 ## Summary Metrics
 - **Cases Evaluated**: ${dataset.length}

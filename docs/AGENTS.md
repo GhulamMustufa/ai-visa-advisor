@@ -1,4 +1,4 @@
-# AI Model & Agent Context: AI Visa Advisor
+# AI Model & Agent Context: Borderless AI
 
 The core value of the application is its deterministic, highly-constrained AI scoring engine. It does not use LangChain or heavy agent frameworks; instead, it relies on strict prompt engineering and OpenAI's Structured Outputs (JSON Schema).
 

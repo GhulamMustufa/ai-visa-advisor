@@ -1,4 +1,4 @@
-export const RECENT_SUBMISSIONS_KEY = "visa-score-mvp-recent-submissions";
+export const RECENT_SUBMISSIONS_KEY = "borderless-ai-recent-submissions";
 const MAX_RECENT = 10;
 
 export type RecentSubmission = {

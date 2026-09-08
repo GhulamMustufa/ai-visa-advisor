@@ -95,7 +95,7 @@ export default function ChatPage() {
               </svg>
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-2 tracking-tight">AI Visa Consultant</h1>
+              <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-2 tracking-tight">Borderless AI</h1>
               <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto text-sm leading-relaxed">
                 Ask me anything about moving abroad. I am strictly bound to official immigration rules from over 70 countries.
               </p>
@@ -167,7 +167,7 @@ export default function ChatPage() {
             <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800/50 rounded-xl p-6 text-center animate-in slide-in-from-bottom-4">
               <h3 className="text-indigo-900 dark:text-indigo-200 font-semibold mb-2">Free Consultation Complete</h3>
               <p className="text-sm text-indigo-700 dark:text-indigo-300/80 mb-5">
-                You've used your 3 free messages. Please sign in to save your history and continue chatting with the AI Advisor.
+                You've used your 3 free messages. Please sign in to save your history and continue chatting with Borderless AI.
               </p>
               <SignInButton mode="modal">
                 <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-6 rounded-lg transition-all shadow-sm hover:shadow-md">
@@ -199,7 +199,7 @@ export default function ChatPage() {
             </form>
           )}
           <div className="text-center mt-3 text-xs text-slate-500 dark:text-slate-500">
-            AI Advisor relies on official government data, but always verify with official sources before applying.
+            Borderless AI relies on official government data, but always verify with official sources before applying.
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-# Database Context: AI Visa Advisor
+# Database Context: Borderless AI
 
 The application uses PostgreSQL, hosted on Supabase, and connects directly via the `pg` driver using a Transaction Pooler (Port 6543) for serverless compatibility.
 

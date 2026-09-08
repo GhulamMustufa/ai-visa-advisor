@@ -1,6 +1,6 @@
 # Agentic Workflow & Orchestration Architecture (Phase 4)
 
-This document outlines the architecture for the AI Visa Advisor's agentic workflow and the rationale behind the technology choices.
+This document outlines the architecture for the Borderless AI's agentic workflow and the rationale behind the technology choices.
 
 ## Objective
 To wrap strict deterministic engines and AI synthesis into a bounded, highly observable pipeline, ensuring the final output is accurate, grounded, and free of hallucinations.

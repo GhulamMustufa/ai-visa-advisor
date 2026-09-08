@@ -1,4 +1,4 @@
-# API Context: AI Visa Advisor
+# API Context: Borderless AI
 
 This document outlines the core backend API routes located in `app/api/`.
 

@@ -1,6 +1,6 @@
 # AI Decision-Support Architecture
 
-This document describes the Phase 1 architectural refactor of the AI Visa Advisor.
+This document describes the Phase 1 architectural refactor of the Borderless AI.
 
 ## Core Principle
 **The LLM is NOT the source of truth.** Immigration rules are strictly mathematical, logically deterministic, and legally codified. The architecture separates the exact calculation of eligibility from the nuanced explanation of that eligibility.

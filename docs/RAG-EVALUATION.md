@@ -1,6 +1,6 @@
 # Evidence Grounding & RAG Evaluation Methodology
 
-This document outlines the methodology used to measure and evaluate the Evidence Grounding and Retrieval-Augmented Generation (RAG) system in Phase 2 of the AI Visa Advisor.
+This document outlines the methodology used to measure and evaluate the Evidence Grounding and Retrieval-Augmented Generation (RAG) system in Phase 2 of the Borderless AI.
 
 ## Objective
 The objective of this evaluation is to prove that the system retrieves authoritative, accurate, and relevant immigration evidence to back up its deterministic evaluations, and gracefully handles conflicts and missing data.

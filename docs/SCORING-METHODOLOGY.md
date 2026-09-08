@@ -1,6 +1,6 @@
 # Scoring Methodology (Phase 3)
 
-The AI Visa Advisor uses a strictly deterministic, explainable scoring engine. The LLM is **never** used to invent approval probabilities or make up scores. The LLM acts solely as a natural-language explainer for the mathematical output of the deterministic engine.
+The Borderless AI uses a strictly deterministic, explainable scoring engine. The LLM is **never** used to invent approval probabilities or make up scores. The LLM acts solely as a natural-language explainer for the mathematical output of the deterministic engine.
 
 ## Multi-Dimensional Architecture
 

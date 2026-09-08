@@ -1,6 +1,6 @@
 # Resume Bullets
 
-These bullets are designed to emphasize the engineering impact, architectural complexity, and AI orchestration aspects of the AI Visa Advisor system. 
+These bullets are designed to emphasize the engineering impact, architectural complexity, and AI orchestration aspects of the Borderless AI system. 
 
 ---
 

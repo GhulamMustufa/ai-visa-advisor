@@ -1,6 +1,6 @@
 import type { RankedPathway, VisaProfile } from "./types";
 
-export const RESULT_STORAGE_KEY = "visa-score-mvp-result";
+export const RESULT_STORAGE_KEY = "borderless-ai-result";
 
 export type StoredResult = {
   overall_score: number;

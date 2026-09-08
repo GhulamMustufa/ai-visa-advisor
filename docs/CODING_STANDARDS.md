@@ -1,6 +1,6 @@
-# Coding Standards: AI Visa Advisor (MVP)
+# Coding Standards: Borderless AI (MVP)
 
-This document defines practical coding and performance rules for the AI Visa Advisor MVP built with:
+This document defines practical coding and performance rules for the Borderless AI MVP built with:
 - Next.js 14 (App Router)
 - React
 - TypeScript

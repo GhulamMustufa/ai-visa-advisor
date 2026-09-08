@@ -1,4 +1,4 @@
-# AI Visa Advisor
+# Borderless AI
 
 **Evidence-grounded AI decision-support system for evaluating immigration pathways using deterministic eligibility rules, authoritative retrieval, explainable scoring, and LLM reasoning.**
 
@@ -14,7 +14,7 @@ Generic AI chatbots (like ChatGPT or Claude) are fundamentally dangerous for imm
 
 ## 💡 The Solution
 
-AI Visa Advisor is a **hybrid neuro-symbolic AI system**. It combines the raw reasoning capabilities of Large Language Models with a strictly typed, deterministic rules engine. The LLM is **never** the source of truth for eligibility—instead, it acts as an orchestrator, synthesizer, and verifier against an authoritative knowledge base.
+Borderless AI is a **hybrid neuro-symbolic AI system**. It combines the raw reasoning capabilities of Large Language Models with a strictly typed, deterministic rules engine. The LLM is **never** the source of truth for eligibility—instead, it acts as an orchestrator, synthesizer, and verifier against an authoritative knowledge base.
 
 ## 🚀 Why This Is Not Just an LLM Wrapper
 

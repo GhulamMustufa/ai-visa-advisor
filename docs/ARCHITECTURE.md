@@ -1,4 +1,4 @@
-# Architecture Context: AI Visa Advisor
+# Architecture Context: Borderless AI
 
 ## System Overview
 The application is a stateless Serverless Monolith built on Next.js 14. It couples frontend presentation and backend API logic within the same repository, deployed to Vercel's Edge/Serverless infrastructure. State and authentication are outsourced to managed cloud services (Supabase, Stripe).

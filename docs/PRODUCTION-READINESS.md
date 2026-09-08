@@ -2,7 +2,7 @@
 
 ## Security & Reliability Hardening
 
-The AI Visa Advisor has undergone a production readiness pass to ensure it can safely handle real users and production scaling.
+The Borderless AI has undergone a production readiness pass to ensure it can safely handle real users and production scaling.
 
 ### Completed Security Measures
 1. **Input Validation Limits**: Added explicit `max()` bounds to open-ended string inputs (like `nationality` and `fieldOfWork`) via Zod to prevent ReDoS and token exhaustion.

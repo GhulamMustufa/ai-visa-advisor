@@ -79,7 +79,7 @@ ${row.content}
     }
 
     // 3. Construct System Prompt
-    const systemPrompt = `You are the AI Visa Advisor, an expert immigration assistant.
+    const systemPrompt = `You are the Borderless AI, an expert immigration assistant.
 Your goal is to answer the user's questions strictly based on the provided Official Evidence.
 
 IMPORTANT RULES:

@@ -1,7 +1,7 @@
-# Product Context: AI Visa Advisor
+# Product Context: Borderless AI
 
 ## Overview
-AI Visa Advisor is a SaaS platform designed to provide immigration applicants with realistic, data-backed visa pathway recommendations. Unlike traditional immigration consultancies that may overpromise, this tool uses a conservative AI scoring model grounded in official government sources to give users an honest probability score (0-100) of securing a visa.
+Borderless AI is a SaaS platform designed to provide immigration applicants with realistic, data-backed visa pathway recommendations. Unlike traditional immigration consultancies that may overpromise, this tool uses a conservative AI scoring model grounded in official government sources to give users an honest probability score (0-100) of securing a visa.
 
 ## Target Audience
 Individuals worldwide looking to immigrate, study, or work abroad who need a low-cost, preliminary assessment of their chances before hiring expensive immigration lawyers.
