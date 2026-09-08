@@ -158,8 +158,16 @@ export async function POST(req: Request) {
         profile,
         sources: evidenceList.map(e => e.source_id),
         result: { pathways: response.pathways.map(p => ({
-          name: p.name, country: p.country, score: p.baseScore, reason: p.reason, 
-          weaknesses: p.weaknesses, documents: p.documents, next_steps: p.next_steps, citations: p.citations
+          name: p.name, 
+          country: p.country, 
+          score: p.baseScore, 
+          baseScore: p.baseScore, 
+          status: p.status,
+          reason: p.reason, 
+          weaknesses: p.weaknesses, 
+          documents: p.documents, 
+          next_steps: p.next_steps, 
+          citations: p.citations
         }))},
         latencyMs: Date.now() - startedAt,
       });

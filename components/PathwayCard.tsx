@@ -47,13 +47,32 @@ export function PathwayCard({ pathway }: { pathway: RankedPathway }) {
   const statusStyle = getStatusStyling(pathway.status);
   const statusLabel = getStatusLabel(pathway.status);
 
-  // Score breakdown fields
-  const breakdown = pathway.scoreBreakdown || {
-    eligibilityFit: pathway.baseScore,
-    profileStrength: pathway.baseScore,
-    competitiveness: pathway.baseScore,
-    evidenceQuality: 100
-  };
+  // Resolve effective score safely from baseScore or legacy score field
+  const safeScore = 
+    typeof pathway.baseScore === "number" && !isNaN(pathway.baseScore)
+      ? pathway.baseScore
+      : typeof (pathway as any).score === "number" && !isNaN((pathway as any).score)
+        ? (pathway as any).score
+        : 0;
+
+  // Score breakdown fields with defensive fallbacks
+  const rawBreakdown = pathway.scoreBreakdown;
+  const hasValidBreakdown = rawBreakdown && 
+    (Number(rawBreakdown.eligibilityFit) > 0 || Number(rawBreakdown.profileStrength) > 0 || Number(rawBreakdown.competitiveness) > 0);
+
+  const breakdown = hasValidBreakdown
+    ? {
+        eligibilityFit: Number(rawBreakdown?.eligibilityFit) || safeScore,
+        profileStrength: Number(rawBreakdown?.profileStrength) || safeScore,
+        competitiveness: Number(rawBreakdown?.competitiveness) || safeScore,
+        evidenceQuality: Number(rawBreakdown?.evidenceQuality) || 100
+      }
+    : {
+        eligibilityFit: safeScore,
+        profileStrength: safeScore,
+        competitiveness: safeScore,
+        evidenceQuality: 100
+      };
 
   const topAction = pathway.topWhatIfScenario?.targetAction || (pathway.marginalImprovements && pathway.marginalImprovements.length > 0 ? pathway.marginalImprovements[0] : null);
 
@@ -164,17 +183,21 @@ export function PathwayCard({ pathway }: { pathway: RankedPathway }) {
                 { label: "Eligibility Fit", value: breakdown.eligibilityFit, color: "bg-blue-500" },
                 { label: "Profile Strength", value: breakdown.profileStrength, color: "bg-violet-500" },
                 { label: "Competitiveness", value: breakdown.competitiveness, color: "bg-amber-500" },
-              ].map(metric => (
-                <div key={metric.label}>
-                  <div className="flex justify-between text-xs mb-1.5 font-medium text-slate-700">
-                    <span>{metric.label}</span>
-                    <span>{Math.round(metric.value)}%</span>
+              ].map(metric => {
+                const numericValue = typeof metric.value === "number" && !isNaN(metric.value) ? metric.value : 0;
+                const displayPct = Math.min(100, Math.max(0, Math.round(numericValue)));
+                return (
+                  <div key={metric.label}>
+                    <div className="flex justify-between text-xs mb-1.5 font-medium text-slate-700">
+                      <span>{metric.label}</span>
+                      <span>{displayPct}%</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                      <div className={`h-full ${metric.color} transition-all duration-500`} style={{ width: `${displayPct}%` }} />
+                    </div>
                   </div>
-                  <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                    <div className={`h-full ${metric.color} transition-all duration-500`} style={{ width: `${Math.round(metric.value)}%` }} />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
 

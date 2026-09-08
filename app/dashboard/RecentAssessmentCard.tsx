@@ -16,8 +16,11 @@ export function RecentAssessmentCard({
     // Rehydrate the stored result format
     const storedData = {
       profileSummary: item.profile,
-      pathways: item.result.pathways,
-      whatIfs: item.result.whatIfs || []
+      pathways: (item.result?.pathways || []).map((p: any) => ({
+        ...p,
+        baseScore: typeof p.baseScore === "number" ? p.baseScore : (typeof p.score === "number" ? p.score : 0),
+      })),
+      whatIfs: item.result?.whatIfs || []
     };
     
     sessionStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(storedData));
