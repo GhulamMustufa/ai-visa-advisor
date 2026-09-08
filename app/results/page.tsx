@@ -68,7 +68,7 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[var(--background)]">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         
         {/* Header Area */}
@@ -136,7 +136,7 @@ export default function ResultsPage() {
             />
 
             {/* Disclaimer */}
-            <div className="rounded-xl bg-amber-50/50 p-4 border border-amber-100/50">
+            <div className="rounded-xl bg-amber-50 p-4 border border-amber-200">
               <p className="text-xs leading-relaxed text-amber-800">
                 <strong>Important:</strong> This tool provides AI-generated guidance based on official thresholds, not legal advice. Always consult an official immigration attorney.
               </p>

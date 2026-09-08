@@ -26,16 +26,25 @@
 [data-theme="dark"] .bg-white {
   background-color: #0f172a !important;
 }
-[data-theme="dark"] .bg-slate-50 {
+[data-theme="dark"] .bg-slate-50,
+[data-theme="dark"] .bg-slate-50\/50 {
   background-color: #111827 !important;
 }
-[data-theme="dark"] .bg-slate-100 {
+[data-theme="dark"] .bg-slate-100,
+[data-theme="dark"] .bg-slate-100\/50 {
   background-color: #1f2937 !important;
+}
+[data-theme="dark"] .bg-slate-200 {
+  background-color: #334155 !important;
+}
+[data-theme="dark"] .bg-slate-300 {
+  background-color: #475569 !important;
 }
 [data-theme="dark"] .bg-card {
   background-color: #0f172a !important;
 }
 [data-theme="dark"] .border-slate-100,
+[data-theme="dark"] .border-slate-100\/50,
 [data-theme="dark"] .border-slate-200,
 [data-theme="dark"] .border-slate-200\/80,
 [data-theme="dark"] .border-slate-300,
@@ -67,9 +76,13 @@
 [data-theme="dark"] .hover\:bg-slate-100:hover {
   background-color: #334155 !important;
 }
-[data-theme="dark"] .bg-amber-50 {
+[data-theme="dark"] .bg-amber-50,
+[data-theme="dark"] .bg-amber-50\/50,
+[data-theme="dark"] .bg-amber-100 {
   background-color: #3f2f13 !important;
 }
+[data-theme="dark"] .border-amber-100,
+[data-theme="dark"] .border-amber-100\/50,
 [data-theme="dark"] .border-amber-200 {
   border-color: #7c5a1b !important;
 }
@@ -82,24 +95,30 @@
 }
 
 /* Emerald badges */
-[data-theme="dark"] .bg-emerald-50 {
+[data-theme="dark"] .bg-emerald-50,
+[data-theme="dark"] .bg-emerald-100 {
   background-color: #052e16 !important;
 }
+[data-theme="dark"] .border-emerald-100,
 [data-theme="dark"] .border-emerald-200 {
   border-color: #166534 !important;
 }
-[data-theme="dark"] .text-emerald-700 {
+[data-theme="dark"] .text-emerald-700,
+[data-theme="dark"] .text-emerald-800 {
   color: #4ade80 !important;
 }
 
 /* Rose / red badges */
-[data-theme="dark"] .bg-rose-50 {
+[data-theme="dark"] .bg-rose-50,
+[data-theme="dark"] .bg-rose-100 {
   background-color: #2d0a0a !important;
 }
+[data-theme="dark"] .border-rose-100,
 [data-theme="dark"] .border-rose-200 {
   border-color: #9f1239 !important;
 }
-[data-theme="dark"] .text-rose-700 {
+[data-theme="dark"] .text-rose-700,
+[data-theme="dark"] .text-rose-800 {
   color: #fb7185 !important;
 }
 
@@ -109,14 +128,25 @@
 }
 
 /* Indigo/blue tints */
-[data-theme="dark"] .bg-indigo-50 {
+[data-theme="dark"] .bg-indigo-50,
+[data-theme="dark"] .bg-indigo-50\/50 {
   background-color: #1e1b4b !important;
 }
+[data-theme="dark"] .bg-indigo-100 {
+  background-color: #312e81 !important;
+}
+[data-theme="dark"] .border-indigo-100,
 [data-theme="dark"] .border-indigo-200 {
   border-color: #3730a3 !important;
 }
-[data-theme="dark"] .text-indigo-600,
-[data-theme="dark"] .text-indigo-700 {
+[data-theme="dark"] .text-indigo-900 {
+  color: #e0e7ff !important;
+}
+[data-theme="dark"] .text-indigo-700,
+[data-theme="dark"] .text-indigo-700\/80 {
+  color: #c7d2fe !important;
+}
+[data-theme="dark"] .text-indigo-600 {
   color: #a5b4fc !important;
 }
 [data-theme="dark"] .text-indigo-500 {

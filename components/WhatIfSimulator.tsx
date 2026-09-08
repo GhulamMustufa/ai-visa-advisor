@@ -31,7 +31,7 @@ export function WhatIfSimulator({ initialProfile, onChange, onReset }: WhatIfSim
   };
 
   return (
-    <div className="rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
           <span className="text-indigo-500">

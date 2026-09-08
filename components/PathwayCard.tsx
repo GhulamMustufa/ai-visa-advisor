@@ -61,7 +61,7 @@ export function PathwayCard({ pathway }: { pathway: RankedPathway }) {
     <article className="mb-6 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
       
       {/* Header */}
-      <div className="border-b border-slate-100 bg-slate-50/50 p-5 sm:px-6">
+      <div className="border-b border-slate-100 bg-slate-50 p-5 sm:px-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h2 className="text-xl font-semibold tracking-tight text-slate-900">
@@ -118,7 +118,7 @@ export function PathwayCard({ pathway }: { pathway: RankedPathway }) {
                 </h4>
                 <ul className="space-y-2">
                   {pathway.blockingRequirements?.map(r => (
-                    <li key={r.id} className="text-xs leading-relaxed text-rose-600 flex items-start gap-2 bg-rose-50 px-2 py-1.5 rounded border border-rose-100">
+                    <li key={r.id} className="text-xs leading-relaxed text-rose-600 flex items-start gap-2 bg-rose-50 px-2 py-1.5 rounded border border-rose-200">
                       <span className="font-bold mt-[-1px]">BLOCK:</span>
                       <span>{r.description}</span>
                     </li>
@@ -136,7 +136,7 @@ export function PathwayCard({ pathway }: { pathway: RankedPathway }) {
 
           {/* Next Best Action */}
           {topAction && (
-            <section className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-4">
+            <section className="rounded-xl border border-indigo-200 bg-indigo-50 p-4">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-indigo-500 mb-2">Next Best Action</h3>
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
@@ -144,7 +144,7 @@ export function PathwayCard({ pathway }: { pathway: RankedPathway }) {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-indigo-900">{topAction.actionName}</p>
-                  <p className="mt-1 text-xs text-indigo-700/80">
+                  <p className="mt-1 text-xs text-indigo-700">
                     Highest ROI improvement (+{topAction.pointImpact} pts). Difficulty: {topAction.metrics?.difficulty}/5.
                   </p>
                 </div>
