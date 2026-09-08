@@ -123,16 +123,35 @@ export async function runVisaAssessment(profile: VisaProfile, requestId: string)
       };
     }
 
+    // Calculate baseline profile metrics so scoreBreakdown is never empty
+    const eduScore = profile.education === "phd" ? 28 : profile.education === "master" ? 24 : profile.education === "bachelor" ? 16 : 8;
+    const expScore = profile.yearsExperience >= 8 ? 24 : profile.yearsExperience >= 5 ? 20 : profile.yearsExperience >= 3 ? 15 : profile.yearsExperience >= 1 ? 8 : 0;
+    const savingsScore = profile.savingsUsd >= 50000 ? 24 : profile.savingsUsd >= 25000 ? 18 : profile.savingsUsd >= 10000 ? 12 : profile.savingsUsd >= 5000 ? 6 : 0;
+    const langScore = profile.englishTest !== "none" ? 20 : 0;
+    
+    const profileStrength = Math.min(100, Math.round(((eduScore + expScore) / 52) * 100));
+    const competitiveness = Math.min(100, Math.round(((langScore + expScore + savingsScore) / 68) * 100));
+    const baselineComposite = Math.min(100, Math.round(eduScore + expScore + savingsScore + langScore));
+
     const finalPathways: RankedPathway[] = parsedAIResponse.pathways.map((aiData: any) => {
       const domainData = pathways.find(p => p.name === aiData.name || p.id === aiData.name) || pathways[0];
+      const effectiveBaseScore = typeof aiData.baseScore === "number" && aiData.baseScore > 0 
+        ? aiData.baseScore 
+        : baselineComposite;
+
       return {
         pathwayId: domainData?.id || "unknown",
         name: aiData.name,
         country: aiData.country,
-        status: aiData.eligibilityStatus || "UNKNOWN",
-        baseScore: aiData.baseScore,
+        status: aiData.eligibilityStatus || (effectiveBaseScore >= 70 ? "ELIGIBLE" : effectiveBaseScore >= 45 ? "CONDITIONALLY_ELIGIBLE" : "BLOCKED"),
+        baseScore: effectiveBaseScore,
         maxScore: 100,
-        scoreBreakdown: { eligibilityFit: 0, profileStrength: 0, evidenceQuality: 0, competitiveness: 0 },
+        scoreBreakdown: { 
+          eligibilityFit: effectiveBaseScore, 
+          profileStrength, 
+          evidenceQuality: 100, 
+          competitiveness 
+        },
         satisfiedRequirements: [],
         missingRequirements: [],
         blockingRequirements: [],

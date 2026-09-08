@@ -77,24 +77,32 @@ function simulatePathway(
         ? (pathway as any).score
         : 0;
 
-  if (!isChanged) {
-    return {
-      ...pathway,
-      baseScore: originalScore,
-      scoreBreakdown: pathway.scoreBreakdown && pathway.scoreBreakdown.eligibilityFit > 0
-        ? pathway.scoreBreakdown
-        : {
-            eligibilityFit: originalScore,
-            profileStrength: originalScore,
-            competitiveness: originalScore,
-            evidenceQuality: 100,
-          },
-    };
-  }
-
   const initialH = getProfileHeuristicScore(initialProfile);
   const simH = getProfileHeuristicScore(simProfile);
   const delta = simH.total - initialH.total;
+
+  const baselineProfileStrength = Math.min(
+    100,
+    Math.max(0, Math.round(((initialH.educationPts + initialH.expPts) / 52) * 100))
+  );
+  const baselineCompetitiveness = Math.min(
+    100,
+    Math.max(0, Math.round(((initialH.langPts + initialH.expPts + initialH.savingsPts) / 72) * 100))
+  );
+  const baselineScore = originalScore > 0 ? originalScore : initialH.total;
+
+  if (!isChanged) {
+    return {
+      ...pathway,
+      baseScore: baselineScore,
+      scoreBreakdown: {
+        eligibilityFit: baselineScore,
+        profileStrength: baselineProfileStrength,
+        competitiveness: baselineCompetitiveness,
+        evidenceQuality: pathway.scoreBreakdown?.evidenceQuality || 100,
+      },
+    };
+  }
 
   const rawScore = originalScore === 0
     ? simH.total
