@@ -7,6 +7,7 @@ import {
   getUserSubscription,
 } from "@/lib/persistence";
 import { FREE_MONTHLY_LIMIT, PLANS } from "@/lib/stripe";
+import { RecentAssessmentCard } from "./RecentAssessmentCard";
 
 function ScoreBadge({ score }: { score: number }) {
   const color =
@@ -155,10 +156,7 @@ export default async function DashboardPage({
                     )
                   : 0;
               return (
-                <li
-                  key={item.id}
-                  className="rounded-xl border border-slate-200 bg-white p-4 shadow-soft"
-                >
+                <RecentAssessmentCard key={item.id} item={item}>
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <p className="text-xs text-slate-500">
@@ -186,7 +184,7 @@ export default async function DashboardPage({
                       <span className="text-xs text-slate-400">avg</span>
                     </div>
                   </div>
-                </li>
+                </RecentAssessmentCard>
               );
             })}
           </ul>

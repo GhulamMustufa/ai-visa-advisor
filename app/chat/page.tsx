@@ -3,12 +3,68 @@
 import { useChat } from '@ai-sdk/react';
 import { useAuth, SignInButton } from '@clerk/nextjs';
 import { useEffect, useState, useRef } from 'react';
+import Markdown from 'react-markdown';
 
 export default function ChatPage() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, setInput } = useChat();
+  const chatHelpers = useChat();
+  const { messages, setMessages, status, sendMessage } = chatHelpers;
+  const isLoading = status === 'submitted' || status === 'streaming';
   const { isSignedIn, isLoaded } = useAuth();
   const [messageCount, setMessageCount] = useState(0);
+  const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isChatLoaded, setIsChatLoaded] = useState(false);
+
+  // Load free message usage limit
+  useEffect(() => {
+    if (!isSignedIn && isLoaded) {
+      const used = localStorage.getItem('freeMessagesUsed');
+      if (used) {
+        setMessageCount(parseInt(used, 10));
+      }
+    }
+  }, [isSignedIn, isLoaded]);
+
+  // Load chat history from localStorage
+  useEffect(() => {
+    const savedChat = localStorage.getItem('chatHistory');
+    if (savedChat) {
+      try {
+        setMessages(JSON.parse(savedChat));
+      } catch (e) {
+        console.error("Failed to parse chat history", e);
+      }
+    }
+    setIsChatLoaded(true);
+  }, [setMessages]);
+
+  // Save chat history to localStorage
+  useEffect(() => {
+    if (isChatLoaded) {
+      localStorage.setItem('chatHistory', JSON.stringify(messages));
+    }
+  }, [messages, isChatLoaded]);
+
+  const handleFormSubmit = async (e?: React.FormEvent, customValue?: string) => {
+    if (e) e.preventDefault();
+    const content = customValue || inputValue;
+    if (!content.trim()) return;
+    
+    setInputValue("");
+    
+    try {
+      await sendMessage({ text: content });
+      
+      // Update message count for free tier
+      if (!isSignedIn && isLoaded) {
+        const newCount = messageCount + 1;
+        setMessageCount(newCount);
+        localStorage.setItem('freeMessagesUsed', newCount.toString());
+      }
+    } catch (err) {
+      console.error("Failed to append message:", err);
+    }
+  };
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -28,9 +84,10 @@ export default function ChatPage() {
     <div className="flex flex-col h-[calc(100vh-3.5rem)] bg-slate-50 dark:bg-[#0a0a0a] font-sans">
       
       {/* Chat History Area */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 w-full max-w-4xl mx-auto space-y-8">
+      <div className="flex-1 overflow-y-auto w-full">
+        <div className="p-4 sm:p-6 w-full max-w-4xl mx-auto space-y-8 pb-32">
         
-        {messages.length === 0 && (
+        {isChatLoaded && messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center space-y-6 animate-in fade-in zoom-in duration-500">
             <div className="w-20 h-20 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg rotate-3">
               <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -45,10 +102,14 @@ export default function ChatPage() {
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg mt-8">
-               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl text-left text-sm text-slate-600 dark:text-slate-300 shadow-sm cursor-pointer hover:border-indigo-500 transition-colors" onClick={() => setInput("What are the requirements for Spain's Digital Nomad Visa?")}>
+               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl text-left text-sm text-slate-600 dark:text-slate-300 shadow-sm cursor-pointer hover:border-indigo-500 transition-colors" onClick={() => {
+                 handleFormSubmit(undefined, "What are the requirements for Spain's Digital Nomad Visa?");
+               }}>
                  "What are the requirements for Spain's Digital Nomad Visa?"
                </div>
-               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl text-left text-sm text-slate-600 dark:text-slate-300 shadow-sm cursor-pointer hover:border-indigo-500 transition-colors" onClick={() => setInput("Do I need a job offer for the Canadian Express Entry?")}>
+               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl text-left text-sm text-slate-600 dark:text-slate-300 shadow-sm cursor-pointer hover:border-indigo-500 transition-colors" onClick={() => {
+                 handleFormSubmit(undefined, "Do I need a job offer for the Canadian Express Entry?");
+               }}>
                  "Do I need a job offer for the Canadian Express Entry?"
                </div>
             </div>
@@ -70,8 +131,12 @@ export default function ChatPage() {
                 ? 'bg-indigo-600 text-white rounded-2xl rounded-br-sm' 
                 : 'bg-white dark:bg-[#111] text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-2xl rounded-tl-sm'
             }`}>
-              <div className="whitespace-pre-wrap text-[15px] leading-relaxed">
-                {m.content}
+              <div className="prose prose-sm prose-slate dark:prose-invert max-w-none">
+                <Markdown>
+                  {m.content || 
+                   (m.parts && m.parts.map(p => (p as any).type === 'text' ? (p as any).text : '').join('')) || 
+                   ""}
+                </Markdown>
               </div>
             </div>
           </div>
@@ -92,10 +157,11 @@ export default function ChatPage() {
           </div>
         )}
         <div ref={messagesEndRef} />
+        </div>
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-white dark:bg-[#0a0a0a] border-t border-slate-200 dark:border-slate-800 w-full">
+      <div className="p-4 bg-white dark:bg-[#0a0a0a] border-t border-slate-200 dark:border-slate-800 w-full z-10 relative">
         <div className="max-w-4xl mx-auto">
           {isLimitReached ? (
             <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800/50 rounded-xl p-6 text-center animate-in slide-in-from-bottom-4">
@@ -110,20 +176,20 @@ export default function ChatPage() {
               </SignInButton>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="relative flex items-center shadow-sm rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500 transition-all">
+            <form onSubmit={handleFormSubmit} className="relative flex items-center shadow-sm rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500 transition-all">
               <input
                 className="w-full bg-transparent border-none py-4 pl-6 pr-14 focus:outline-none text-slate-800 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400"
-                value={input}
+                value={inputValue}
                 placeholder={
                   !isSignedIn && isLoaded
                     ? `Ask a visa question... (${3 - messageCount} free messages left)` 
                     : "Ask about a visa, e.g., 'What are the rules for Spain's digital nomad visa?'"
                 }
-                onChange={handleInputChange}
+                onChange={(e) => setInputValue(e.target.value)}
               />
               <button
                 type="submit"
-                disabled={isLoading || !input?.trim()}
+                disabled={isLoading || !inputValue.trim()}
                 className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white transition-colors"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5 ml-0.5">

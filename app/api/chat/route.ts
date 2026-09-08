@@ -1,5 +1,5 @@
 import { openai } from '@ai-sdk/openai';
-import { streamText, convertToCoreMessages } from 'ai';
+import { streamText, Message } from 'ai';
 import { Pool } from 'pg';
 
 // Initialize Postgres connection
@@ -31,11 +31,22 @@ async function generateEmbedding(text: string): Promise<number[]> {
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json();
+    const rawBody = await req.text();
+    console.log("RAW BODY:", rawBody);
+    const { messages } = rawBody ? JSON.parse(rawBody) : { messages: [] };
     
     // Get the user's latest question
     const latestMessage = messages[messages.length - 1];
-    const userQuery = latestMessage.content;
+    if (!latestMessage) {
+      return new Response(JSON.stringify({ error: "No messages provided" }), { status: 400 });
+    }
+    let userQuery = latestMessage.content || "";
+    if (!userQuery && latestMessage.parts) {
+      userQuery = latestMessage.parts
+        .filter((p: any) => p.type === 'text')
+        .map((p: any) => p.text)
+        .join('\n');
+    }
 
     // 1. Generate an embedding of the user's question
     const embedding = await generateEmbedding(userQuery);
@@ -82,15 +93,23 @@ OFFICIAL EVIDENCE:
 ${contextString}
 `;
 
+    const coreMessages = messages.map((m: any) => ({
+      role: m.role,
+      content: m.content || (m.parts && m.parts[0]?.text) || ""
+    }));
+
     // 4. Stream response using Vercel AI SDK
     const result = await streamText({
       model: openai('gpt-4o-mini'),
       system: systemPrompt,
-      messages: convertToCoreMessages(messages),
+      messages: coreMessages,
       temperature: 0.1,
     });
 
-    return result.toDataStreamResponse();
+    if (typeof (result as any).toUIMessageStreamResponse === "function") {
+      return (result as any).toUIMessageStreamResponse();
+    }
+    return new Response("Error: Could not convert stream", { status: 500 });
   } catch (error) {
     console.error("Chat API Error:", error);
     return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
