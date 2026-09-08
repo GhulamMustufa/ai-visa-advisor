@@ -67,6 +67,9 @@ export function Header() {
           <Link href="/explore" className="transition-colors hover:text-foreground">
             Explore
           </Link>
+          <Link href="/chat" className="transition-colors text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium">
+            AI Chat
+          </Link>
 
           {isSignedIn ? (
             <>
