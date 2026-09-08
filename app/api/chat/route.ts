@@ -1,5 +1,5 @@
 import { openai } from '@ai-sdk/openai';
-import { streamText, Message } from 'ai';
+import { streamText } from 'ai';
 import { Pool } from 'pg';
 
 // Initialize Postgres connection

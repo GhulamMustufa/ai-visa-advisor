@@ -133,8 +133,8 @@ export default function ChatPage() {
             }`}>
               <div className="prose prose-sm prose-slate dark:prose-invert max-w-none">
                 <Markdown>
-                  {m.content || 
-                   (m.parts && m.parts.map(p => (p as any).type === 'text' ? (p as any).text : '').join('')) || 
+                  {(m as any).content || 
+                   (m.parts && m.parts.map((p: any) => p.type === 'text' ? p.text : '').join('')) || 
                    ""}
                 </Markdown>
               </div>
