@@ -15,13 +15,60 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://borderless-ai.com";
+
 export const metadata: Metadata = {
-  title: "Borderless AI — check your visa chances",
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "Borderless AI — Free Visa Eligibility Checker",
+    template: "%s | Borderless AI",
+  },
   description:
-    "Estimate visa route fit with a quick profile—demo tool, not legal advice.",
+    "Check your chances for 70+ visa types worldwide. AI-powered immigration advisor backed by official government data. No legal jargon. Instant results.",
+  keywords: [
+    "visa eligibility checker",
+    "immigration AI",
+    "visa score",
+    "digital nomad visa",
+    "work permit",
+    "global mobility",
+    "borderless AI",
+  ],
+  authors: [{ name: "Borderless AI" }],
+  creator: "Borderless AI",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
+  },
+  openGraph: {
+    type: "website",
+    siteName: "Borderless AI",
+    title: "Borderless AI — Free Visa Eligibility Checker",
+    description:
+      "AI-powered immigration advisor. Check your visa chances instantly across 70+ countries.",
+    url: BASE_URL,
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Borderless AI — Your Global Immigration Advisor",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Borderless AI — Free Visa Eligibility Checker",
+    description:
+      "AI-powered immigration advisor. Check your visa chances instantly across 70+ countries.",
+    images: ["/og-image.png"],
+  },
+  alternates: {
+    canonical: BASE_URL,
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
