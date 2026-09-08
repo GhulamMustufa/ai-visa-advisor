@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs";
 
@@ -28,6 +29,7 @@ function themeIcon(theme: Theme) {
 }
 
 export function Header() {
+  const pathname = usePathname();
   const [theme, setTheme] = useState<Theme>("light");
   const { isSignedIn } = useAuth();
 
@@ -74,14 +76,35 @@ export function Header() {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-5 text-sm text-muted">
-          <Link href="/form" className="transition-colors hover:text-foreground">
+        <nav className="flex items-center gap-5 text-sm">
+          <Link 
+            href="/form" 
+            className={`transition-colors ${
+              pathname === "/form" 
+                ? "text-indigo-600 dark:text-indigo-400 font-semibold" 
+                : "text-muted hover:text-foreground"
+            }`}
+          >
             Assessment
           </Link>
-          <Link href="/explore" className="transition-colors hover:text-foreground">
+          <Link 
+            href="/explore" 
+            className={`transition-colors ${
+              pathname === "/explore" 
+                ? "text-indigo-600 dark:text-indigo-400 font-semibold" 
+                : "text-muted hover:text-foreground"
+            }`}
+          >
             Explore
           </Link>
-          <Link href="/chat" className="transition-colors text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium">
+          <Link 
+            href="/chat" 
+            className={`transition-colors ${
+              pathname === "/chat" 
+                ? "text-indigo-600 dark:text-indigo-400 font-semibold" 
+                : "text-muted hover:text-foreground"
+            }`}
+          >
             AI Chat
           </Link>
 
@@ -89,7 +112,11 @@ export function Header() {
             <>
               <Link
                 href="/dashboard"
-                className="transition-colors hover:text-foreground mr-2"
+                className={`transition-colors mr-2 ${
+                  pathname === "/dashboard" 
+                    ? "text-indigo-600 dark:text-indigo-400 font-semibold" 
+                    : "text-muted hover:text-foreground"
+                }`}
               >
                 Dashboard
               </Link>

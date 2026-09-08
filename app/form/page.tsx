@@ -310,12 +310,12 @@ export default function FormPage() {
           {STEPS.map((s) => (
             <div
               key={s.id}
-              className={`flex-1 rounded-md border px-2 py-2 text-center text-xs font-medium transition-colors ${
+              className={`flex-1 rounded-md border px-2 py-2 text-center text-xs transition-colors ${
                 step === s.id
-                  ? "border-accent bg-[var(--accent-soft)] text-indigo-950"
+                  ? "border-accent bg-[var(--accent-soft)] text-indigo-900 dark:text-white font-semibold shadow-sm"
                   : step > s.id
-                    ? "border-slate-200 bg-slate-50 text-slate-600"
-                    : "border-slate-100 bg-white text-slate-400"
+                    ? "border-slate-200 bg-slate-50 text-slate-600 font-medium"
+                    : "border-slate-100 bg-white text-slate-400 font-medium"
               }`}
             >
               {s.short}
