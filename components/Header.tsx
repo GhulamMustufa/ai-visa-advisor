@@ -55,9 +55,23 @@ export function Header() {
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
         <Link
           href="/"
-          className="text-sm font-semibold tracking-tight text-foreground"
+          className="flex items-center gap-2.5 group"
         >
-          Visa Score
+          {/* V2 Gradient Portal Icon */}
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style={{ stopColor: '#7C3AED' }} />
+                <stop offset="100%" style={{ stopColor: '#06B6D4' }} />
+              </linearGradient>
+            </defs>
+            <circle cx="13" cy="16" r="9" stroke="url(#headerGrad)" strokeWidth="3" fill="none"/>
+            <circle cx="19" cy="16" r="9" stroke="url(#headerGrad)" strokeWidth="3" fill="none"/>
+            <path d="M14.5 12.5 L18.5 16 L14.5 19.5" stroke="url(#headerGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span className="text-sm font-bold tracking-tight text-foreground group-hover:opacity-80 transition-opacity">
+            Borderless AI
+          </span>
         </Link>
 
         <nav className="flex items-center gap-5 text-sm text-muted">

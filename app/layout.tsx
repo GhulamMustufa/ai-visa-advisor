@@ -19,6 +19,10 @@ export const metadata: Metadata = {
   title: "Borderless AI — check your visa chances",
   description:
     "Estimate visa route fit with a quick profile—demo tool, not legal advice.",
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
