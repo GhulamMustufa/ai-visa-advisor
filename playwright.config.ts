@@ -20,7 +20,7 @@ export default defineConfig({
   ],
   // Auto-start Next.js dev server in CI before running tests
   webServer: {
-    command: 'npm run dev',
+    command: 'npx next dev -p 3001',
     url: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3001',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000, // 2 min to allow Next.js to compile on cold start
