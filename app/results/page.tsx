@@ -10,6 +10,130 @@ import { WhatIfSimulator } from "@/components/WhatIfSimulator";
 import { normalizeProfile } from "@/lib/profile";
 import { PATHWAY_REGISTRY } from "@/lib/domain";
 
+function getProfileHeuristicScore(p: VisaProfile) {
+  // Education points (0 - 28)
+  let educationPts = 5;
+  if (p.education === "bachelor") educationPts = 16;
+  else if (p.education === "master") educationPts = 24;
+  else if (p.education === "phd") educationPts = 28;
+
+  // Work experience points (0 - 24)
+  const exp = Number(p.yearsExperience) || 0;
+  let expPts = 0;
+  if (exp >= 8) expPts = 24;
+  else if (exp >= 5) expPts = 20;
+  else if (exp >= 3) expPts = 15;
+  else if (exp >= 1) expPts = 8;
+
+  // Savings points (0 - 24)
+  const savings = Number(p.savingsUsd) || 0;
+  let savingsPts = 0;
+  if (savings >= 50000) savingsPts = 24;
+  else if (savings >= 25000) savingsPts = 18;
+  else if (savings >= 10000) savingsPts = 12;
+  else if (savings >= 5000) savingsPts = 6;
+
+  // Language points (0 - 24)
+  let langPts = 0;
+  if (p.englishTest === "ielts") {
+    const score = Number(p.testScore) || 0;
+    if (score >= 8) langPts = 24;
+    else if (score >= 7) langPts = 18;
+    else if (score >= 6) langPts = 12;
+    else if (score >= 5) langPts = 6;
+  } else if (p.englishTest === "toefl") {
+    const score = Number(p.testScore) || 0;
+    if (score >= 100) langPts = 24;
+    else if (score >= 85) langPts = 18;
+    else if (score >= 70) langPts = 12;
+    else if (score >= 50) langPts = 6;
+  }
+
+  return {
+    total: educationPts + expPts + savingsPts + langPts,
+    educationPts,
+    expPts,
+    savingsPts,
+    langPts,
+  };
+}
+
+function simulatePathway(
+  pathway: RankedPathway,
+  initialProfile: VisaProfile,
+  simProfile: VisaProfile
+): RankedPathway {
+  const isChanged =
+    initialProfile.education !== simProfile.education ||
+    initialProfile.yearsExperience !== simProfile.yearsExperience ||
+    initialProfile.savingsUsd !== simProfile.savingsUsd ||
+    initialProfile.englishTest !== simProfile.englishTest ||
+    initialProfile.testScore !== simProfile.testScore;
+
+  const originalScore =
+    typeof pathway.baseScore === "number" && !isNaN(pathway.baseScore)
+      ? pathway.baseScore
+      : typeof (pathway as any).score === "number" && !isNaN((pathway as any).score)
+        ? (pathway as any).score
+        : 0;
+
+  if (!isChanged) {
+    return {
+      ...pathway,
+      baseScore: originalScore,
+      scoreBreakdown: pathway.scoreBreakdown && pathway.scoreBreakdown.eligibilityFit > 0
+        ? pathway.scoreBreakdown
+        : {
+            eligibilityFit: originalScore,
+            profileStrength: originalScore,
+            competitiveness: originalScore,
+            evidenceQuality: 100,
+          },
+    };
+  }
+
+  const initialH = getProfileHeuristicScore(initialProfile);
+  const simH = getProfileHeuristicScore(simProfile);
+  const delta = simH.total - initialH.total;
+
+  const rawScore = originalScore === 0
+    ? simH.total
+    : originalScore + delta;
+
+  const newBaseScore = Math.min(100, Math.max(0, Math.round(rawScore)));
+
+  let newStatus = pathway.status;
+  if (newBaseScore >= 70) {
+    newStatus = "ELIGIBLE";
+  } else if (newBaseScore >= 45) {
+    newStatus = "CONDITIONALLY_ELIGIBLE";
+  } else {
+    newStatus = "BLOCKED";
+  }
+
+  const profileStrength = Math.min(
+    100,
+    Math.max(0, Math.round(((simH.educationPts + simH.expPts) / 52) * 100))
+  );
+  const competitiveness = Math.min(
+    100,
+    Math.max(0, Math.round(((simH.langPts + simH.expPts + simH.savingsPts) / 72) * 100))
+  );
+  const eligibilityFit = newBaseScore;
+
+  return {
+    ...pathway,
+    baseScore: newBaseScore,
+    status: newStatus as any,
+    scoreBreakdown: {
+      eligibilityFit,
+      profileStrength,
+      competitiveness,
+      evidenceQuality: pathway.scoreBreakdown?.evidenceQuality || 100,
+    },
+  };
+}
+
 export default function ResultsPage() {
   const [data, setData] = useState<StoredResult | null | undefined>(undefined);
   const [simulatedProfile, setSimulatedProfile] = useState<VisaProfile | null>(null);
@@ -34,12 +158,11 @@ export default function ResultsPage() {
   };
 
   const simulatedPathways = useMemo(() => {
-    if (!data || !simulatedProfile) return [];
+    if (!data || !simulatedProfile || !data.profileSummary) return data?.pathways || [];
     
-    // In Pure LLM RAG mode, client-side deterministic simulation is disabled.
-    // The simulator UI can remain, but it requires a server round-trip to re-score.
-    // For now, just return the static pathways.
-    return data.pathways;
+    return data.pathways.map((pathway) =>
+      simulatePathway(pathway, data.profileSummary, simulatedProfile)
+    );
   }, [data, simulatedProfile]);
 
   if (data === undefined) {
