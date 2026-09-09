@@ -147,16 +147,52 @@ Immigration is a high-stakes domain. We implement strict guardrails:
 
 ## 🛠 Tech Stack
 
-- **AI**: Gemini 2.5 Flash, OpenAI Embeddings (`text-embedding-3-small`), LangChain/Vercel AI SDK
-- **Backend**: Next.js App Router (Serverless), TypeScript
-- **Frontend**: Next.js, React, TailwindCSS
-- **Data**: PostgreSQL, pgvector (via Supabase), Drizzle ORM
-- **Evaluation**: Vitest, Custom Eval Framework
-- **Observability**: Structured JSON logging, custom request tracing
+- **AI & Reasoning**: OpenAI `gpt-4o-mini`, OpenAI Embeddings (`text-embedding-3-small`), Vercel AI SDK
+- **Web Framework**: Next.js 14 (App Router), TypeScript, Tailwind CSS
+- **Authentication**: Clerk (`@clerk/nextjs`) with automated session management and server-side verification
+- **Database & Storage**: Neon Serverless PostgreSQL with `pgvector` for sub-second cosine distance semantic search
+- **Payments & Billing**: Stripe API with customer portals, webhook listeners, and quota limits
+- **Testing & E2E**: Vitest (Scoring Engine & Rate Limits), Playwright (E2E Browser Automation)
+- **Deployment**: Vercel Serverless with GitHub CI/CD Actions
 
 ---
 
-## 🌐 Demo
+## 🌟 Key Features
 
-**Try it out:** `[Insert Live URL Here]`  
-*Tip: Use the "Try Demo" button on the homepage for a pre-loaded, 0-latency simulation.*
+1. **Deterministic + RAG Hybrid Architecture**:
+   - Hardcoded, mathematically verified points scoring for Express Entry, EU Blue Card, Chancenkarte, and Skilled Worker visas.
+   - Vector-grounded citations to official government immigration portals (1,454 verified pathways).
+2. **Interactive What-If Scenario Simulator**:
+   - Zero-latency client-side simulation engine on the results dashboard. Users can adjust language scores, education levels, or savings to immediately see recalculated readiness scores.
+3. **Downloadable PDF Action Plan**:
+   - Generates a branded, publication-ready executive immigration strategy report directly from the results page with verified citations and next steps.
+4. **1-Click Preset Demonstrations**:
+   - Instant 1-click test personas for Canada (Tech Lead), UK (Senior Developer), and Germany (Chancenkarte Specialist) allowing evaluators to skip manual forms.
+5. **Persistent Cloud Chat History**:
+   - Multi-thread AI Immigration Copilot with real-time token streaming and asynchronous PostgreSQL persistence for authenticated users.
+
+---
+
+## 🌐 Live Demo & Quickstart
+
+**Live Production URL:** [https://ai-visa-advisor.vercel.app](https://ai-visa-advisor.vercel.app)  
+*(Or explore locally via `npm run dev` on `http://localhost:3000`)*
+
+### Local Setup:
+```bash
+# 1. Clone repository
+git clone https://github.com/GhulamMustufa/ai-visa-advisor.git
+cd ai-visa-advisor
+
+# 2. Install dependencies
+npm install
+
+# 3. Environment variables (.env)
+# NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=...
+# CLERK_SECRET_KEY=...
+# OPENAI_API_KEY=...
+# DATABASE_URL=postgresql://...
+
+# 4. Run development server
+npm run dev
+```
