@@ -31,9 +31,9 @@ export function WhatIfSimulator({ initialProfile, onChange, onReset }: WhatIfSim
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+        <h2 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
           <span className="text-indigo-500">
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -44,21 +44,21 @@ export function WhatIfSimulator({ initialProfile, onChange, onReset }: WhatIfSim
         {isDirty && (
           <button 
             onClick={handleReset}
-            className="text-[11px] font-medium text-slate-400 hover:text-slate-700 transition-colors"
+            className="text-[11px] font-medium text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
           >
             Reset
           </button>
         )}
       </div>
 
-      <p className="text-xs text-slate-500 mb-5">
+      <p className="text-xs text-slate-500 dark:text-slate-400 mb-5">
         See how your scores change instantly without submitting a new application.
       </p>
 
       <div className="space-y-4">
         {/* English Test Score */}
         <div>
-          <label className="text-xs font-medium text-slate-700 uppercase tracking-wide mb-1.5 block">
+          <label className="text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-1.5 block">
             English Test
           </label>
           <select 
@@ -70,7 +70,7 @@ export function WhatIfSimulator({ initialProfile, onChange, onReset }: WhatIfSim
                  testScore: val === "none" ? null : (val === "ielts" ? 7 : 90) 
                });
             }}
-            className="w-full mb-3 rounded-md border border-slate-200 text-sm p-2 text-slate-700 bg-slate-50 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+            className="w-full mb-3 rounded-md border border-slate-200 dark:border-slate-700 text-sm p-2 text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 focus:border-indigo-400 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-900/50 focus:ring-opacity-50"
           >
             <option value="none">None</option>
             <option value="ielts">IELTS</option>
@@ -80,10 +80,10 @@ export function WhatIfSimulator({ initialProfile, onChange, onReset }: WhatIfSim
           {profile.englishTest !== "none" && (
             <div>
               <div className="flex justify-between items-center mb-1.5">
-                <label className="text-xs font-medium text-slate-700 uppercase tracking-wide">
+                <label className="text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wide">
                   {profile.englishTest} Score
                 </label>
-                <span className="text-xs font-bold text-indigo-600">{profile.testScore}</span>
+                <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">{profile.testScore}</span>
               </div>
               <input 
                 type="range"
@@ -92,7 +92,7 @@ export function WhatIfSimulator({ initialProfile, onChange, onReset }: WhatIfSim
                 step={profile.englishTest === "ielts" ? 0.5 : 5}
                 value={profile.testScore ?? 0}
                 onChange={(e) => handleChange({ testScore: Number(e.target.value) })}
-                className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
               />
             </div>
           )}
@@ -101,10 +101,10 @@ export function WhatIfSimulator({ initialProfile, onChange, onReset }: WhatIfSim
         {/* Work Experience */}
         <div>
           <div className="flex justify-between items-center mb-1.5">
-            <label className="text-xs font-medium text-slate-700 uppercase tracking-wide">
+            <label className="text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wide">
               Work Experience (Years)
             </label>
-            <span className="text-xs font-bold text-indigo-600">{profile.yearsExperience}</span>
+            <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">{profile.yearsExperience}</span>
           </div>
           <input 
             type="range"
@@ -113,17 +113,17 @@ export function WhatIfSimulator({ initialProfile, onChange, onReset }: WhatIfSim
             step={1}
             value={profile.yearsExperience}
             onChange={(e) => handleChange({ yearsExperience: Number(e.target.value) })}
-            className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+            className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
           />
         </div>
 
         {/* Savings */}
         <div>
           <div className="flex justify-between items-center mb-1.5">
-            <label className="text-xs font-medium text-slate-700 uppercase tracking-wide">
+            <label className="text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wide">
               Savings (USD)
             </label>
-            <span className="text-xs font-bold text-indigo-600">${profile.savingsUsd.toLocaleString()}</span>
+            <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">${profile.savingsUsd.toLocaleString()}</span>
           </div>
           <input 
             type="range"
@@ -132,19 +132,19 @@ export function WhatIfSimulator({ initialProfile, onChange, onReset }: WhatIfSim
             step={1000}
             value={profile.savingsUsd}
             onChange={(e) => handleChange({ savingsUsd: Number(e.target.value) })}
-            className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+            className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
           />
         </div>
 
         {/* Education Level */}
         <div>
-          <label className="text-xs font-medium text-slate-700 uppercase tracking-wide mb-1.5 block">
+          <label className="text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-1.5 block">
             Education Level
           </label>
           <select 
             value={profile.education}
             onChange={(e) => handleChange({ education: e.target.value as VisaProfile["education"] })}
-            className="w-full rounded-md border border-slate-200 text-sm p-2 text-slate-700 bg-slate-50 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+            className="w-full rounded-md border border-slate-200 dark:border-slate-700 text-sm p-2 text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 focus:border-indigo-400 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-900/50 focus:ring-opacity-50"
           >
             <option value="high_school">High School</option>
             <option value="bachelor">Bachelor's Degree</option>

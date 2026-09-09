@@ -37,11 +37,13 @@ export function Header() {
     const current = document.documentElement.getAttribute("data-theme");
     if (current === "dark" || current === "light") {
       setTheme(current);
+      document.documentElement.classList.toggle("dark", current === "dark");
       return;
     }
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const initial: Theme = prefersDark ? "dark" : "light";
     document.documentElement.setAttribute("data-theme", initial);
+    document.documentElement.classList.toggle("dark", initial === "dark");
     setTheme(initial);
   }, []);
 
@@ -49,11 +51,12 @@ export function Header() {
     const next: Theme = theme === "dark" ? "light" : "dark";
     setTheme(next);
     document.documentElement.setAttribute("data-theme", next);
+    document.documentElement.classList.toggle("dark", next === "dark");
     localStorage.setItem("visa-score-theme", next);
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-card/85 backdrop-blur-md print:hidden">
+    <header className="sticky top-0 z-50 border-b border-slate-200/80 dark:border-slate-800 bg-card/85 backdrop-blur-md print:hidden">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
         <Link
           href="/"
@@ -142,7 +145,7 @@ export function Header() {
           <button
             type="button"
             onClick={toggleTheme}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-300/80 bg-background text-foreground transition hover:bg-slate-100"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-300/80 dark:border-slate-700 bg-background text-foreground transition hover:bg-slate-100 dark:hover:bg-slate-800"
             aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
             title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
           >

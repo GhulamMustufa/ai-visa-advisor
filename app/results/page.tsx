@@ -225,10 +225,10 @@ export default function ResultsPage() {
             <p className="text-xs font-semibold uppercase tracking-widest text-accent mb-2">
               Decision Support Dashboard
             </p>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
               Your Visa Strategy
             </h1>
-            <p className="mt-2 max-w-2xl text-sm text-slate-600 leading-relaxed">
+            <p className="mt-2 max-w-2xl text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
               We've evaluated your profile against {simulatedPathways.length} pathways. 
               This dashboard provides an honest look at your eligibility, blockers, and exact next steps.
             </p>
@@ -245,7 +245,7 @@ export default function ResultsPage() {
             </button>
             <Link
               href="/form"
-              className="inline-flex h-10 items-center justify-center rounded-lg bg-white border border-slate-200 px-4 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+              className="inline-flex h-10 items-center justify-center rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm transition hover:bg-slate-50 dark:hover:bg-slate-700"
             >
               Start New Assessment
             </Link>
@@ -258,9 +258,9 @@ export default function ResultsPage() {
           <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-8">
             
             {/* Applicant Snapshot */}
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="text-sm font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                <span className="text-slate-400">
+            <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm">
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                <span className="text-slate-400 dark:text-slate-500">
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
@@ -269,20 +269,20 @@ export default function ResultsPage() {
               </h2>
               <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-sm">
                 <div>
-                  <p className="text-xs text-slate-500 mb-1">Occupation</p>
-                  <p className="font-medium text-slate-900 truncate" title={data.profileSummary.fieldOfWork}>{data.profileSummary.fieldOfWork}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Occupation</p>
+                  <p className="font-medium text-slate-900 dark:text-white truncate" title={data.profileSummary.fieldOfWork}>{data.profileSummary.fieldOfWork}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500 mb-1">Nationality</p>
-                  <p className="font-medium text-slate-900">{data.profileSummary.nationality}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Nationality</p>
+                  <p className="font-medium text-slate-900 dark:text-white">{data.profileSummary.nationality}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500 mb-1">Goal</p>
-                  <p className="font-medium text-slate-900 uppercase">{data.profileSummary.goal}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Goal</p>
+                  <p className="font-medium text-slate-900 dark:text-white uppercase">{data.profileSummary.goal}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500 mb-1">Age</p>
-                  <p className="font-medium text-slate-900">{data.profileSummary.age} years</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Age</p>
+                  <p className="font-medium text-slate-900 dark:text-white">{data.profileSummary.age} years</p>
                 </div>
               </div>
             </section>
@@ -297,8 +297,8 @@ export default function ResultsPage() {
             </div>
 
             {/* Disclaimer */}
-            <div className="rounded-xl bg-amber-50 p-4 border border-amber-200">
-              <p className="text-xs leading-relaxed text-amber-800">
+            <div className="rounded-xl bg-amber-50 dark:bg-amber-950/40 p-4 border border-amber-200 dark:border-amber-800/60">
+              <p className="text-xs leading-relaxed text-amber-800 dark:text-amber-300">
                 <strong>Important:</strong> This report provides AI-generated guidance based on official thresholds, not legal advice. Always consult an official immigration attorney.
               </p>
             </div>
@@ -307,8 +307,8 @@ export default function ResultsPage() {
           {/* Main Content Area: Pathways */}
           <div className="lg:col-span-8 space-y-6">
             {simulatedPathways.length === 0 ? (
-              <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
-                <p className="text-slate-500">No pathways matched your criteria.</p>
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center shadow-sm">
+                <p className="text-slate-500 dark:text-slate-400">No pathways matched your criteria.</p>
               </div>
             ) : (
               simulatedPathways.map((pathway, idx) => (

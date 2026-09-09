@@ -79,7 +79,7 @@ const STEPS = [
 ] as const;
 
 const inputClass =
-  "mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-accent focus:ring-4 focus:ring-[var(--ring)]";
+  "mt-1.5 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-accent focus:ring-4 focus:ring-[var(--ring)]";
 
 export default function FormPage() {
   const router = useRouter();
@@ -281,20 +281,20 @@ export default function FormPage() {
         <p className="text-xs font-medium uppercase tracking-widest text-accent">
           Assessment
         </p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
           Visa profile
         </h1>
-        <p className="mt-2 text-sm leading-relaxed text-slate-600">
+        <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
           Single column, a few steps. Demo scoring only—not immigration advice.
         </p>
         
         {/* Quick 1-Click Client Presets */}
-        <div className="mt-4 rounded-xl border border-indigo-100 bg-indigo-50/60 p-3.5">
+        <div className="mt-4 rounded-xl border border-indigo-100 dark:border-indigo-900/60 bg-indigo-50/60 dark:bg-indigo-950/40 p-3.5">
           <div className="flex items-center justify-between gap-2 mb-2">
-            <span className="text-xs font-semibold text-indigo-950 flex items-center gap-1.5">
+            <span className="text-xs font-semibold text-indigo-950 dark:text-indigo-200 flex items-center gap-1.5">
               <span>⚡</span> 1-Click Demo Profiles (Instant Results):
             </span>
-            <span className="text-[10px] text-indigo-600 font-medium">Skip manual entry</span>
+            <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-medium">Skip manual entry</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {DEMO_PRESETS.map((preset) => (
@@ -305,13 +305,13 @@ export default function FormPage() {
                   sessionStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(preset.result));
                   router.push("/results");
                 }}
-                className="flex flex-col items-start rounded-lg border border-indigo-200/80 bg-white p-2.5 text-left shadow-xs transition hover:border-indigo-400 hover:shadow-sm"
+                className="flex flex-col items-start rounded-lg border border-indigo-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-2.5 text-left shadow-xs transition hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-sm"
               >
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-900">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-900 dark:text-slate-100">
                   <span>{preset.flag}</span>
                   <span className="truncate">{preset.title.split(" to ")[0]}</span>
                 </div>
-                <span className="mt-1 text-[10px] font-medium text-indigo-600 truncate w-full">
+                <span className="mt-1 text-[10px] font-medium text-indigo-600 dark:text-indigo-400 truncate w-full">
                   {preset.badge}
                 </span>
               </button>
@@ -320,20 +320,20 @@ export default function FormPage() {
         </div>
 
         {selectedRegionLabel ? (
-          <div className="mt-4 rounded-lg border border-slate-200 bg-card px-3 py-2 text-sm text-slate-800">
+          <div className="mt-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-card px-3 py-2 text-sm text-slate-800 dark:text-slate-200">
             Selected region: <span className="font-semibold">{selectedRegionLabel}</span>
           </div>
         ) : null}
       </div>
 
       <div className="mb-6">
-        <div className="mb-3 flex justify-between text-xs font-medium text-slate-500">
+        <div className="mb-3 flex justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
           <span>
             Step {step} of {STEPS.length}
           </span>
-          <span className="text-slate-700">{STEPS[step - 1]?.title}</span>
+          <span className="text-slate-700 dark:text-slate-300 font-semibold">{STEPS[step - 1]?.title}</span>
         </div>
-        <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
+        <div className="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
           <div
             className="h-full rounded-full bg-accent transition-[width] duration-300 ease-out"
             style={{ width: `${progressPct}%` }}
@@ -345,10 +345,10 @@ export default function FormPage() {
               key={s.id}
               className={`flex-1 rounded-md border px-2 py-2 text-center text-xs transition-colors ${
                 step === s.id
-                  ? "border-accent bg-[var(--accent-soft)] text-indigo-900 dark:text-white font-semibold shadow-sm"
+                  ? "border-accent bg-[var(--accent-soft)] text-indigo-950 dark:text-white font-semibold shadow-sm"
                   : step > s.id
-                    ? "border-slate-200 bg-slate-50 text-slate-600 font-medium"
-                    : "border-slate-100 bg-white text-slate-400 font-medium"
+                    ? "border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 font-medium"
+                    : "border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 font-medium"
               }`}
             >
               {s.short}
@@ -364,11 +364,11 @@ export default function FormPage() {
         onKeyDown={handleFormKeyDown}
         className="space-y-6"
       >
-        <div className="rounded-2xl border border-slate-200/80 bg-card p-6 shadow-soft">
+        <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-card p-6 shadow-soft">
           {/* Keep all inputs mounted so final submit includes every field */}
           <div className={step === 1 ? "space-y-5" : "hidden"} aria-hidden={step !== 1}>
             <div>
-              <label htmlFor="nationality" className="text-sm font-medium text-slate-800">
+              <label htmlFor="nationality" className="text-sm font-medium text-slate-800 dark:text-slate-200">
                 Nationality
               </label>
               <select
@@ -386,7 +386,7 @@ export default function FormPage() {
               </select>
             </div>
             <div>
-              <label htmlFor="targetRegion" className="text-sm font-medium text-slate-800">
+              <label htmlFor="targetRegion" className="text-sm font-medium text-slate-800 dark:text-slate-200">
                 Target region
               </label>
               <select
@@ -405,7 +405,7 @@ export default function FormPage() {
               </select>
             </div>
             <div>
-              <label htmlFor="age" className="text-sm font-medium text-slate-800">
+              <label htmlFor="age" className="text-sm font-medium text-slate-800 dark:text-slate-200">
                 Age
               </label>
               <input
@@ -423,7 +423,7 @@ export default function FormPage() {
 
           <div className={step === 2 ? "space-y-5" : "hidden"} aria-hidden={step !== 2}>
             <div>
-              <label htmlFor="education" className="text-sm font-medium text-slate-800">
+              <label htmlFor="education" className="text-sm font-medium text-slate-800 dark:text-slate-200">
                 Education level
               </label>
               <select
@@ -440,7 +440,7 @@ export default function FormPage() {
               </select>
             </div>
             <div>
-              <label htmlFor="yearsExperience" className="text-sm font-medium text-slate-800">
+              <label htmlFor="yearsExperience" className="text-sm font-medium text-slate-800 dark:text-slate-200">
                 Years of work experience
               </label>
               <input
@@ -455,7 +455,7 @@ export default function FormPage() {
               />
             </div>
             <div>
-              <label htmlFor="fieldOfWork" className="text-sm font-medium text-slate-800">
+              <label htmlFor="fieldOfWork" className="text-sm font-medium text-slate-800 dark:text-slate-200">
                 Field of work
               </label>
               <select
@@ -476,7 +476,7 @@ export default function FormPage() {
 
           <div className={step === 3 ? "space-y-5" : "hidden"} aria-hidden={step !== 3}>
             <div>
-              <label htmlFor="englishTest" className="text-sm font-medium text-slate-800">
+              <label htmlFor="englishTest" className="text-sm font-medium text-slate-800 dark:text-slate-200">
                 English test
               </label>
               <select
@@ -492,8 +492,8 @@ export default function FormPage() {
               </select>
             </div>
             <div>
-              <label htmlFor="testScore" className="text-sm font-medium text-slate-800">
-                Test score <span className="font-normal text-slate-500">(optional)</span>
+              <label htmlFor="testScore" className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                Test score <span className="font-normal text-slate-500 dark:text-slate-400">(optional)</span>
               </label>
               <input
                 id="testScore"
@@ -505,13 +505,13 @@ export default function FormPage() {
                 placeholder="IELTS band or TOEFL total"
                 className={inputClass}
               />
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                 Leave blank if no test yet. Use overall band for IELTS (e.g. 7.5) or total for
                 TOEFL (e.g. 100).
               </p>
             </div>
             <div>
-              <label htmlFor="savingsUsd" className="text-sm font-medium text-slate-800">
+              <label htmlFor="savingsUsd" className="text-sm font-medium text-slate-800 dark:text-slate-200">
                 Savings (USD)
               </label>
               <input
@@ -526,7 +526,7 @@ export default function FormPage() {
               />
             </div>
             <fieldset>
-              <legend className="text-sm font-medium text-slate-800">Goal</legend>
+              <legend className="text-sm font-medium text-slate-800 dark:text-slate-200">Goal</legend>
               <div className="mt-3 flex flex-col gap-2">
                 {(
                   [
@@ -537,7 +537,7 @@ export default function FormPage() {
                 ).map((g) => (
                   <label
                     key={g.value}
-                    className="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-slate-800 has-[:checked]:border-accent has-[:checked]:bg-[var(--accent-soft)]"
+                    className="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2.5 text-sm text-slate-800 dark:text-slate-200 has-[:checked]:border-accent dark:has-[:checked]:border-indigo-500 has-[:checked]:bg-[var(--accent-soft)] transition-colors"
                   >
                     <input
                       type="radio"
@@ -545,7 +545,7 @@ export default function FormPage() {
                       value={g.value}
                       defaultChecked={g.value === "pr"}
                       required
-                      className="h-4 w-4 border-slate-300 text-accent focus:ring-accent"
+                      className="h-4 w-4 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-accent focus:ring-accent"
                     />
                     {g.label}
                   </label>
@@ -556,7 +556,7 @@ export default function FormPage() {
         </div>
 
         {error ? (
-          <p className="text-sm text-red-600" role="alert">
+          <p className="text-sm text-red-600 dark:text-red-400" role="alert">
             {error}
           </p>
         ) : null}
@@ -564,7 +564,7 @@ export default function FormPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Link
             href="/"
-            className="order-3 text-center text-sm text-slate-600 hover:text-slate-900 sm:order-1 sm:text-left"
+            className="order-3 text-center text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 sm:order-1 sm:text-left transition-colors"
           >
             ← Home
           </Link>
@@ -573,7 +573,7 @@ export default function FormPage() {
               <button
                 type="button"
                 onClick={back}
-                className="inline-flex h-11 flex-1 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-800 hover:bg-slate-50 sm:flex-none"
+                className="inline-flex h-11 flex-1 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 text-sm font-medium text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors sm:flex-none"
               >
                 Back
               </button>
@@ -582,7 +582,7 @@ export default function FormPage() {
               <button
                 type="button"
                 onClick={next}
-                className="inline-flex h-11 flex-1 items-center justify-center rounded-lg bg-accent px-5 text-sm font-medium text-white shadow-soft hover:bg-indigo-600 sm:flex-none"
+                className="inline-flex h-11 flex-1 items-center justify-center rounded-lg bg-accent px-5 text-sm font-medium text-white shadow-soft hover:bg-indigo-600 sm:flex-none transition-colors"
               >
                 Continue
               </button>
@@ -593,7 +593,7 @@ export default function FormPage() {
                   submitByButtonRef.current = true;
                 }}
                 disabled={submitting}
-                className="inline-flex h-11 flex-1 items-center justify-center rounded-lg bg-accent px-5 text-sm font-medium text-white shadow-soft hover:bg-indigo-600 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none"
+                className="inline-flex h-11 flex-1 items-center justify-center rounded-lg bg-accent px-5 text-sm font-medium text-white shadow-soft hover:bg-indigo-600 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none transition-colors"
               >
                 {submitting ? "Checking…" : "Check My Chances"}
               </button>

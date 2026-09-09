@@ -99,8 +99,8 @@ export default function HistoryPage() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Latest checks</h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Latest checks</h1>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
           Filter by goal/region, then compare any two submissions.
         </p>
       </div>
@@ -109,7 +109,7 @@ export default function HistoryPage() {
         <select
           value={goal}
           onChange={(e) => setGoal((e.target.value || "") as "" | Goal)}
-          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
+          className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-accent"
         >
           <option value="">All goals</option>
           <option value="work">Work</option>
@@ -119,7 +119,7 @@ export default function HistoryPage() {
         <select
           value={region}
           onChange={(e) => setRegion((e.target.value || "") as "" | TargetRegion)}
-          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
+          className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-accent"
         >
           <option value="">All regions</option>
           {REGIONS.map((r) => (
@@ -128,62 +128,62 @@ export default function HistoryPage() {
             </option>
           ))}
         </select>
-        <p className="self-center text-sm text-slate-500">Selected to compare: {compareIds.length}/2</p>
+        <p className="self-center text-sm text-slate-500 dark:text-slate-400">Selected to compare: {compareIds.length}/2</p>
       </div>
 
       {compareItems.length === 2 ? (
-        <div className="mb-6 rounded-xl border border-slate-200 bg-card p-4">
-          <h2 className="text-sm font-semibold text-slate-900">Compare</h2>
+        <div className="mb-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-card p-4">
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Compare</h2>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {compareItems.map((item) => (
-              <div key={item.id} className="rounded-lg border border-slate-200 bg-white p-3">
-                <p className="text-xs text-slate-500">
+              <div key={item.id} className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   {new Date(item.createdAt).toLocaleString()} - {item.profile.goal.toUpperCase()} -{" "}
                   {item.profile.targetRegion}
                 </p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">
+                <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
                   Avg score: {avgScore(item)}%
                 </p>
-                <p className="mt-1 text-xs text-slate-600">
+                <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
                   Top pathway: {item.result.pathways[0]?.name ?? "N/A"} (
                   {item.result.pathways[0]?.score ?? 0}%)
                 </p>
               </div>
             ))}
           </div>
-          <p className="mt-3 text-sm font-medium text-slate-900">
+          <p className="mt-3 text-sm font-medium text-slate-900 dark:text-white">
             Delta: {avgScore(compareItems[0]) - avgScore(compareItems[1])} points
           </p>
         </div>
       ) : null}
 
-      {loading ? <p className="text-sm text-slate-600">Loading history...</p> : null}
-      {error ? <p className="text-sm text-rose-600">{error}</p> : null}
+      {loading ? <p className="text-sm text-slate-600 dark:text-slate-400">Loading history...</p> : null}
+      {error ? <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p> : null}
       {!loading && !error && items.length === 0 ? (
-        <p className="text-sm text-slate-600">No saved checks found in DB yet.</p>
+        <p className="text-sm text-slate-600 dark:text-slate-400">No saved checks found in DB yet.</p>
       ) : null}
 
       <ul className="space-y-3">
         {items.map((item) => (
-          <li key={item.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-soft">
+          <li key={item.id} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-soft">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-xs text-slate-500">{new Date(item.createdAt).toLocaleString()}</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">
+                <p className="text-xs text-slate-500 dark:text-slate-400">{new Date(item.createdAt).toLocaleString()}</p>
+                <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
                   {item.profile.nationality} - {item.profile.goal.toUpperCase()} -{" "}
                   {item.profile.targetRegion}
                 </p>
-                <p className="mt-1 text-xs text-slate-600">
+                <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
                   Avg score {avgScore(item)}% | Model {item.model} | {item.promptVersion}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => toggleCompare(item.id)}
-                className={`inline-flex h-9 items-center justify-center rounded-md border px-3 text-xs font-medium ${
+                className={`inline-flex h-9 items-center justify-center rounded-md border px-3 text-xs font-medium transition-colors ${
                   compareIds.includes(item.id)
-                    ? "border-slate-300 bg-slate-100 text-slate-900"
-                    : "border-slate-200 bg-white text-slate-700"
+                    ? "border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white"
+                    : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                 }`}
               >
                 {compareIds.includes(item.id) ? "Selected" : "Compare"}

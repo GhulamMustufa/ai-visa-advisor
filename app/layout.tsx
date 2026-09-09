@@ -84,6 +84,7 @@ export default function RootLayout({
         var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
         var theme = saved === "dark" || saved === "light" ? saved : (prefersDark ? "dark" : "light");
         document.documentElement.setAttribute("data-theme", theme);
+        document.documentElement.classList.toggle("dark", theme === "dark");
       } catch (_) {}
     })();
   `;

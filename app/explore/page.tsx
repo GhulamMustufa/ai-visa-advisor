@@ -5,21 +5,21 @@ import { REGIONS } from "@/lib/regions";
 import { useMemo, useState } from "react";
 
 function toneForCost(value: "Low" | "Medium" | "High") {
-  if (value === "Low") return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  if (value === "Medium") return "border-amber-200 bg-amber-50 text-amber-700";
-  return "border-rose-200 bg-rose-50 text-rose-700";
+  if (value === "Low") return "border-emerald-200 dark:border-emerald-800/60 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400";
+  if (value === "Medium") return "border-amber-200 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400";
+  return "border-rose-200 dark:border-rose-800/60 bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400";
 }
 
 function toneForDifficulty(value: "Easy" | "Medium" | "Hard") {
-  if (value === "Easy") return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  if (value === "Medium") return "border-amber-200 bg-amber-50 text-amber-700";
-  return "border-rose-200 bg-rose-50 text-rose-700";
+  if (value === "Easy") return "border-emerald-200 dark:border-emerald-800/60 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400";
+  if (value === "Medium") return "border-amber-200 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400";
+  return "border-rose-200 dark:border-rose-800/60 bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400";
 }
 
 function toneForSpeed(value: "Fast" | "Medium" | "Slow") {
-  if (value === "Fast") return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  if (value === "Medium") return "border-amber-200 bg-amber-50 text-amber-700";
-  return "border-rose-200 bg-rose-50 text-rose-700";
+  if (value === "Fast") return "border-emerald-200 dark:border-emerald-800/60 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400";
+  if (value === "Medium") return "border-amber-200 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400";
+  return "border-rose-200 dark:border-rose-800/60 bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400";
 }
 
 type GoalFilter = "Any" | "Work" | "Study" | "PR";
@@ -71,13 +71,13 @@ export default function ExplorePage() {
         </p>
       </div>
 
-      <div className="mx-auto mt-8 grid max-w-4xl gap-3 rounded-2xl border border-slate-200 bg-card p-4 shadow-soft sm:grid-cols-3">
+      <div className="mx-auto mt-8 grid max-w-4xl gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card p-4 shadow-soft sm:grid-cols-3">
         <label className="text-sm">
-          <span className="mb-1 block font-medium text-slate-800">Goal</span>
+          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Goal</span>
           <select
             value={goal}
             onChange={(e) => setGoal(e.target.value as GoalFilter)}
-            className="w-full rounded-lg border border-slate-200 bg-card px-3 py-2 text-sm text-slate-800 outline-none focus:border-accent focus:ring-4 focus:ring-[var(--ring)]"
+            className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200 outline-none focus:border-accent focus:ring-4 focus:ring-[var(--ring)]"
           >
             <option>Any</option>
             <option>Work</option>
@@ -86,11 +86,11 @@ export default function ExplorePage() {
           </select>
         </label>
         <label className="text-sm">
-          <span className="mb-1 block font-medium text-slate-800">Budget</span>
+          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Budget</span>
           <select
             value={budget}
             onChange={(e) => setBudget(e.target.value as BudgetFilter)}
-            className="w-full rounded-lg border border-slate-200 bg-card px-3 py-2 text-sm text-slate-800 outline-none focus:border-accent focus:ring-4 focus:ring-[var(--ring)]"
+            className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200 outline-none focus:border-accent focus:ring-4 focus:ring-[var(--ring)]"
           >
             <option>Any</option>
             <option>Low</option>
@@ -99,11 +99,11 @@ export default function ExplorePage() {
           </select>
         </label>
         <label className="text-sm">
-          <span className="mb-1 block font-medium text-slate-800">Difficulty tolerance</span>
+          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Difficulty tolerance</span>
           <select
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value as DifficultyFilter)}
-            className="w-full rounded-lg border border-slate-200 bg-card px-3 py-2 text-sm text-slate-800 outline-none focus:border-accent focus:ring-4 focus:ring-[var(--ring)]"
+            className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200 outline-none focus:border-accent focus:ring-4 focus:ring-[var(--ring)]"
           >
             <option>Any</option>
             <option>Easy</option>
@@ -120,14 +120,14 @@ export default function ExplorePage() {
             className={`flex h-full flex-col rounded-2xl border bg-card p-5 shadow-soft transition-all ${
               isMatch
                 ? "border-accent ring-2 ring-accent/40"
-                : "border-slate-200 opacity-45 saturate-50"
+                : "border-slate-200 dark:border-slate-800 opacity-45 saturate-50"
             }`}
           >
-            <h2 className="text-lg font-semibold text-slate-900">{region.name}</h2>
-            <p className="mt-1 text-xs text-slate-500">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{region.name}</h2>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
               {region.countries.join(", ")}
             </p>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600">
+            <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
               {region.shortDescription}
             </p>
 
@@ -150,28 +150,28 @@ export default function ExplorePage() {
             </div>
 
             <div className="mt-4 text-sm">
-              <p className="text-slate-700">
-                <span className="font-semibold text-slate-900">Best for:</span>{" "}
+              <p className="text-slate-700 dark:text-slate-300">
+                <span className="font-semibold text-slate-900 dark:text-white">Best for:</span>{" "}
                 {region.bestFor}
               </p>
             </div>
 
-            <details className="mt-4 rounded-lg border border-slate-200 bg-slate-100 p-3">
-              <summary className="cursor-pointer text-sm font-medium text-slate-800">
+            <details className="mt-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/60 p-3">
+              <summary className="cursor-pointer text-sm font-medium text-slate-800 dark:text-slate-200">
                 Pros &amp; Cons
               </summary>
               <div className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
                 <div>
-                  <p className="font-semibold text-emerald-700">Pros</p>
-                  <ul className="mt-1 list-disc space-y-1 pl-4 text-slate-700">
+                  <p className="font-semibold text-emerald-700 dark:text-emerald-400">Pros</p>
+                  <ul className="mt-1 list-disc space-y-1 pl-4 text-slate-700 dark:text-slate-300">
                     {region.pros.map((pro) => (
                       <li key={pro}>{pro}</li>
                     ))}
                   </ul>
                 </div>
                 <div>
-                  <p className="font-semibold text-rose-700">Cons</p>
-                  <ul className="mt-1 list-disc space-y-1 pl-4 text-slate-700">
+                  <p className="font-semibold text-rose-700 dark:text-rose-400">Cons</p>
+                  <ul className="mt-1 list-disc space-y-1 pl-4 text-slate-700 dark:text-slate-300">
                     {region.cons.map((con) => (
                       <li key={con}>{con}</li>
                     ))}

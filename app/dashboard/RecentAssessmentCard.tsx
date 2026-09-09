@@ -30,7 +30,7 @@ export function RecentAssessmentCard({
   return (
     <li 
       onClick={handleClick} 
-      className="rounded-xl border border-slate-200 bg-white p-4 shadow-soft cursor-pointer hover:border-indigo-500 transition-colors"
+      className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-soft cursor-pointer hover:border-indigo-500 dark:hover:border-indigo-500 transition-colors"
     >
       {children}
     </li>
