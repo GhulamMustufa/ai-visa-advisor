@@ -82,13 +82,13 @@ export default function ChatPage() {
 
   // Guest usage limits
   useEffect(() => {
-    if (!isSignedIn && isLoaded) {
+    if (!isSignedIn) {
       const used = localStorage.getItem('freeMessagesUsed');
       if (used) {
         setMessageCount(parseInt(used, 10));
       }
     }
-  }, [isSignedIn, isLoaded]);
+  }, [isSignedIn]);
 
   // Guest localStorage backup
   useEffect(() => {
@@ -130,11 +130,13 @@ export default function ChatPage() {
         }
       );
       
-      if (!isSignedIn && isLoaded) {
-        const newCount = messageCount + 1;
-        setMessageCount(newCount);
-        localStorage.setItem('freeMessagesUsed', newCount.toString());
-      } else if (isSignedIn) {
+      if (!isSignedIn) {
+        setMessageCount((prev) => {
+          const next = prev + 1;
+          localStorage.setItem('freeMessagesUsed', next.toString());
+          return next;
+        });
+      } else {
         // Refresh threads list in background so new conversation title appears
         setTimeout(fetchThreads, 1500);
       }
@@ -147,7 +149,7 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const isLimitReached = isLoaded && !isSignedIn && messageCount >= 3;
+  const isLimitReached = !isSignedIn && messageCount >= 3;
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] bg-slate-50 dark:bg-[#0a0a0a] font-sans overflow-hidden">
@@ -356,8 +358,8 @@ export default function ChatPage() {
                   className="w-full bg-transparent border-none py-4 pl-6 pr-14 focus:outline-none text-slate-800 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 text-sm"
                   value={inputValue}
                   placeholder={
-                    !isSignedIn && isLoaded
-                      ? `Ask a visa question... (${3 - messageCount} free messages left)` 
+                    !isSignedIn
+                      ? `Ask a visa question... (${Math.max(0, 3 - messageCount)} free messages left)` 
                       : "Ask about a visa, e.g., 'What are the rules for Germany's opportunity card?'"
                   }
                   onChange={(e) => setInputValue(e.target.value)}

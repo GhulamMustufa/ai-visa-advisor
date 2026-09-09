@@ -6,11 +6,37 @@ test.describe('Chat Interface', () => {
     page.on('console', msg => console.log('PAGE LOG:', msg.text()));
     page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
     
+    // Clear localStorage before navigation
+    await page.addInitScript(() => {
+      window.localStorage.clear();
+    });
+
+    // Mock /api/chat to ensure fast, deterministic E2E tests in CI without external API flakiness
+    await page.route('**/api/chat*', async (route) => {
+      if (route.request().method() === 'POST') {
+        // Add a short delay (400ms) so loading state (.animate-bounce) is reliably rendered and asserted
+        await new Promise((resolve) => setTimeout(resolve, 400));
+        await route.fulfill({
+          status: 200,
+          headers: {
+            'Content-Type': 'text/event-stream; charset=utf-8',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'x-vercel-ai-ui-message-stream': 'v1',
+          },
+          body: 'data: {"type":"text-delta","textDelta":"I am Borderless AI, your immigration assistant. Here are the verified legal details for your query."}\n\ndata: [DONE]\n\n',
+        });
+      } else {
+        await route.fulfill({
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ threads: [], messages: [] }),
+        });
+      }
+    });
+    
     // Start each test by visiting the chat page
     await page.goto('/chat');
-    
-    // Clear localStorage to ensure we start with a clean state (0 messages used)
-    await page.evaluate(() => window.localStorage.clear());
   });
 
   test('Initial Render & UI Verification', async ({ page }) => {
@@ -18,8 +44,8 @@ test.describe('Chat Interface', () => {
     await expect(page.locator('h1', { hasText: 'Borderless AI' })).toBeVisible();
 
     // Verify the two suggestion buttons exist using getByText
-    await expect(page.getByText("What are the requirements for Spain's Digital Nomad Visa?").first()).toBeVisible();
-    await expect(page.getByText("Do I need a job offer for the Canadian Express Entry?").first()).toBeVisible();
+    await expect(page.getByText("What are the requirements for Germany's Opportunity Card (Chancenkarte)?").first()).toBeVisible();
+    await expect(page.getByText("Do I need a job offer for Canadian Express Entry?").first()).toBeVisible();
 
     // Verify input placeholder states 3 free messages
     const input = page.locator('input').first();
@@ -32,10 +58,10 @@ test.describe('Chat Interface', () => {
 
   test('Suggestion Button Interaction', async ({ page }) => {
     // Click the first suggestion button
-    await page.getByText("What are the requirements for Spain's Digital Nomad Visa?").first().click();
+    await page.getByText("What are the requirements for Germany's Opportunity Card (Chancenkarte)?").first().click();
 
     // Verify the user message appeared in the chat history
-    await expect(page.getByText("What are the requirements for Spain's Digital Nomad Visa?").last()).toBeVisible();
+    await expect(page.getByText("What are the requirements for Germany's Opportunity Card (Chancenkarte)?").last()).toBeVisible();
 
     // Verify the animated loading indicator appears
     await expect(page.locator('.animate-bounce').first()).toBeVisible();
@@ -72,11 +98,12 @@ test.describe('Chat Interface', () => {
 
     // We will send 3 short messages to hit the limit.
     for (let i = 1; i <= 3; i++) {
-      await input.pressSequentially(`Test message ${i}`);
+      await input.fill(`Test message ${i}`);
       await expect(submitBtn).toBeEnabled();
       await submitBtn.click();
       
-      // Wait for the response to finish streaming so we can send the next one
+      // Wait for the response to begin loading and then finish streaming
+      await expect(page.locator('.animate-bounce').first()).toBeVisible();
       await expect(page.locator('.animate-bounce').first()).toBeHidden({ timeout: 60000 });
     }
 
