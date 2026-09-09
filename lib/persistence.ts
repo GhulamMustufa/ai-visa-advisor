@@ -255,3 +255,120 @@ export async function upsertUserSubscription(params: {
     // Silently ignore — subscription state will sync on next webhook.
   }
 }
+
+export type DbChatThread = {
+  id: string;
+  userId: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type DbChatMessage = {
+  id: string;
+  threadId: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  createdAt: string;
+};
+
+export async function listUserThreads(userId: string): Promise<DbChatThread[]> {
+  const p = getPool();
+  if (!p) return [];
+  try {
+    const res = await p.query(
+      `select id, user_id, title, created_at, updated_at
+       from public.chat_threads
+       where user_id = $1
+       order by updated_at desc
+       limit 20`,
+      [userId],
+    );
+    return res.rows.map((r) => ({
+      id: String(r.id),
+      userId: String(r.user_id),
+      title: String(r.title),
+      createdAt: new Date(r.created_at).toISOString(),
+      updatedAt: new Date(r.updated_at).toISOString(),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export async function getOrCreateThread(userId: string, threadId?: string | null): Promise<string | null> {
+  const p = getPool();
+  if (!p) return null;
+  try {
+    if (threadId) {
+      const check = await p.query(
+        `select id from public.chat_threads where id = $1 and user_id = $2`,
+        [threadId, userId],
+      );
+      if (check.rows.length > 0) return String(check.rows[0].id);
+    }
+    const created = await p.query(
+      `insert into public.chat_threads (user_id, title)
+       values ($1, 'New Conversation')
+       returning id`,
+      [userId],
+    );
+    return String(created.rows[0].id);
+  } catch {
+    return null;
+  }
+}
+
+export async function getThreadMessages(threadId: string, userId: string): Promise<DbChatMessage[]> {
+  const p = getPool();
+  if (!p) return [];
+  try {
+    const res = await p.query(
+      `select m.id, m.thread_id, m.role, m.content, m.created_at
+       from public.chat_messages m
+       join public.chat_threads t on t.id = m.thread_id
+       where m.thread_id = $1 and t.user_id = $2
+       order by m.created_at asc`,
+      [threadId, userId],
+    );
+    return res.rows.map((r) => ({
+      id: String(r.id),
+      threadId: String(r.thread_id),
+      role: r.role,
+      content: String(r.content),
+      createdAt: new Date(r.created_at).toISOString(),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export async function saveChatMessage(params: {
+  threadId: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  updateTitle?: boolean;
+}): Promise<void> {
+  const p = getPool();
+  if (!p) return;
+  try {
+    await p.query(
+      `insert into public.chat_messages (thread_id, role, content)
+       values ($1, $2, $3)`,
+      [params.threadId, params.role, params.content],
+    );
+    await p.query(
+      `update public.chat_threads set updated_at = now() where id = $1`,
+      [params.threadId],
+    );
+    if (params.updateTitle && params.role === "user") {
+      const cleanTitle = params.content.slice(0, 45).trim() + (params.content.length > 45 ? "..." : "");
+      await p.query(
+        `update public.chat_threads set title = $1 where id = $2 and title = 'New Conversation'`,
+        [cleanTitle, params.threadId],
+      );
+    }
+  } catch {
+    // Non-blocking persistence
+  }
+}
