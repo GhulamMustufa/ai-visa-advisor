@@ -1,223 +1,186 @@
-# Borderless AI
+# Borderless AI — Your Immigration Advisor
 
-**Evidence-grounded AI decision-support system for evaluating immigration pathways using deterministic eligibility rules, authoritative retrieval, explainable scoring, and LLM reasoning.**
+**Find out which visa you qualify for — in 2 minutes, for free.**
 
----
+Borderless AI helps people who want to move, work, or study abroad. You tell us about yourself, and we tell you which countries and visa options actually fit your profile — with clear scores, honest answers, and real government sources.
 
-## 🎯 The Problem
-
-Generic AI chatbots (like ChatGPT or Claude) are fundamentally dangerous for immigration advice. They suffer from:
-- **Hallucinations**: Inventing visa pathways or misstating critical salary/points thresholds.
-- **Outdated Knowledge**: Relying on stale training data for rapidly changing immigration laws.
-- **Unexplainability**: Providing "black-box" conclusions without tracing back to the specific statutory rules or exact points calculations.
-- **Lack of Nuance**: Giving overly optimistic binary answers ("Yes, you qualify!") instead of mapping out the exact conditions and blocking factors.
-
-## 💡 The Solution
-
-Borderless AI is a **hybrid neuro-symbolic AI system**. It combines the raw reasoning capabilities of Large Language Models with a strictly typed, deterministic rules engine. The LLM is **never** the source of truth for eligibility—instead, it acts as an orchestrator, synthesizer, and verifier against an authoritative knowledge base.
-
-## 🚀 Why This Is Not Just an LLM Wrapper
-
-This system moves beyond basic prompt engineering and naive RAG:
-
-- **Deterministic Eligibility Engine**: Point-based visas (like Canada Express Entry) are calculated using a hardcoded `Engine` based on exact government thresholds, overriding any LLM hallucinations.
-- **Evidence-First RAG**: The system retrieves government authority documents (e.g., `.gov`, `.gc.ca`) *before* generation, using hybrid semantic search.
-- **Authoritative Source Hierarchy**: Vector search results are strictly penalized if they do not originate from Tier 1 (Official Government) or Tier 2 (Legal Counsel) domains.
-- **Citation Validation**: The LLM is forced to extract exact quotes and cite specific source URLs. If the citation isn't in the provided context, the system flags it.
-- **Uncertainty Modeling**: Returns confidence levels (`ELIGIBILITY_CONFIDENCE`, `EVIDENCE_CONFIDENCE`) rather than false certainty.
-- **Explainable Scoring**: Calculates a transparent `ScoreBreakdown` (Eligibility Fit, Profile Strength, Competitiveness) to explain *why* a pathway is recommended.
-- **What-If Scenario Simulation**: Users can change their inputs (e.g., IELTS score) and see instantaneous, 0-latency recalculations on the frontend via the isomorphic deterministic engine—no LLM API calls required.
-- **Evaluation Framework**: A suite of 30 edge-case profiles (borderline points, wrong nationality, contradiction traps) that automatically evaluates the LLM against expected structural outputs, precision, and recall.
+> ⚠️ **Not legal advice.** This is an AI tool to help you understand your options. Always consult a licensed immigration lawyer before making big decisions.
 
 ---
 
-## 🏗 Architecture
+## 🌍 What Does It Do?
 
-```mermaid
-graph TD
-    subgraph Client [Client - Next.js 14 App Router]
-        UI[Interactive Dashboard]
-        SIM[What-If Simulation Engine]
-        PRESET[1-Click Demo Presets]
-        PDF[Executive PDF Generator]
-        UI <--> SIM
-    end
+Most people who want to immigrate don't know where to start. Immigration rules are complicated, change often, and are different for every country. Hiring a lawyer just to understand your options can cost thousands of dollars.
 
-    subgraph Server [Backend - Next.js Serverless Routes]
-        API_SCORE[POST /api/score]
-        API_CHAT[GET/POST /api/chat]
-        ORCH[AI Orchestrator]
-        ENG[Deterministic Rule Engine]
-        AUTH[Clerk Auth Middleware]
-    end
-
-    subgraph Data [PostgreSQL - Neon Serverless]
-        VEC[(immigration_evidence - pgvector 1536)]
-        SUBS[(visa_submissions & quota)]
-        CHAT_DB[(chat_threads & chat_messages)]
-        STRIPE_DB[(user_subscriptions)]
-    end
-
-    subgraph AI [OpenAI Reasoning Engine]
-        LLM[gpt-4o-mini]
-        EMB[text-embedding-3-small]
-    end
-
-    UI -->|VisaProfile| API_SCORE
-    API_SCORE --> AUTH
-    AUTH --> ORCH
-    
-    ORCH -->|Normalize| ENG
-    ORCH -->|Query Embedding| EMB
-    EMB -->|Cosine Search <=>| VEC
-    VEC -->|Authoritative Evidence| ORCH
-    
-    ORCH -->|Context + Evidence| LLM
-    LLM -->|Synthesized Analysis| ORCH
-    ORCH -->|Deterministic Blend| ENG
-    
-    ENG -->|RankedPathways| API_SCORE
-    API_SCORE -->|Async Telemetry| SUBS
-    API_SCORE --> UI
-    
-    UI -->|Ask Question| API_CHAT
-    API_CHAT -->|Cosine Search| VEC
-    API_CHAT -->|Stream Tokens| LLM
-    LLM -->|Stream & onFinish| CHAT_DB
-    API_CHAT -->|Real-time Stream| UI
-```
-
-## 🔄 AI Pipeline Workflow
-
-1. **Profile Normalization**: Map raw user input to canonical ontologies (e.g., mapping job titles to NOC codes, translating IELTS to CEFR levels).
-2. **Eligibility Evaluation (Deterministic)**: Run normalized profile against hard-coded point systems (`PATHWAY_REGISTRY`). 
-3. **Evidence Retrieval**: Search vector database for missing nuances, exceptions, and latest processing times.
-4. **AI Reasoning**: LLM evaluates qualitative factors, generates `satisfiedRequirements`, `missingRequirements`, and identifies `blockingRequirements`.
-5. **Marginal Improvement Calculation**: Heuristically calculate the highest ROI actions (e.g., "Learn French to NCLC 7 for 15 pts" vs "Get Master's for 5 pts").
-6. **Recommendation Ranking**: Combine deterministic base score, LLM qualitative score, and evidence confidence to rank viable pathways.
-7. **Citation Validation**: Post-processing check to ensure URLs are structurally valid and belong to the provided context.
+**Borderless AI gives you a free starting point.** It checks your profile against real visa rules from 70+ countries and tells you:
+- Which visas you likely qualify for
+- What's blocking you (and how to fix it)
+- What score you'd get under Canada's points system, Germany's Chancenkarte, the UK Skilled Worker visa, and many more
+- What to improve to boost your chances
 
 ---
 
-## ⚡ Engineering Highlights
+## 🎯 Key Features
 
-- **Structured Output Orchestration**: Enforces strict JSON schemas using Zod for 100% predictable frontend rendering.
-- **Isomorphic Rules Engine**: The `lib/engine.ts` runs on both the Node.js backend (for initial scoring) and the browser (for 0-latency What-If simulations).
-- **Graceful Degradation**: Fallback mechanisms for LLM timeouts, rate limits, and parsing failures.
-- **Telemetry & Observability**: Logs structured latency, model versions, and error states for every prompt phase.
+### 1. 📋 Visa Assessment Form (`/form`)
+Fill out a short form — your nationality, age, education, work experience, English score, and savings. Takes about 2 minutes.
 
----
+The system then checks your profile against real government visa rules and shows you the top visa options that fit you.
 
-## 📊 Evaluation & Metrics
+### 2. 📊 Results Dashboard (`/results`)
+After the assessment, you get:
+- A score (0–100) for each visa option
+- What requirements you meet ✅ and what's missing ❌
+- The exact points breakdown (e.g. *"Master's degree: +12 points"*)
+- Tips on what to improve to increase your score
 
-The system is continuously tested against a suite of 30 adversarial and borderline test cases (`__tests__/evals`).
+### 3. 🤖 AI Chat Copilot (`/chat`)
+Ask any visa question in plain English. The AI answers using real government documents — not guesswork. It tells you which sources it used so you can verify the answer yourself.
 
-| Metric | Target | Current | Notes |
-|---|---|---|---|
-| **Pipeline Latency (P95)** | < 3000ms | ~2200ms | Parallelized retrieval & Gemini 2.5 Flash |
-| **Cost per Assessment** | < $0.02 | ~$0.003 | Highly optimized context windows |
-| **Citation Precision** | 100% | 100% | Strict post-processing validation |
-| **Hallucination Rate** | 0% | 0% | Overridden by Deterministic Engine |
-| **Schema Compliance** | 100% | 100% | Handled via Zod schema parsing |
+You get **3 free chats** as a guest. Pro users get unlimited.
 
-*(Note: Exact metrics are continuously monitored via CI evaluation runs).*
+### 4. 🌐 Explore All Pathways (`/explore`)
+Browse **1,454 visa routes** across 70+ countries. Filter by:
+- Goal (work, study, startup, digital nomad, permanent residency)
+- Budget
+- How fast you can get it
+- How competitive it is
 
----
+Each result links directly to the official government website.
 
-## 📸 Screenshots
+### 5. 🔢 What-If Simulator
+On your results page, you can adjust things like your English score or savings and instantly see how your score changes — no need to re-submit the form. Answers appear instantly.
 
-*(Add screenshots of the live system here)*
+### 6. 📄 Download Your Action Plan
+Get a personalized PDF with your top visa options, what documents you need, and your next steps — ready to share with a lawyer or family member.
 
-1. **Profile Input Form**: `[Placeholder: form.png]`
-2. **Results Dashboard**: `[Placeholder: dashboard.png]`
-3. **Score Breakdown & Source Panel**: `[Placeholder: scores.png]`
-4. **What-If Simulation (0-Latency)**: `[Placeholder: simulator.png]`
-
----
-
-## 📚 Architecture Decisions & Documentation
-
-- [AI Architecture & Orchestration](docs/AI-ARCHITECTURE.md)
-- [RAG & Retrieval Evaluation](docs/RAG-EVALUATION.md)
-- [Scoring Methodology](docs/SCORING-METHODOLOGY.md)
-- [Production Readiness & Reliability](docs/PRODUCTION-READINESS.md)
-- [Evaluation Report](docs/EVALUATION-REPORT.md)
+### 7. 👤 Personal Dashboard (`/dashboard`)
+Sign in to see all your past assessments, how your profile compares to other applicants, and track your progress over time.
 
 ---
 
-## 🛡️ Security & Responsible AI
+## 🌐 Countries Covered (70+)
 
-Immigration is a high-stakes domain. We implement strict guardrails:
-- **Not Legal Advice**: Prominently displayed disclaimers. 
-- **Uncertainty Propagation**: The UI visualizes confidence levels. We explicitly tell users when we lack data ("Needs Verification").
-- **Source Freshness**: Emphasizes the recency of the retrieved evidence.
-- **Hallucination Prevention**: The LLM *cannot* invent points or bypass hard requirements; the deterministic engine acts as a firewall.
-- **Prompt Injection Defense**: Evaluates inputs for system prompt overrides before passing to the main orchestrator.
-
----
-
-## 🛠 Tech Stack
-
-- **AI & Reasoning**: OpenAI `gpt-4o-mini`, OpenAI Embeddings (`text-embedding-3-small`), Vercel AI SDK
-- **Web Framework**: Next.js 14 (App Router), TypeScript, Tailwind CSS
-- **Authentication**: Clerk (`@clerk/nextjs`) with automated session management and server-side verification
-- **Database & Storage**: Neon Serverless PostgreSQL with `pgvector` for sub-second cosine distance semantic search
-- **Payments & Billing**: Stripe API with customer portals, webhook listeners, and quota limits
-- **Testing & E2E**: Vitest (Scoring Engine & Rate Limits), Playwright (E2E Browser Automation)
-- **Deployment**: Vercel Serverless with GitHub CI/CD Actions
+| Region | Countries |
+|---|---|
+| **North America** | 🇨🇦 Canada (Express Entry, PNP, Startup Visa) |
+| **Europe** | 🇩🇪 Germany, 🇵🇹 Portugal, 🇪🇸 Spain, 🇮🇹 Italy, 🇳🇱 Netherlands + EU Blue Card |
+| **United Kingdom** | 🇬🇧 UK (Skilled Worker, Global Talent, Scale-up) |
+| **Oceania** | 🇦🇺 Australia, 🇳🇿 New Zealand |
+| **Middle East** | 🇦🇪 UAE, 🇸🇦 Saudi Arabia |
+| **United States** | 🇺🇸 O-1, H-1B, L-1, EB-1, EB-2 NIW |
+| **Asia** | 🇸🇬 Singapore, 🇲🇾 Malaysia, 🇯🇵 Japan, 🇰🇷 South Korea |
+| **Latin America** | 🇲🇽 Mexico, 🇨🇴 Colombia, 🇨🇷 Costa Rica, 🇵🇦 Panama |
 
 ---
 
-## 🌟 Key Features
+## 📊 What Do the Scores Mean?
 
-1. **Deterministic + RAG Hybrid Scoring Architecture**:
-   - Hardcoded, mathematically verified points scoring for Express Entry, EU Blue Card, Chancenkarte, and Skilled Worker visas.
-   - Vector-grounded citations to official government immigration portals (**1,454 verified pathways across 70+ countries**).
-
-2. **AI Immigration Copilot (`/chat`)**:
-   - Conversational legal assistant strictly bound to official immigration policies and legal thresholds.
-   - Powered by Neon PostgreSQL `pgvector` semantic search (cosine distance `<=>`) over official government gazettes.
-   - Real-time token streaming with persistent cloud chat threads synced to PostgreSQL for authenticated Clerk users, plus 3 free consultations for guests.
-
-3. **Global Pathway Explorer (`/explore`)**:
-   - Search, filter, and inspect 1,454 verified pathways across 70+ countries.
-   - Filter by pathway category: Digital Nomad, Skilled Worker, Founder/Startup, Investor, Study-to-PR, or Working Holiday.
-   - Filter by budget, difficulty, and processing speed with direct government portal links.
-
-4. **Interactive What-If Scenario Simulator**:
-   - Zero-latency client-side simulation engine on the results dashboard. Users can adjust language scores, education levels, or savings to immediately see recalculated readiness scores.
-
-5. **Downloadable PDF Immigration Action Plan**:
-   - Generates a branded, publication-ready executive immigration strategy report directly from the results page with required document checklists, score drivers, and verified government citations.
-
-6. **1-Click Interactive Preset Personas**:
-   - Instant 1-click test personas for Canada (Tech Lead), UK (Senior Developer), Germany (Chancenkarte Specialist), and Portugal (Digital Nomad) allowing evaluators to experience the platform instantly without manual form entry.
-
-7. **Applicant Benchmarking Dashboard (`/dashboard`)**:
-   - Human capital breakdown and percentile comparisons showing where an applicant's profile ranks against other candidates.
+| Score | What It Means |
+|---|---|
+| **0 – 29** | Very unlikely. You'd need major changes to qualify. |
+| **30 – 49** | Weak match. Some indirect routes may be possible (e.g. study first, then work). |
+| **50 – 69** | Possible, but there's competition. You meet some criteria but not all. |
+| **70 – 85** | Strong match. Very realistic under current rules. |
+| **86 – 100** | Exceptional profile. Very few people reach this range. |
 
 ---
 
-## 🌐 Live Demo & Quickstart
+## 💰 Pricing
 
-**Live Production URL:** [https://ai-visa-advisor.vercel.app](https://ai-visa-advisor.vercel.app)  
-*(Or explore locally via `npm run dev` on `http://localhost:3000`)*
+| Plan | Price | What You Get |
+|---|---|---|
+| **Free** | $0 | 5 assessments/month, 3 AI chat messages, unlimited Explorer |
+| **Pro** | $9/month | Unlimited assessments + unlimited AI chat |
 
-### Local Setup:
+---
+
+## 🚀 Try It Now
+
+**Live App:** [https://ai-visa-advisor.vercel.app](https://ai-visa-advisor.vercel.app)
+
+Or try it locally:
+
 ```bash
-# 1. Clone repository
+# 1. Clone the project
 git clone https://github.com/GhulamMustufa/ai-visa-advisor.git
 cd ai-visa-advisor
 
-# 2. Install dependencies
+# 2. Install packages
 npm install
 
-# 3. Environment variables (.env)
-# NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=...
-# CLERK_SECRET_KEY=...
-# OPENAI_API_KEY=...
-# DATABASE_URL=postgresql://...
+# 3. Set up your environment variables (copy from .env.example)
+cp .env.example .env
+# Then fill in your keys (Clerk, OpenAI, database URL)
 
-# 4. Run development server
+# 4. Start the app
 npm run dev
+# Opens at http://localhost:3000
 ```
+
+### Required environment variables:
+```
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=   # From clerk.com
+CLERK_SECRET_KEY=                    # From clerk.com
+OPENAI_API_KEY=                      # From platform.openai.com
+DATABASE_URL=                        # PostgreSQL connection string (Neon works great)
+STRIPE_SECRET_KEY=                   # From stripe.com (for Pro plan)
+```
+
+---
+
+## 🧠 How It Works (Simple Version)
+
+1. **You fill out the form** → We collect your profile (age, education, job, English level, savings)
+2. **We run the rules** → Our system checks real government immigration rules and calculates exact points
+3. **AI reviews it** → The AI reads official government documents and adds context, explanations, and next steps
+4. **You get results** → A ranked list of your best visa options with honest scores and sources
+
+The AI **never makes up scores**. All points are calculated using real, fixed government rules. The AI only helps explain what the numbers mean.
+
+---
+
+## 🛡️ Is It Safe and Honest?
+
+Yes. Here's what we do to make sure:
+
+- **Real sources only** — All answers are backed by official government websites (`.gov`, `.gc.ca`, `.gov.uk`, etc.)
+- **No made-up scores** — Points are calculated using fixed mathematical rules, not AI guesses
+- **We tell you what we don't know** — If we're not sure about something, we say so
+- **Clear disclaimer** — This is NOT legal advice. It's a research and planning tool
+
+---
+
+## 🏗️ Architecture Overview
+
+```mermaid
+graph TD
+    A[You fill out the form] --> B[Rules Engine calculates your points]
+    B --> C[AI reads official gov documents]
+    C --> D[Results ranked by best fit]
+    D --> E[Your dashboard with scores and next steps]
+    E --> F[What-If Simulator for instant recalculations]
+    E --> G[Download PDF action plan]
+    E --> H[AI Copilot for follow-up questions]
+```
+
+**Tech used:** Next.js 14, TypeScript, Tailwind CSS, OpenAI, PostgreSQL (with vector search), Clerk Auth, Stripe, Vercel
+
+---
+
+## 📚 More Documentation
+
+- [How the AI Works](docs/AI-ARCHITECTURE.md)
+- [How Scores Are Calculated](docs/SCORING-METHODOLOGY.md)
+- [All Visa Pathways & Data](docs/PRODUCT.md)
+- [API Reference](docs/API.md)
+
+---
+
+## 👥 Contributing
+
+Pull requests are welcome! Please read the [coding standards](docs/CODING_STANDARDS.md) before contributing.
+
+---
+
+*Built to make immigration research accessible to everyone — not just those who can afford a lawyer.*

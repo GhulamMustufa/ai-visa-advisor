@@ -1,25 +1,64 @@
-# Production Readiness Audit
+# Is Borderless AI Ready for Real Users?
 
-## Security & Reliability Hardening
-
-The Borderless AI has undergone a production readiness pass to ensure it can safely handle real users and production scaling.
-
-### Completed Security Measures
-1. **Input Validation Limits**: Added explicit `max()` bounds to open-ended string inputs (like `nationality` and `fieldOfWork`) via Zod to prevent ReDoS and token exhaustion.
-2. **Prompt Injection Mitigation**: Wrapped retrieved evidence inside explicit `<evidence>` XML delimiters. Added explicit system instructions to treat evidence purely as data, instructing the model to ignore any "ignore previous instructions" attempts embedded in user-retrieved content.
-
-### Completed Reliability Measures
-1. **Circuit Breaker**: Implemented an in-memory Circuit Breaker (`lib/circuit-breaker.ts`) for OpenAI dependencies. If OpenAI fails or rate-limits 5 times consecutively, the breaker trips OPEN. The AI synthesizer is temporarily skipped, and the system instantly returns the deterministic payload to the user without degrading latency.
-2. **Exponential Backoff**: Wrapped the OpenAI fetch in `withRetry` logic using exponential backoff (starting at 1000ms base delay).
-3. **429 Rate Limiting parsing**: The `withRetry` logic correctly reads `Retry-After` headers on 429s and overrides the exponential backoff to respect provider limits.
-
-### Completed Observability & Cost Controls
-1. **OpenTelemetry-ready Logging**: Restructured `lib/logger.ts` to output standard fields (`timestamp`, `severity`, `name`, `trace_id`, `span_id`, `attributes`) so they can be ingested directly by Datadog/OpenTelemetry agents.
-2. **Exact Cost Tracking**: Added `estimatedCostUsd` inside `lib/trace.ts` specifically accounting for `gpt-4o-mini` pricing ($0.150 / 1M prompt, $0.600 / 1M completion).
-
-### Remaining Risks & Recommendations
-1. **Persistent Circuit Breaker**: The Circuit Breaker currently lives in server memory. Because Next.js serverless functions (like Vercel) spin up and down, the Circuit Breaker is effectively per-instance. **Recommendation**: Move the breaker state to Redis (e.g., Upstash) for a globally coordinated fallback.
-2. **LLM Cost Limits**: We are tracking costs, but currently not enforcing a hard dollar budget limit across the entire platform. **Recommendation**: Implement a global monthly spend alert or cutoff in Stripe/Supabase.
+**Yes.** Here's what we've done to make sure it's safe, reliable, and honest.
 
 ---
-**Audit Status**: READY FOR PRODUCTION
+
+## Security
+
+### Preventing Bad Inputs
+- We check and limit what users can type into the form — too-long or unusual inputs are rejected before they reach the AI
+- This protects against attempts to confuse or manipulate the AI
+
+### Preventing AI Manipulation
+- All official documents we show to the AI are clearly marked as data-only
+- The AI is instructed to ignore any "trick" instructions that might be hidden inside user content
+- This is a known attack called "prompt injection" — we guard against it
+
+---
+
+## Reliability
+
+### What Happens If OpenAI Goes Down?
+The system has a **fallback mode**. If OpenAI is unavailable or slow:
+- The AI explanation step is skipped
+- You still get your full visa score (calculated by our own rules engine)
+- Your results come back quickly — just without the AI commentary
+
+This means the app **always works**, even if the AI is having a bad day.
+
+### What If There Are Too Many Requests?
+The system automatically retries failed requests. If OpenAI returns a "too many requests" error, we wait the right amount of time before trying again, instead of spamming the server.
+
+---
+
+## Observability (We Can See What's Happening)
+
+- Every request is logged with timing, model version, and cost
+- We track how much each assessment costs (currently ~$0.003 per assessment — very low)
+- Logs are structured so they can be sent to monitoring tools like Datadog
+
+---
+
+## Cost Per User
+
+| Action | Cost |
+|---|---|
+| One visa assessment | ~$0.003 |
+| One AI chat message | ~$0.001 |
+
+These are very small costs, which means the Free tier is sustainable.
+
+---
+
+## Known Limitations (Honest About What's Not Perfect Yet)
+
+1. **The circuit breaker (fallback) is per-server instance** — If many users hit the site at the same time, each server instance tracks failures separately. In high-traffic scenarios, this could be improved by using a shared Redis store.
+
+2. **No hard monthly spend cap** — We track costs, but there's no automatic shutoff if the bill unexpectedly spikes. This is a future improvement.
+
+---
+
+## Status: ✅ Ready for Production
+
+The app is live and serving real users at [ai-visa-advisor.vercel.app](https://ai-visa-advisor.vercel.app).

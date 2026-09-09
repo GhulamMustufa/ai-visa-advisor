@@ -1,54 +1,75 @@
-# Product Context: Borderless AI
+# What is Borderless AI?
 
-## Overview
-Borderless AI is a SaaS platform designed to provide immigration applicants with realistic, data-backed visa pathway recommendations. Unlike traditional immigration consultancies that may overpromise, this tool uses a conservative AI scoring model grounded in official government sources to give users an honest probability score (0-100) of securing a visa.
+Borderless AI is a tool that helps people figure out which visa options they qualify for — before spending money on a lawyer.
 
-## Target Audience
-Individuals worldwide looking to immigrate, study, or work abroad who need a low-cost, preliminary assessment of their chances before hiring expensive immigration lawyers.
+You enter your details (age, job, education, English level, savings), and the system checks them against real government visa rules from 70+ countries. It then gives you an honest score and tells you exactly what's matching, what's missing, and how to improve.
 
-## Core Value Proposition
-- **Honesty**: Scores are calibrated to reflect refusal probability. A score of 86-100 is rare.
-- **Transparency**: Provides exact mathematical "score drivers" (e.g., "Master's degree: +12pts") and actionable next steps.
-- **Authoritative Coverage**: Backed by **1,454 verified pathways across 70+ countries** grounded in official government gazettes.
-- **Speed & Accessibility**: A 2-minute profile yields immediate results; 1-click presets allow instant testing.
+---
 
-## Key Workflows
-1. **Deterministic Assessment Flow (`/form`)**: User fills out a form specifying nationality, target region, age, education, experience, English test, savings, and goal. The system calculates exact points, checks thresholds, and outputs 3 viable pathways.
-2. **AI Immigration Copilot (`/chat`)**: RAG-powered interactive conversational assistant. Uses Neon PostgreSQL `pgvector` embeddings to answer complex visa questions with official government citations. Supports persistent multi-thread history.
-3. **Global Pathway Explorer (`/explore`)**: Allows users to browse and filter 1,454 visa routes by goal (Nomad, Skilled, PR, Founder, Study), budget, and difficulty without taking an assessment.
-4. **Downloadable PDF Action Plan (`/results`)**: Branded, printable immigration strategy document with tailored checklists and legal citations.
-5. **Applicant Dashboard & Benchmarking (`/dashboard`)**: Authenticated users can view assessment history, percentile rankings, and human capital breakdowns.
-6. **Monetization**: Users are allowed 5 free assessments per month and 3 free chat consultations. Authenticated Pro users get unlimited access via Stripe Checkout.
+## Who is it for?
 
-## Regions Covered (70+ Countries)
-1. Canada (Express Entry, PNP, Start-up Visa)
-2. United Kingdom (Skilled Worker, Global Talent, Scale-up)
-3. Australia & New Zealand (Subclass 189/190/491, SMC)
-4. Germany & EU (Chancenkarte, EU Blue Card, Jobseeker)
-5. Southern Europe (Portugal D8/D7, Spain Nomad/Golden Visa, Italy)
-6. Middle East (UAE Golden Visa, Green Visa, Saudi Arabia)
-7. United States (O-1, H-1B, L-1, EB-1/EB-2 NIW)
-8. Singapore & Malaysia (ONE Pass, Tech.Pass, DE Rantau)
-9. Japan & South Korea (J-Skip, J-Find, F-2-7)
-10. Fast-Track Nomad & Latin America (Costa Rica, Mexico, Colombia, Panama)
+Anyone who wants to:
+- Move to another country to work
+- Apply for permanent residency
+- Work remotely as a digital nomad
+- Start a business abroad
+- Study overseas and stay after
 
-## Scoring Calibration
-| Score Range | Meaning |
+---
+
+## Main Features
+
+### ✅ Visa Assessment
+Fill out a short form (about 2 minutes). The system checks your profile against real visa rules and shows you which visas you qualify for, ranked from best to worst fit.
+
+### 💬 AI Copilot
+Ask immigration questions in plain English. The AI answers using real government documents and shows you which sources it used. You get 3 free questions per day, or unlimited with a Pro plan.
+
+### 🌍 Visa Explorer
+Browse all 1,454+ visa routes we cover. Filter by country, goal, budget, and difficulty. Each result links to the official government page.
+
+### 📊 What-If Simulator
+After your assessment, adjust things like your English test score or savings — and instantly see how your total score changes. No need to re-submit.
+
+### 📄 PDF Report
+Download a personal immigration plan with your top visa options, required documents, and next steps.
+
+### 📈 Dashboard
+Track your past assessments and see how your profile compares to other applicants.
+
+---
+
+## Scoring System
+
+Every visa is scored from **0 to 100**:
+
+| Score | What it means |
 |---|---|
-| **0-29** | Very unlikely without major profile changes (heavy refusal penalties). |
-| **30-49** | Weak profile; possible only via indirect routes (e.g., study-to-work). |
-| **50-69** | Plausible but competitive; significant criteria conditions apply. |
-| **70-85** | Strong profile; not guaranteed but highly realistic under current draws. |
-| **86-100** | Rare; only for exceptionally strong, verified profiles (job offer / PNP). |
+| **86–100** | Exceptional. Very few applicants score here. |
+| **70–85** | Strong profile. Very realistic under current immigration rules. |
+| **50–69** | Possible, but you'll face competition or need to meet extra conditions. |
+| **30–49** | Weak match. Consider improving your profile first. |
+| **0–29** | Very unlikely. Major changes needed. |
 
-## Business Model
-- **Free Tier**: 5 assessments / month, 3 free AI Copilot chats, unlimited Explorer access.
-- **Pro Tier**: $9 / month for unlimited assessments and unlimited AI Copilot chat threads.
+---
 
-## Implemented Platform Capabilities
-- ✅ Refusal-Calibrated Deterministic Scoring Engine with score drivers & points breakdown.
-- ✅ AI Immigration Copilot with `pgvector` semantic retrieval and cloud persistence.
-- ✅ Global Visa Explorer with 1,454 pathways and direct government portal links.
-- ✅ 1-Click Interactive Personas for instant stakeholder demos.
-- ✅ Downloadable & Printable PDF Immigration Action Plan.
-- ✅ Clerk Authentication & User Dashboard with human capital percentile benchmarks.
+## Countries Covered (70+)
+
+Canada, UK, Germany, Australia, New Zealand, Portugal, Spain, Italy, Netherlands, UAE, Saudi Arabia, Singapore, Malaysia, Japan, South Korea, USA, Mexico, Colombia, and many more.
+
+---
+
+## Pricing
+
+- **Free**: 5 assessments per month + 3 AI chats + unlimited Explorer
+- **Pro ($9/month)**: Unlimited assessments + unlimited AI chats
+
+---
+
+## What This Tool Is NOT
+
+- ❌ Not a law firm
+- ❌ Not legal advice
+- ❌ Not a guarantee of visa approval
+
+Always verify results with a licensed immigration lawyer before submitting any real application.
