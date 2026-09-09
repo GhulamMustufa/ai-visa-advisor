@@ -89,7 +89,12 @@ export default function RootLayout({
   `;
 
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      publishableKey={
+        process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+        "pk_test_Y2VydGFpbi1idXJyby00MTgxLmNsZXJrLmFjY291bnRzLmRldiQ"
+      }
+    >
       <html lang="en" suppressHydrationWarning>
         <body
           className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-background font-sans antialiased text-foreground`}
