@@ -4,18 +4,19 @@
 The frontend is built on Next.js 14 App Router. It embraces the paradigm of separating static/server-rendered content from highly interactive client-side logic.
 
 ## Routing Directory (`app/`)
-- `/` (Server Component): The static marketing landing page. Fast load times, SEO optimized.
-- `/form` (Client Component): The core interactive experience. A multi-step wizard where users input their profile data. Manages complex state (e.g., showing/hiding fields based on previous answers).
-- `/results` (Client Component): Receives the JSON response from the `/api/score` endpoint and renders the pathways, scores, and checklists. It acts as a "simulation" tool.
-- `/explore` (Client Component): A static/interactive hybrid allowing users to browse general visa options by region without scoring.
-- `/dashboard` (Server Component): Protected route. Fetches user history and Stripe subscription state server-side before rendering.
-- `/history` (Client Component): UI for viewing past assessment results.
-- `/auth/*` (Client Components): Login, Signup, and OAuth handling.
+- `/` (Client Component): The high-converting platform showcase. Explains the 4 platform pillars, refusal calibration, 1-click interactive demos, and comparative value.
+- `/form` (Client Component): The core assessment experience. A multi-step wizard where users input profile data.
+- `/results` (Client Component): Renders scored pathways, points breakdown, score drivers, and provides a 1-click downloadable/printable executive PDF Action Plan.
+- `/chat` (Client Component): The conversational AI Immigration Copilot. Supports real-time streaming, suggestion chips, and cloud-synced persistent threads.
+- `/explore` (Client Component): Filter and search 1,454 verified visa pathways across 70+ nations by category (Nomad, Skilled, Founder, Investor, Study, Easy Entry), budget, and difficulty.
+- `/dashboard` (Client Component): Protected user portal with human capital percentile benchmarking against applicant cohorts.
+- `/history` (Client Component): History of past assessments.
+- `/sign-in` & `/sign-up`: Managed Clerk authentication flows.
 
-## Authentication (Supabase SSR)
-- The frontend uses `@supabase/ssr` to ensure that authentication state is available on the server before the initial HTML is sent.
-- The `Header.tsx` component is server-rendered with the initial user state, preventing UI flashing (layout shift) between logged-out and logged-in states.
-- The `middleware.ts` runs on the edge to protect `/dashboard` and redirect unauthenticated users to `/auth/login?next=/dashboard`.
+## Authentication (Clerk)
+- The frontend uses Clerk (`@clerk/nextjs`) for secure session management and authentication.
+- The `Header.tsx` component checks Clerk's `isLoaded` and `isSignedIn` states to provide seamless login/logout and user profile controls without layout shift.
+- The `middleware.ts` runs on the edge, delegating route protection to Clerk while ensuring public routes and API endpoints remain accessible.
 
 ## State Management
 - No heavy state managers (like Redux or Zustand) are explicitly required for the core flow. State is largely localized to the components that need it (e.g., React `useState` within the `/form` steps).

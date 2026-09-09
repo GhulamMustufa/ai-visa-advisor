@@ -170,17 +170,31 @@ Immigration is a high-stakes domain. We implement strict guardrails:
 
 ## 🌟 Key Features
 
-1. **Deterministic + RAG Hybrid Architecture**:
+1. **Deterministic + RAG Hybrid Scoring Architecture**:
    - Hardcoded, mathematically verified points scoring for Express Entry, EU Blue Card, Chancenkarte, and Skilled Worker visas.
-   - Vector-grounded citations to official government immigration portals (1,454 verified pathways).
-2. **Interactive What-If Scenario Simulator**:
+   - Vector-grounded citations to official government immigration portals (**1,454 verified pathways across 70+ countries**).
+
+2. **AI Immigration Copilot (`/chat`)**:
+   - Conversational legal assistant strictly bound to official immigration policies and legal thresholds.
+   - Powered by Neon PostgreSQL `pgvector` semantic search (cosine distance `<=>`) over official government gazettes.
+   - Real-time token streaming with persistent cloud chat threads synced to PostgreSQL for authenticated Clerk users, plus 3 free consultations for guests.
+
+3. **Global Pathway Explorer (`/explore`)**:
+   - Search, filter, and inspect 1,454 verified pathways across 70+ countries.
+   - Filter by pathway category: Digital Nomad, Skilled Worker, Founder/Startup, Investor, Study-to-PR, or Working Holiday.
+   - Filter by budget, difficulty, and processing speed with direct government portal links.
+
+4. **Interactive What-If Scenario Simulator**:
    - Zero-latency client-side simulation engine on the results dashboard. Users can adjust language scores, education levels, or savings to immediately see recalculated readiness scores.
-3. **Downloadable PDF Action Plan**:
-   - Generates a branded, publication-ready executive immigration strategy report directly from the results page with verified citations and next steps.
-4. **1-Click Preset Demonstrations**:
-   - Instant 1-click test personas for Canada (Tech Lead), UK (Senior Developer), and Germany (Chancenkarte Specialist) allowing evaluators to skip manual forms.
-5. **Persistent Cloud Chat History**:
-   - Multi-thread AI Immigration Copilot with real-time token streaming and asynchronous PostgreSQL persistence for authenticated users.
+
+5. **Downloadable PDF Immigration Action Plan**:
+   - Generates a branded, publication-ready executive immigration strategy report directly from the results page with required document checklists, score drivers, and verified government citations.
+
+6. **1-Click Interactive Preset Personas**:
+   - Instant 1-click test personas for Canada (Tech Lead), UK (Senior Developer), Germany (Chancenkarte Specialist), and Portugal (Digital Nomad) allowing evaluators to experience the platform instantly without manual form entry.
+
+7. **Applicant Benchmarking Dashboard (`/dashboard`)**:
+   - Human capital breakdown and percentile comparisons showing where an applicant's profile ranks against other candidates.
 
 ---
 

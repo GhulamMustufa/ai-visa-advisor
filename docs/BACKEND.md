@@ -6,12 +6,13 @@ The backend is entirely serverless, leveraging Next.js Route Handlers (`app/api/
 ## Core Infrastructure
 
 ### 1. `lib/persistence.ts`
-The data access layer. Uses the `pg` package to connect to Supabase's transaction pooler.
+The data access layer. Uses the `pg` package to connect to Neon's serverless connection pooler.
 - Contains specific queries for:
   - `persistSubmission`: Logging an assessment.
   - `listRecentSubmissions`: Dashboard history.
   - `countMonthlySubmissions`: Free-tier quota tracking.
   - `upsertUserSubscription`: Syncing Stripe state.
+  - `listUserThreads`, `getOrCreateThread`, `getThreadMessages`, `saveChatMessage`: AI Copilot chat persistence.
 
 ### 2. `lib/rate-limit.ts`
 An in-memory rate limiter protecting endpoints from abuse.
