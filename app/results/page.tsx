@@ -202,6 +202,23 @@ export default function ResultsPage() {
     <div className="min-h-screen bg-[var(--background)]">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         
+        {/* Print-Only Executive Letterhead */}
+        <div className="hidden print:flex flex-row items-center justify-between border-b-2 border-slate-900 pb-4 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-base">
+              B
+            </div>
+            <div>
+              <h2 className="text-xl font-bold tracking-tight text-slate-900">Borderless AI</h2>
+              <p className="text-xs text-slate-500">Official Immigration Readiness Assessment Report</p>
+            </div>
+          </div>
+          <div className="text-right text-xs text-slate-500">
+            <p>Generated: {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+            <p className="font-mono text-[10px] text-slate-400">REF: {data.profileSummary.nationality.slice(0,3).toUpperCase()}-{data.profileSummary.targetRegion.toUpperCase()}</p>
+          </div>
+        </div>
+
         {/* Header Area */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -216,12 +233,23 @@ export default function ResultsPage() {
               This dashboard provides an honest look at your eligibility, blockers, and exact next steps.
             </p>
           </div>
-          <Link
-            href="/form"
-            className="inline-flex h-10 items-center justify-center rounded-lg bg-white border border-slate-200 px-4 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
-          >
-            Start New Assessment
-          </Link>
+          <div className="flex flex-wrap items-center gap-3 print:hidden">
+            <button
+              onClick={() => window.print()}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white shadow-soft transition hover:bg-indigo-700"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>Download Action Plan (PDF)</span>
+            </button>
+            <Link
+              href="/form"
+              className="inline-flex h-10 items-center justify-center rounded-lg bg-white border border-slate-200 px-4 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+            >
+              Start New Assessment
+            </Link>
+          </div>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-12 items-start">
@@ -259,17 +287,19 @@ export default function ResultsPage() {
               </div>
             </section>
 
-            {/* What-If Simulator */}
-            <WhatIfSimulator 
-              initialProfile={data.profileSummary}
-              onChange={handleSimulate}
-              onReset={handleReset}
-            />
+            {/* What-If Simulator (Interactive only, hidden in printed document) */}
+            <div className="print:hidden">
+              <WhatIfSimulator 
+                initialProfile={data.profileSummary}
+                onChange={handleSimulate}
+                onReset={handleReset}
+              />
+            </div>
 
             {/* Disclaimer */}
             <div className="rounded-xl bg-amber-50 p-4 border border-amber-200">
               <p className="text-xs leading-relaxed text-amber-800">
-                <strong>Important:</strong> This tool provides AI-generated guidance based on official thresholds, not legal advice. Always consult an official immigration attorney.
+                <strong>Important:</strong> This report provides AI-generated guidance based on official thresholds, not legal advice. Always consult an official immigration attorney.
               </p>
             </div>
           </div>

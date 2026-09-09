@@ -7,7 +7,7 @@ import {
   readRecentSubmissions,
   type RecentSubmission,
 } from "@/lib/submissions";
-import { DEMO_RESULT } from "@/lib/demo";
+import { DEMO_RESULT, DEMO_PRESETS } from "@/lib/demo";
 import { RESULT_STORAGE_KEY } from "@/lib/storage";
 
 function fmtTime(iso: string) {
@@ -83,8 +83,31 @@ export default function Home() {
                 onClick={handleTryDemo}
                 className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-6 text-sm font-medium text-slate-800 shadow-sm transition hover:bg-slate-50 hover:border-slate-300"
               >
-                Try Demo
+                Launch Demo (Canada)
               </button>
+            </div>
+
+            {/* Quick 1-Click Client Presets */}
+            <div className="mt-6 pt-6 border-t border-slate-200/80">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">
+                ⚡ 1-Click Client Demos (Skip Form):
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {DEMO_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    onClick={() => {
+                      sessionStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(preset.result));
+                      router.push("/results");
+                    }}
+                    className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-xs font-medium text-slate-700 shadow-xs backdrop-blur-xs transition hover:border-accent hover:bg-indigo-50/50 hover:text-indigo-900"
+                  >
+                    <span>{preset.flag}</span>
+                    <span className="font-semibold">{preset.title}</span>
+                    <span className="text-[10px] rounded bg-slate-100 px-1.5 py-0.5 text-slate-500">{preset.badge}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Real stats only */}

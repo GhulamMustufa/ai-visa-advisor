@@ -53,7 +53,7 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-card/85 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-card/85 backdrop-blur-md print:hidden">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
         <Link
           href="/"

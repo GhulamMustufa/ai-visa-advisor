@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Education, EnglishTest, Goal, TargetRegion } from "@/lib/types";
 import { RESULT_STORAGE_KEY } from "@/lib/storage";
 import { pushRecentSubmission } from "@/lib/submissions";
+import { DEMO_PRESETS, type DemoPreset } from "@/lib/demo";
 
 const REGIONS: { id: string; value: TargetRegion; label: string }[] = [
   { id: "canada", value: "canada", label: "Canada" },
@@ -286,6 +287,38 @@ export default function FormPage() {
         <p className="mt-2 text-sm leading-relaxed text-slate-600">
           Single column, a few steps. Demo scoring only—not immigration advice.
         </p>
+        
+        {/* Quick 1-Click Client Presets */}
+        <div className="mt-4 rounded-xl border border-indigo-100 bg-indigo-50/60 p-3.5">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <span className="text-xs font-semibold text-indigo-950 flex items-center gap-1.5">
+              <span>⚡</span> 1-Click Demo Profiles (Instant Results):
+            </span>
+            <span className="text-[10px] text-indigo-600 font-medium">Skip manual entry</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {DEMO_PRESETS.map((preset) => (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => {
+                  sessionStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(preset.result));
+                  router.push("/results");
+                }}
+                className="flex flex-col items-start rounded-lg border border-indigo-200/80 bg-white p-2.5 text-left shadow-xs transition hover:border-indigo-400 hover:shadow-sm"
+              >
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-900">
+                  <span>{preset.flag}</span>
+                  <span className="truncate">{preset.title.split(" to ")[0]}</span>
+                </div>
+                <span className="mt-1 text-[10px] font-medium text-indigo-600 truncate w-full">
+                  {preset.badge}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {selectedRegionLabel ? (
           <div className="mt-4 rounded-lg border border-slate-200 bg-card px-3 py-2 text-sm text-slate-800">
             Selected region: <span className="font-semibold">{selectedRegionLabel}</span>
