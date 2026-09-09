@@ -31,7 +31,7 @@ function themeIcon(theme: Theme) {
 export function Header() {
   const pathname = usePathname();
   const [theme, setTheme] = useState<Theme>("light");
-  const { isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn } = useAuth();
 
   useEffect(() => {
     const current = document.documentElement.getAttribute("data-theme");
@@ -108,7 +108,9 @@ export function Header() {
             AI Chat
           </Link>
 
-          {isSignedIn ? (
+          {!isLoaded ? (
+            <div className="h-8 w-16 animate-pulse rounded-md bg-slate-200/60 dark:bg-slate-800" />
+          ) : isSignedIn ? (
             <>
               <Link
                 href="/dashboard"
