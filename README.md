@@ -35,45 +35,56 @@ This system moves beyond basic prompt engineering and naive RAG:
 
 ```mermaid
 graph TD
-    subgraph Frontend [Client - Next.js]
-        UI[Dashboard UI]
-        SIM[What-If Simulator]
+    subgraph Client [Client - Next.js 14 App Router]
+        UI[Interactive Dashboard]
+        SIM[What-If Simulation Engine]
+        PRESET[1-Click Demo Presets]
+        PDF[Executive PDF Generator]
         UI <--> SIM
     end
 
-    subgraph Backend [Server - Next.js Route]
-        API[POST /api/score]
+    subgraph Server [Backend - Next.js Serverless Routes]
+        API_SCORE[POST /api/score]
+        API_CHAT[GET/POST /api/chat]
         ORCH[AI Orchestrator]
-        ENG[Deterministic Engine]
+        ENG[Deterministic Rule Engine]
+        AUTH[Clerk Auth Middleware]
     end
 
-    subgraph RAG [Retrieval System]
-        EMB[OpenAI Embeddings]
-        DB[(Supabase Vector/pgvector)]
+    subgraph Data [PostgreSQL - Neon Serverless]
+        VEC[(immigration_evidence - pgvector 1536)]
+        SUBS[(visa_submissions & quota)]
+        CHAT_DB[(chat_threads & chat_messages)]
+        STRIPE_DB[(user_subscriptions)]
     end
 
-    subgraph LLM [AI Reasoning]
-        GEMINI[Gemini 2.5 Flash]
+    subgraph AI [OpenAI Reasoning Engine]
+        LLM[gpt-4o-mini]
+        EMB[text-embedding-3-small]
     end
 
-    UI -->|VisaProfile| API
-    API --> ORCH
+    UI -->|VisaProfile| API_SCORE
+    API_SCORE --> AUTH
+    AUTH --> ORCH
     
     ORCH -->|Normalize| ENG
-    ORCH -->|Search Query| EMB
-    EMB -->|Vector Search| DB
-    DB -->|Authoritative Chunks| ORCH
+    ORCH -->|Query Embedding| EMB
+    EMB -->|Cosine Search <=>| VEC
+    VEC -->|Authoritative Evidence| ORCH
     
-    ORCH -->|Context + Profile| GEMINI
-    GEMINI -->|Structured Reasoning| ORCH
+    ORCH -->|Context + Evidence| LLM
+    LLM -->|Synthesized Analysis| ORCH
+    ORCH -->|Deterministic Blend| ENG
     
-    ORCH -->|Verify Citations| ORCH
-    ORCH -->|Merge Scores| ENG
+    ENG -->|RankedPathways| API_SCORE
+    API_SCORE -->|Async Telemetry| SUBS
+    API_SCORE --> UI
     
-    ENG -->|RankedPathways| API
-    API -->|ScoreResponse| UI
-    
-    SIM -->|Simulate| ENG
+    UI -->|Ask Question| API_CHAT
+    API_CHAT -->|Cosine Search| VEC
+    API_CHAT -->|Stream Tokens| LLM
+    LLM -->|Stream & onFinish| CHAT_DB
+    API_CHAT -->|Real-time Stream| UI
 ```
 
 ## 🔄 AI Pipeline Workflow
