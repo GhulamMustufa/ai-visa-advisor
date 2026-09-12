@@ -8,10 +8,10 @@ export const metadata: Metadata = {
     title: "AI Immigration Chat — Borderless AI",
     description:
       "Ask our AI anything about visas, work permits, or moving abroad. Powered by official government data from 70+ countries.",
-    url: "https://borderless-ai.com/chat",
+    url: "https://borderless.ghulam-mustafa.com/chat",
   },
   alternates: {
-    canonical: "https://borderless-ai.com/chat",
+    canonical: "https://borderless.ghulam-mustafa.com/chat",
   },
 };
 

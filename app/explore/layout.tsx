@@ -8,10 +8,10 @@ export const metadata: Metadata = {
     title: "Explore Visa Pathways — Borderless AI",
     description:
       "Browse 70+ visa programs by country, category, and eligibility score. Find the right immigration pathway for your profile.",
-    url: "https://borderless-ai.com/explore",
+    url: "https://borderless.ghulam-mustafa.com/explore",
   },
   alternates: {
-    canonical: "https://borderless-ai.com/explore",
+    canonical: "https://borderless.ghulam-mustafa.com/explore",
   },
 };
 

@@ -8,10 +8,10 @@ export const metadata: Metadata = {
     title: "Start Your Visa Assessment — Borderless AI",
     description:
       "Answer a few quick questions and get a personalized AI score for your top visa pathways in seconds.",
-    url: "https://borderless-ai.com/form",
+    url: "https://borderless.ghulam-mustafa.com/form",
   },
   alternates: {
-    canonical: "https://borderless-ai.com/form",
+    canonical: "https://borderless.ghulam-mustafa.com/form",
   },
 };
 

@@ -15,7 +15,7 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://borderless-ai.com";
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://borderless.ghulam-mustafa.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
