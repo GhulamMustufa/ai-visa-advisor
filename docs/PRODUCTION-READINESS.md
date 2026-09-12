@@ -61,4 +61,4 @@ These are very small costs, which means the Free tier is sustainable.
 
 ## Status: ✅ Ready for Production
 
-The app is live and serving real users at [ai-visa-advisor.vercel.app](https://ai-visa-advisor.vercel.app).
+The app is live and serving real users at [borderless.ghulam-mustafa.com](https://borderless.ghulam-mustafa.com).

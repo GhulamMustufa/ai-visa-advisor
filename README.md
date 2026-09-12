@@ -97,14 +97,14 @@ Sign in to see all your past assessments, how your profile compares to other app
 
 ## 🚀 Try It Now
 
-**Live App:** [https://ai-visa-advisor.vercel.app](https://ai-visa-advisor.vercel.app)
+**Live App:** [https://borderless.ghulam-mustafa.com](https://borderless.ghulam-mustafa.com)
 
 Or try it locally:
 
 ```bash
 # 1. Clone the project
-git clone https://github.com/GhulamMustufa/ai-visa-advisor.git
-cd ai-visa-advisor
+git clone https://github.com/GhulamMustufa/borderless-ai.git
+cd borderless-ai
 
 # 2. Install packages
 npm install
