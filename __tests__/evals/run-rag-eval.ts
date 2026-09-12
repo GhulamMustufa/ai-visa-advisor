@@ -17,10 +17,31 @@ async function runEvaluations() {
   for (const testCase of dataset) {
     console.log(`\nEvaluating [${testCase.id}]: ${testCase.query}`);
     
+    const dummyProfile = {
+      nationality: "India",
+      targetRegion: testCase.targetRegion as TargetRegion,
+      age: 30,
+      education: "bachelor" as any,
+      yearsExperience: 5,
+      fieldOfWork: testCase.query,
+      englishTest: "none" as any,
+      testScore: null,
+      savingsUsd: 10000,
+      goal: "work" as any
+    };
+    
+    const dummyNormalized = {
+      original: dummyProfile,
+      canonicalOccupation: testCase.query,
+      languageLevelCEFR: "B2" as any,
+      isSTEM: true,
+      isHealthcare: false
+    };
+
     // 1. Run Retrieval
     const evidenceList = await retrieveEvidence(
-      testCase.query, 
-      testCase.targetRegion as TargetRegion, 
+      dummyProfile, 
+      dummyNormalized, 
       testCase.pathwayId, 
       5
     );

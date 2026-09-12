@@ -1,5 +1,6 @@
 import { evaluateSynthesizerOutput } from "../lib/critic";
 import type { DeterministicEvaluation, Evidence } from "../lib/types";
+import { describe, it, expect } from "vitest";
 
 // Note: To run this test you would need a valid OPENAI_API_KEY in process.env,
 // or mock the global fetch. For demonstration, we'll write the test structure.
@@ -11,9 +12,12 @@ describe("AI Critic Agent", () => {
       pathwayId: "ca-express-entry",
       status: "BLOCKED",
       baseScore: 50,
-      breakdown: { eligibilityFit: 0, profileStrength: 50, evidenceQuality: 100, competitiveness: 50 },
-      marginalImprovements: [],
-      whatIfScenario: null
+      maxScore: 100,
+      scoreBreakdown: { eligibilityFit: 0, profileStrength: 50, evidenceQuality: 100, competitiveness: 50 },
+      satisfiedRequirements: [],
+      missingRequirements: [],
+      blockingRequirements: [],
+      marginalImprovements: []
     }
   ];
 
@@ -21,15 +25,17 @@ describe("AI Critic Agent", () => {
     {
       id: "1",
       source_id: "gov-1",
-      authority_tier: "1_official_gov",
+      authority_tier: 1,
+      country: "Canada",
       jurisdiction: "canada",
       pathway: "ca-express-entry",
-      claim: "Requires 1 year experience",
-      requirement_type: "experience",
+      claim_type: "experience",
       source_url: "https://canada.ca/express-entry",
       source_title: "Express Entry",
       retrieved_at: new Date().toISOString(),
-      confidence: "high"
+      verification_status: "VERIFIED",
+      content_hash: "hash",
+      content: "Requires 1 year experience"
     }
   ];
 

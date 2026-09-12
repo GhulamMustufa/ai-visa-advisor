@@ -13,7 +13,7 @@ const reportPath = path.join(process.cwd(), "docs/EVALUATION-REPORT.md");
 const originalFetch = global.fetch;
 global.fetch = async (url, options) => {
   if (typeof url === 'string' && url.includes('api.openai.com')) {
-    const bodyStr = options.body?.toString() || "";
+    const bodyStr = options?.body?.toString() || "";
     const isCritic = bodyStr.includes("critic_evaluation");
 
     let mockResponse;
@@ -83,7 +83,7 @@ async function runEvaluations() {
       const { response, trace } = await runVisaAssessment(profile, `eval-${testCase.id}`);
       
       successes++;
-      totalLatency += trace.totalLatencyMs;
+      totalLatency += (trace as any).trace?.totalLatencyMs || 0;
       
       const promptTokens = (trace as any).trace?.promptTokens || 0;
       const compTokens = (trace as any).trace?.completionTokens || 0;
